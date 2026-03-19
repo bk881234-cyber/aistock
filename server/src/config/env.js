@@ -8,15 +8,14 @@ const hasDb = process.env.DATABASE_URL || process.env.DB_HOST;
 if (process.env.NODE_ENV === 'production') {
   const missing = REQUIRED_IN_PRODUCTION.filter((k) => !process.env[k]);
   if (missing.length) {
-    console.warn(`[ENV] 필수 환경 변수 누락: ${missing.join(', ')} (기본값 사용)`);
+    console.warn(`[ENV] 필수 환경 변수 누락: ${missing.join(', ')}`);
   }
   if (!hasDb) {
-    console.error('[ENV] DATABASE_URL 또는 DB_HOST 중 하나를 설정해야 합니다.');
-    process.exit(1);
+    // process.exit 대신 경고만 — 서버리스에서 exit는 함수 전체를 죽임
+    console.error('[ENV] DATABASE_URL 또는 DB_HOST 가 설정되지 않았습니다.');
   }
   if ((process.env.JWT_SECRET || '').length < 32) {
-    console.error('[ENV] JWT_SECRET은 32자 이상이어야 합니다.');
-    process.exit(1);
+    console.error('[ENV] JWT_SECRET이 32자 미만입니다. 기본값을 사용합니다.');
   }
 }
 
