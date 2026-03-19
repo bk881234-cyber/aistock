@@ -1,0 +1,10 @@
+node_modules
+logs
+.env
+.env.*
+*.md
+.sequelizerc
+migrations
+seeds
+Dockerfile
+.dockerignore

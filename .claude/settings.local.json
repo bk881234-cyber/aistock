@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Read(//c/Users/bkbk8/AIstock/**)",
+      "Bash(docker compose:*)",
+      "Bash(npx vite:*)",
+      "Bash(node:*)",
+      "Bash(docker info:*)"
+    ]
+  }
+}

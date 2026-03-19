@@ -1,0 +1,29 @@
+# ── 환경 변수 (절대 커밋 금지) ───────────────────
+.env
+.env.*
+!.env.example
+!.env.production.example
+
+# ── Node ─────────────────────────────────────────
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# ── 빌드 결과물 ──────────────────────────────────
+client/dist/
+server/logs/
+*.log
+
+# ── OS / IDE ─────────────────────────────────────
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# ── Docker ───────────────────────────────────────
+# docker-compose.override.yml  # 로컬 오버라이드는 무시
+
+# ── 인증서 ───────────────────────────────────────
+*.pem
+*.key
+*.crt
