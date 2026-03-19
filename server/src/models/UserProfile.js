@@ -12,11 +12,11 @@ const UserProfile = sequelize.define('UserProfile', {
     allowNull: false,
   },
   risk_tolerance: {
-    type: DataTypes.ENUM('conservative', 'moderate', 'aggressive'),
+    type: DataTypes.STRING(20),
     defaultValue: 'moderate',
   },
   investment_style: {
-    type: DataTypes.ENUM('value', 'growth', 'momentum', 'mixed'),
+    type: DataTypes.STRING(20),
     defaultValue: 'mixed',
   },
   target_return_pct: {

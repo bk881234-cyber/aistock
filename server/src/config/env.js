@@ -8,8 +8,7 @@ const hasDb = process.env.DATABASE_URL || process.env.DB_HOST;
 if (process.env.NODE_ENV === 'production') {
   const missing = REQUIRED_IN_PRODUCTION.filter((k) => !process.env[k]);
   if (missing.length) {
-    console.error(`[ENV] 필수 환경 변수 누락: ${missing.join(', ')}`);
-    process.exit(1);
+    console.warn(`[ENV] 필수 환경 변수 누락: ${missing.join(', ')} (기본값 사용)`);
   }
   if (!hasDb) {
     console.error('[ENV] DATABASE_URL 또는 DB_HOST 중 하나를 설정해야 합니다.');
@@ -44,14 +43,14 @@ const env = {
     expiresIn: process.env.JWT_EXPIRES_IN || '7d',
   },
 
-  allowedOrigins: (process.env.ALLOWED_ORIGINS || 'http://localhost:5173,http://localhost:3000')
+  allowedOrigins: (process.env.ALLOWED_ORIGINS || '*')
     .split(',').map((o) => o.trim()).filter(Boolean),
 
   // Vercel Cron 보안 시크릿
   cronSecret: process.env.CRON_SECRET || '',
 
-  anthropic: {
-    apiKey: process.env.ANTHROPIC_API_KEY,
+  gemini: {
+    apiKey: process.env.GEMINI_API_KEY,
   },
 
   marketApis: {
