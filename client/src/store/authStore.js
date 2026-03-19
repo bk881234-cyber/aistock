@@ -38,7 +38,7 @@ export const useAuthStore = create(
         } catch (err) {
           set({ loading: false });
           if (!err._toastShown) {
-            toast.error(err.response?.data?.message || '회원가입에 실패했습니다.');
+            toast.error(err.response?.data?.message || err.message || '회원가입에 실패했습니다.');
           }
           return false;
         }
