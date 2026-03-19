@@ -30,7 +30,7 @@ axiosInstance.interceptors.response.use(
     } else if (status === 429) {
       toast.error(message || '요청이 너무 많습니다. 잠시 후 다시 시도해주세요.');
     } else if (status >= 500) {
-      toast.error(message || '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+      toast.error(`[AXIOS] 서버 오류: ${message || error.message}`);
     }
 
     return Promise.reject(error);
