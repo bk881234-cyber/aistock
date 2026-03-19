@@ -29,7 +29,7 @@ const register = async (req, res) => {
     return success(res, { token, user: { id: user.id, email: user.email, name: user.name } }, '회원가입 성공', 201);
   } catch (err) {
     console.error('[auth] register 오류:', err);
-    return error(res, '회원가입 중 오류가 발생했습니다.');
+    return error(res, `회원가입 중 오류가 발생했습니다: ${err.message}`);
   }
 };
 

@@ -59,7 +59,7 @@ const connectDB = async () => {
     console.log(`[DB] 연결 성공 (${isSupabase ? 'Supabase' : 'Local'})`);
   } catch (err) {
     console.error('[DB] 연결 실패:', err.message);
-    process.exit(1);
+    throw err;
   }
 };
 
