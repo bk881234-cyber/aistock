@@ -1,6 +1,7 @@
 const { MarketCache } = require('../models');
 const { getCache, setCache } = require('../config/redis');
 const { success, error } = require('../utils/response');
+const { refreshAllMarketData } = require('../jobs/marketRefreshJob');
 
 /**
  * GET /api/market/indices
@@ -99,9 +100,18 @@ const getOverview = async (req, res) => {
     const cached = await getCache(CACHE_KEY);
     if (cached) return success(res, cached);
 
-    const all = await MarketCache.findAll({
+    let all = await MarketCache.findAll({
       where: { data_type: ['index', 'fx', 'commodity'] },
     });
+
+    // DB가 비어 있으면 외부 API에서 즉시 가져오기 (최초 요청 시 자동 시드)
+    if (!all.length) {
+      console.log('[market] DB 비어있음 — Yahoo Finance에서 즉시 수집');
+      await refreshAllMarketData();
+      all = await MarketCache.findAll({
+        where: { data_type: ['index', 'fx', 'commodity'] },
+      });
+    }
 
     const data = {
       indices: all.filter((d) => d.data_type === 'index'),

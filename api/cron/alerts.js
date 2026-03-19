@@ -2,6 +2,10 @@
  * Vercel Cron — 알림 조건 체크
  * schedule: "*/5 * * * *" (5분마다)
  */
+// nft 번들링 힌트
+require('pg');
+require('pg-hstore');
+
 const { checkAlerts } = require('../../server/src/jobs/alertCheckJob');
 const env = require('../../server/src/config/env');
 const { connectDB } = require('../../server/src/config/database');

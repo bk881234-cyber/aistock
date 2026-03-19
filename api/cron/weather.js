@@ -2,6 +2,10 @@
  * Vercel Cron — 종목 날씨 분석 갱신
  * schedule: "*/10 * * * *" (10분마다)
  */
+// nft 번들링 힌트
+require('pg');
+require('pg-hstore');
+
 const { analyzeAllTrackedStocks } = require('../../server/src/jobs/weatherAnalysisJob');
 const env = require('../../server/src/config/env');
 const { connectDB } = require('../../server/src/config/database');

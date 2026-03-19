@@ -4,6 +4,10 @@
  *
  * Vercel은 Authorization: Bearer ${CRON_SECRET} 헤더를 자동 첨부
  */
+// nft 번들링 힌트
+require('pg');
+require('pg-hstore');
+
 const { refreshAllMarketData } = require('../../server/src/jobs/marketRefreshJob');
 const env = require('../../server/src/config/env');
 const { connectDB } = require('../../server/src/config/database');
