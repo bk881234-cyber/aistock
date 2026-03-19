@@ -26,7 +26,7 @@ export const usePortfolioStore = create((set, get) => ({
       await get().fetchPortfolio();
       return true;
     } catch (err) {
-      toast.error(err.response?.data?.message || '매수 처리에 실패했습니다.');
+      if (!err._toastShown) toast.error(err.response?.data?.message || '매수 처리에 실패했습니다.');
       return false;
     }
   },
@@ -43,7 +43,7 @@ export const usePortfolioStore = create((set, get) => ({
       await get().fetchPortfolio();
       return true;
     } catch (err) {
-      toast.error(err.response?.data?.message || '매도 처리에 실패했습니다.');
+      if (!err._toastShown) toast.error(err.response?.data?.message || '매도 처리에 실패했습니다.');
       return false;
     }
   },

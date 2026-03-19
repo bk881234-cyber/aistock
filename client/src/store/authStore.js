@@ -20,7 +20,9 @@ export const useAuthStore = create(
           return true;
         } catch (err) {
           set({ loading: false });
-          toast.error(err.response?.data?.message || '로그인에 실패했습니다.');
+          if (!err._toastShown) {
+            toast.error(err.response?.data?.message || '로그인에 실패했습니다.');
+          }
           return false;
         }
       },
@@ -35,7 +37,9 @@ export const useAuthStore = create(
           return true;
         } catch (err) {
           set({ loading: false });
-          toast.error(`[STORE] 회원가입 실패: ${err.response?.data?.message || err.message}`);
+          if (!err._toastShown) {
+            toast.error(err.response?.data?.message || '회원가입에 실패했습니다.');
+          }
           return false;
         }
       },

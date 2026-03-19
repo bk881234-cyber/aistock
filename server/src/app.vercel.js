@@ -84,18 +84,25 @@ app.use((err, req, res, next) => {
 });
 
 // ── 서버리스 초기화 (첫 요청 시 1회, warm 재사용) ───────
-let initialized = false;
+// Promise 뮤텍스: 동시 cold-start 요청에도 안전하게 1회만 초기화
+let initPromise = null;
 
-const initOnce = async () => {
-  if (initialized) return;
-  initialized = true;
-  await connectDB();
-  await connectRedis();
-  // 프로덕션: sequelize.sync 사용 안 함 → Supabase 대시보드에서 마이그레이션
-  if (!isProd) {
-    await sequelize.sync({ alter: true });
-    console.log('[DB] 테이블 동기화 완료');
+const initOnce = () => {
+  if (!initPromise) {
+    initPromise = (async () => {
+      await connectDB();
+      await connectRedis();
+      // 프로덕션: sequelize.sync 사용 안 함 → Supabase 대시보드에서 마이그레이션
+      if (!isProd) {
+        await sequelize.sync({ alter: true });
+        console.log('[DB] 테이블 동기화 완료');
+      }
+    })().catch((err) => {
+      initPromise = null; // 실패 시 다음 요청에서 재시도 가능
+      throw err;
+    });
   }
+  return initPromise;
 };
 
 /**
@@ -103,7 +110,12 @@ const initOnce = async () => {
  * api/server.js에서 module.exports 로 export
  */
 const handler = async (req, res) => {
-  await initOnce();
+  try {
+    await initOnce();
+  } catch (err) {
+    console.error('[FATAL] 초기화 실패:', err.message);
+    return res.status(503).json({ success: false, message: 'DB 연결 오류가 발생했습니다. 잠시 후 다시 시도해주세요.' });
+  }
   return app(req, res);
 };
 

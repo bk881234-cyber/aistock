@@ -82,7 +82,7 @@ Vercel → **Settings → Environment Variables** 에서 아래 항목 추가:
 | `JWT_SECRET` | 48자 랜덤 hex | All |
 | `ALLOWED_ORIGINS` | `https://your-project.vercel.app` | All |
 | `CRON_SECRET` | 32자 랜덤 hex | All |
-| `ANTHROPIC_API_KEY` | `sk-ant-api03-...` | All |
+| `GEMINI_API_KEY` | Google AI Studio API 키 | All |
 
 **환경변수 값 생성 명령어 (PowerShell):**
 ```powershell

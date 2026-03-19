@@ -25,12 +25,13 @@ axiosInstance.interceptors.response.use(
 
     if (status === 401) {
       localStorage.removeItem('aistock_token');
-      // 스토어 초기화는 authStore에서 처리
       window.dispatchEvent(new Event('auth:logout'));
     } else if (status === 429) {
       toast.error(message || '요청이 너무 많습니다. 잠시 후 다시 시도해주세요.');
+      error._toastShown = true;
     } else if (status >= 500) {
-      toast.error(`[AXIOS] 서버 오류: ${message || error.message}`);
+      toast.error('서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+      error._toastShown = true;
     }
 
     return Promise.reject(error);

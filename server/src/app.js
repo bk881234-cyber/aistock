@@ -167,6 +167,9 @@ process.on('unhandledRejection', (reason) => {
   logger.error('Unhandled Rejection:', reason);
 });
 
-bootstrap();
+bootstrap().catch((err) => {
+  logger.error('[FATAL] 서버 기동 실패:', err.message);
+  process.exit(1);
+});
 
 module.exports = app;

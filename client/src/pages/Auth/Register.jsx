@@ -19,6 +19,14 @@ export default function Register() {
       setErr('비밀번호는 8자 이상이어야 합니다.');
       return;
     }
+    if (!/[A-Za-z]/.test(form.password)) {
+      setErr('비밀번호에 영문자가 포함되어야 합니다.');
+      return;
+    }
+    if (!/[0-9]/.test(form.password)) {
+      setErr('비밀번호에 숫자가 포함되어야 합니다.');
+      return;
+    }
     const ok = await register(form.name, form.email, form.password);
     if (ok) navigate('/');
   };
