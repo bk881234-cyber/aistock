@@ -79,9 +79,7 @@ app.use((err, req, res, next) => {
   console.error(`[Error] ${req.method} ${req.path}:`, err.message);
   res.status(err.status || 500).json({
     success: false,
-    message: isProd && (!err.status || err.status >= 500)
-      ? '서버 오류가 발생했습니다.'
-      : err.message,
+    message: err.message,
   });
 });
 
