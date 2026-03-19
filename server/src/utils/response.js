@@ -9,7 +9,7 @@ const success = (res, data = null, message = '성공', statusCode = 200) => {
   });
 };
 
-const error = (res, message = 'ERROR_UNKNOWN', statusCode = 500, details = null) => {
+const error = (res, message = 'INTERNAL_SERVER_ERROR', statusCode = 500, details = null) => {
   return res.status(statusCode).json({
     success: false,
     message,
