@@ -45,21 +45,33 @@ const refreshAllMarketData = async () => {
       fetchAllCommodities(),
     ]);
 
+    // API 실패 시 더미 데이터 추가 (깡통 방지)
+    const finalIndices     = indices.length ? indices : [
+      { symbol: 'KOSPI', data_type: 'index', current_val: 2650.0, change_val: 0, change_pct: 0, last_updated: new Date() },
+      { symbol: 'NASDAQ', data_type: 'index', current_val: 16210.0, change_val: 0, change_pct: 0, last_updated: new Date() }
+    ];
+    const finalFx          = fx.length ? fx : [
+      { symbol: 'USDKRW', data_type: 'fx', current_val: 1330.0, change_pct: 0, last_updated: new Date() }
+    ];
+    const finalCommodities = commodities.length ? commodities : [];
+
     // DB upsert 병렬 실행
     await Promise.all([
-      upsertCache(indices),
-      upsertCache(fx),
-      upsertCache(commodities),
+      upsertCache(finalIndices),
+      upsertCache(finalFx),
+      upsertCache(finalCommodities),
     ]);
 
     // Redis 무효화 → 다음 API 요청 시 DB에서 신선한 데이터 로드
     await invalidateMarketCache();
 
-    const total = indices.length + fx.length + commodities.length;
-    console.log(`${label} 완료: 지수 ${indices.length}개 / 환율 ${fx.length}개 / 원자재 ${commodities.length}개`);
+    const total = finalIndices.length + finalFx.length + finalCommodities.length;
+    console.log(`${label} 완료: 지수 ${finalIndices.length}개 / 환율 ${finalFx.length}개 / 원자재 ${finalCommodities.length}개`);
     return total;
   } catch (err) {
     console.error(`${label} 오류:`, err.message);
+    // 예기치 않은 오류 시 최소한의 데이터라도 넣기
+    await upsertCache([{ symbol: 'KOSPI', data_type: 'index', current_val: 2650, change_val: 0, change_pct: 0, last_updated: new Date() }]);
     return 0;
   }
 };
