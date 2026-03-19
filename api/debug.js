@@ -2,6 +2,10 @@
  * 배포 진단용 엔드포인트 — 문제 해결 후 삭제
  * GET https://aistock-platform.vercel.app/api/debug
  */
+// nft 번들링 힌트
+require('pg');
+require('pg-hstore');
+
 module.exports = async (req, res) => {
   const result = {
     env: {
