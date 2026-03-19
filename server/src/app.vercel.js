@@ -114,7 +114,7 @@ const handler = async (req, res) => {
     await initOnce();
   } catch (err) {
     console.error('[FATAL] 초기화 실패:', err.message);
-    return res.status(503).json({ success: false, message: 'DB 연결 오류가 발생했습니다. 잠시 후 다시 시도해주세요.' });
+    return res.status(503).json({ success: false, message: `DB 연결 실패: ${err.message}` });
   }
   return app(req, res);
 };
