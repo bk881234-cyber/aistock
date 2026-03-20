@@ -47,11 +47,11 @@ const Transaction = sequelize.define('Transaction', {
   },
 }, {
   tableName: 'transactions',
+  timestamps: false,   // transactions 테이블에 created_at/updated_at 컬럼 없음
   indexes: [
     { fields: ['portfolio_id'] },
     { fields: ['user_id', 'transaction_date'] },
   ],
-  updatedAt: false,   // 거래 기록은 수정 불가
 });
 
 module.exports = Transaction;

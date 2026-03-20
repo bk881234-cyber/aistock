@@ -33,7 +33,7 @@ const AlertHistory = sequelize.define('AlertHistory', {
   },
 }, {
   tableName: 'alert_history',
-  updatedAt: false,
+  timestamps: false,   // alert_history 테이블에 created_at/updated_at 컬럼 없음
   indexes: [
     { fields: ['user_id', 'is_read'] },
     { fields: ['alert_id'] },
