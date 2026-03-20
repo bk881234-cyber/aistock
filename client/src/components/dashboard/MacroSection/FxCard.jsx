@@ -34,19 +34,16 @@ export default function FxCard({ data, compact = false }) {
           borderRadius: '16px',
           padding: '16px',
           background: 'linear-gradient(145deg, rgba(255,255,255,0.95) 0%, rgba(240,245,255,0.80) 100%)',
-          borderLeft: `3px solid ${meta.accent}`,
-          borderTop: '1px solid rgba(147,197,253,0.35)',
-          borderRight: '1px solid rgba(147,197,253,0.25)',
-          borderBottom: '1px solid rgba(147,197,253,0.25)',
-          boxShadow: '0 0 0 1px rgba(147,197,253,0.18), 0 4px 16px rgba(26,86,219,0.06)',
+          border: '1px solid rgba(147,197,253,0.28)',
+          boxShadow: '0 2px 8px rgba(26,86,219,0.05)',
           cursor: 'default',
         }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.boxShadow = `0 0 0 1px rgba(147,197,253,0.40), 0 8px 24px rgba(26,86,219,0.12), 0 0 16px rgba(14,165,233,0.07)`;
+          e.currentTarget.style.boxShadow = '0 4px 12px rgba(26,86,219,0.10)';
           e.currentTarget.style.transform = 'translateY(-1px)';
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.boxShadow = '0 0 0 1px rgba(147,197,253,0.18), 0 4px 16px rgba(26,86,219,0.06)';
+          e.currentTarget.style.boxShadow = '0 2px 8px rgba(26,86,219,0.05)';
           e.currentTarget.style.transform = '';
         }}
       >

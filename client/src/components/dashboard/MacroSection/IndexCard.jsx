@@ -23,14 +23,14 @@ export default function IndexCard({ data, label, compact = false }) {
           padding: '16px',
           background: 'linear-gradient(145deg, rgba(255,255,255,0.95) 0%, rgba(240,245,255,0.80) 100%)',
           border: '1px solid rgba(147,197,253,0.35)',
-          boxShadow: '0 0 0 1px rgba(147,197,253,0.18), 0 4px 16px rgba(26,86,219,0.06)',
+          boxShadow: '0 2px 8px rgba(26,86,219,0.05)',
         }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.boxShadow = '0 0 0 1px rgba(147,197,253,0.40), 0 8px 24px rgba(26,86,219,0.12)';
+          e.currentTarget.style.boxShadow = '0 4px 12px rgba(26,86,219,0.10)';
           e.currentTarget.style.transform = 'translateY(-1px)';
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.boxShadow = '0 0 0 1px rgba(147,197,253,0.18), 0 4px 16px rgba(26,86,219,0.06)';
+          e.currentTarget.style.boxShadow = '0 2px 8px rgba(26,86,219,0.05)';
           e.currentTarget.style.transform = '';
         }}
       >
@@ -52,15 +52,15 @@ export default function IndexCard({ data, label, compact = false }) {
         borderRadius: '16px',
         padding: '20px',
         background: 'linear-gradient(145deg, rgba(255,255,255,0.95) 0%, rgba(240,245,255,0.85) 100%)',
-        border: '1px solid rgba(147,197,253,0.35)',
-        boxShadow: '0 0 0 1px rgba(147,197,253,0.20), 0 4px 20px rgba(26,86,219,0.07)',
+        border: '1px solid rgba(147,197,253,0.28)',
+        boxShadow: '0 2px 8px rgba(26,86,219,0.05)',
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.boxShadow = '0 0 0 1px rgba(147,197,253,0.40), 0 8px 28px rgba(26,86,219,0.12)';
+        e.currentTarget.style.boxShadow = '0 4px 12px rgba(26,86,219,0.10)';
         e.currentTarget.style.transform = 'translateY(-1px)';
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.boxShadow = '0 0 0 1px rgba(147,197,253,0.20), 0 4px 20px rgba(26,86,219,0.07)';
+        e.currentTarget.style.boxShadow = '0 2px 8px rgba(26,86,219,0.05)';
         e.currentTarget.style.transform = '';
       }}
     >

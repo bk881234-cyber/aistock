@@ -63,14 +63,14 @@ export default function IndexChartCard({ data }) {
         padding: '20px',
         background: 'linear-gradient(145deg, rgba(255,255,255,0.95) 0%, rgba(240,245,255,0.85) 100%)',
         border: `1px solid ${accentColor.border}`,
-        boxShadow: `0 0 0 1px rgba(147,197,253,0.20), 0 4px 20px ${accentColor.glow}, 0 1px 3px rgba(0,0,0,0.04)`,
+        boxShadow: `0 2px 10px ${accentColor.glow}`,
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.boxShadow = `0 0 0 1px ${accentColor.border}, 0 8px 28px ${accentColor.glow}, 0 0 20px rgba(14,165,233,0.07)`;
+        e.currentTarget.style.boxShadow = `0 4px 16px ${accentColor.glow}`;
         e.currentTarget.style.transform = 'translateY(-1px)';
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.boxShadow = `0 0 0 1px rgba(147,197,253,0.20), 0 4px 20px ${accentColor.glow}, 0 1px 3px rgba(0,0,0,0.04)`;
+        e.currentTarget.style.boxShadow = `0 2px 10px ${accentColor.glow}`;
         e.currentTarget.style.transform = 'translateY(0)';
       }}
     >
