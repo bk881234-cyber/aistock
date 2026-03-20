@@ -2,7 +2,9 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import usePortfolio from '@/hooks/usePortfolio';
 import { fmtKRW, fmtPct, fmtCompact, directionClass } from '@/utils/formatters';
+import { SIGNAL_META } from '@/utils/tradingLogic';
 import WeatherWidget from '@/components/ai/WeatherWidget';
+import TrafficLight from '@/components/portfolio/TrafficLight';
 import BuyModal from './BuyModal';
 import SellModal from './SellModal';
 import clsx from 'clsx';
@@ -10,36 +12,32 @@ import clsx from 'clsx';
 export default function PortfolioSection() {
   const {
     enrichedPortfolios,
-    totalCost,
-    totalCurrentValue,
-    totalReturnPct,
+    totalCost, totalCurrentValue, totalGain, totalReturnPct,
     loading,
   } = usePortfolio();
 
-  const [buyOpen,  setBuyOpen]  = useState(false);
+  const [buyOpen,    setBuyOpen]    = useState(false);
   const [sellTarget, setSellTarget] = useState(null);
-
-  const totalGain = totalCurrentValue - totalCost;
 
   return (
     <div className="card">
       {/* 헤더 */}
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="section-title mb-0">💼 내 포트폴리오</h2>
+          <h2 className="text-lg font-bold text-text-primary mb-0">내 포트폴리오</h2>
           {!loading && (
-            <p className="text-[12px] text-text-muted mt-0.5">
+            <p className="text-xs text-text-muted mt-0.5">
               평가액 <span className="font-semibold text-text-primary">{fmtKRW(totalCurrentValue)}</span>
               {' '}·{' '}
-              <span className={clsx('font-semibold', directionClass(totalGain))}>
+              <span className={clsx('font-semibold', totalGain >= 0 ? 'text-bull' : 'text-bear')}>
                 {fmtKRW(totalGain, true)} ({fmtPct(totalReturnPct)})
               </span>
             </p>
           )}
         </div>
         <div className="flex items-center gap-2">
-          <Link to="/portfolio" className="btn-ghost text-xs">전체 보기</Link>
-          <button onClick={() => setBuyOpen(true)} className="btn-primary text-xs">
+          <Link to="/portfolio" className="btn-ghost text-xs py-1.5 px-3">전체 보기</Link>
+          <button onClick={() => setBuyOpen(true)} className="btn-primary text-xs py-1.5">
             + 거래 기록
           </button>
         </div>
@@ -59,14 +57,14 @@ export default function PortfolioSection() {
                 <th className="text-right py-2 font-medium">현재가</th>
                 <th className="text-right py-2 font-medium">수익률</th>
                 <th className="text-right py-2 font-medium">평가손익</th>
-                <th className="text-center py-2 font-medium">AI 날씨</th>
-                <th className="text-center py-2 font-medium">신호</th>
+                <th className="text-center py-2 font-medium">날씨</th>
+                <th className="text-center py-2 font-medium">신호등</th>
                 <th className="py-2" />
               </tr>
             </thead>
-            <tbody className="divide-y divide-border/50">
-              {enrichedPortfolios.map((p) => (
-                <PortfolioRow
+            <tbody className="divide-y divide-border/40">
+              {enrichedPortfolios.slice(0, 6).map((p) => (
+                <DashboardPortfolioRow
                   key={p.id}
                   portfolio={p}
                   onSell={() => setSellTarget(p)}
@@ -74,21 +72,27 @@ export default function PortfolioSection() {
               ))}
             </tbody>
           </table>
+          {enrichedPortfolios.length > 6 && (
+            <p className="text-center text-xs text-text-muted py-2">
+              + {enrichedPortfolios.length - 6}개 더 보기 →{' '}
+              <Link to="/portfolio" className="text-primary font-medium hover:underline">전체 포트폴리오</Link>
+            </p>
+          )}
         </div>
       )}
 
-      {/* 모달 */}
-      {buyOpen  && <BuyModal  onClose={() => setBuyOpen(false)} />}
+      {buyOpen    && <BuyModal  onClose={() => setBuyOpen(false)} />}
       {sellTarget && <SellModal portfolio={sellTarget} onClose={() => setSellTarget(null)} />}
     </div>
   );
 }
 
-function PortfolioRow({ portfolio, onSell }) {
+function DashboardPortfolioRow({ portfolio, onSell }) {
   const {
     stock_name, stock_symbol, market,
     current_price, return_pct, unrealized_gain,
     avg_buy_price, quantity,
+    signalLevel,
   } = portfolio;
 
   const isUp   = return_pct > 0;
@@ -97,7 +101,7 @@ function PortfolioRow({ portfolio, onSell }) {
   return (
     <tr className="hover:bg-surface2 transition-colors group">
       {/* 종목명 */}
-      <td className="py-3 pr-4">
+      <td className="py-2.5 pr-4">
         <Link to={`/stock/${stock_symbol}`} className="hover:underline">
           <p className="font-semibold text-text-primary">{stock_name}</p>
           <p className="text-[11px] text-text-muted">{stock_symbol} · {market}</p>
@@ -105,38 +109,37 @@ function PortfolioRow({ portfolio, onSell }) {
       </td>
 
       {/* 현재가 */}
-      <td className="py-3 text-right font-mono">
-        <p className="font-semibold text-text-primary">{fmtKRW(current_price)}</p>
+      <td className="py-2.5 text-right font-mono">
+        <p className="font-semibold text-text-primary tabular-nums">{fmtKRW(current_price)}</p>
         <p className="text-[11px] text-text-muted">평균 {fmtKRW(avg_buy_price)}</p>
       </td>
 
       {/* 수익률 */}
-      <td className={clsx('py-3 text-right font-semibold font-mono', directionClass(return_pct))}>
-        {isUp && '▲'}{isDown && '▼'}
-        {fmtPct(return_pct)}
+      <td className={clsx('py-2.5 text-right font-semibold font-mono tabular-nums', directionClass(return_pct))}>
+        {isUp ? '▲' : isDown ? '▼' : '—'}{fmtPct(return_pct)}
       </td>
 
       {/* 평가손익 */}
-      <td className={clsx('py-3 text-right font-mono text-sm', directionClass(unrealized_gain))}>
-        <p className="font-semibold">{fmtKRW(unrealized_gain, true)}</p>
+      <td className={clsx('py-2.5 text-right font-mono text-sm', directionClass(unrealized_gain))}>
+        <p className="font-semibold tabular-nums">{fmtKRW(unrealized_gain, true)}</p>
         <p className="text-[11px] text-text-muted">{fmtCompact(quantity)}주</p>
       </td>
 
       {/* AI 날씨 */}
-      <td className="py-3 text-center">
+      <td className="py-2.5 text-center">
         <WeatherWidget symbol={stock_symbol} variant="inline" />
       </td>
 
-      {/* AI 신호등 */}
-      <td className="py-3 text-center">
-        <SignalBadge returnPct={return_pct} />
+      {/* 신호등 */}
+      <td className="py-2.5 text-center">
+        <TrafficLight level={signalLevel} size="sm" />
       </td>
 
-      {/* 액션 */}
-      <td className="py-3 text-right">
+      {/* 매도 */}
+      <td className="py-2.5 text-right">
         <button
           onClick={onSell}
-          className="opacity-0 group-hover:opacity-100 transition-opacity text-[11px] text-text-muted hover:text-bear px-2 py-1 rounded"
+          className="opacity-0 group-hover:opacity-100 transition-opacity text-[11px] text-danger hover:bg-danger/8 px-2 py-1 rounded font-semibold"
         >
           매도
         </button>
@@ -145,28 +148,17 @@ function PortfolioRow({ portfolio, onSell }) {
   );
 }
 
-/**
- * 수익률 기반 간이 신호 (날씨 점수 없을 때 폴백)
- */
-function SignalBadge({ returnPct }) {
-  if (returnPct >= 10)       return <span className="badge-bull">강한 익절</span>;
-  if (returnPct >= 3)        return <span className="badge-bull">익절 검토</span>;
-  if (returnPct >= -3)       return <span className="badge-flat">보유</span>;
-  if (returnPct >= -10)      return <span className="badge-bear">손절 검토</span>;
-  return                            <span className="badge-bear">손절 필요</span>;
-}
-
 function PortfolioSkeleton() {
   return (
-    <div className="space-y-3 animate-pulse">
+    <div className="space-y-2.5 animate-pulse">
       {[1, 2, 3].map((i) => (
-        <div key={i} className="flex gap-4 py-3 border-b border-border/50">
+        <div key={i} className="flex gap-4 py-2.5 border-b border-border/50">
           <div className="space-y-1.5 flex-1">
-            <div className="h-3.5 w-24 bg-border rounded" />
-            <div className="h-3 w-16 bg-border rounded" />
+            <div className="h-3.5 w-24 bg-surface3 rounded" />
+            <div className="h-3 w-16 bg-surface3 rounded" />
           </div>
-          <div className="h-4 w-20 bg-border rounded self-center" />
-          <div className="h-4 w-16 bg-border rounded self-center" />
+          <div className="h-4 w-20 bg-surface3 rounded self-center" />
+          <div className="h-4 w-14 bg-surface3 rounded self-center" />
         </div>
       ))}
     </div>
@@ -175,11 +167,10 @@ function PortfolioSkeleton() {
 
 function EmptyState({ onAdd }) {
   return (
-    <div className="flex flex-col items-center justify-center py-12 text-center">
-      <span className="text-4xl mb-3">📭</span>
+    <div className="flex flex-col items-center justify-center py-10 text-center">
       <p className="text-sm font-medium text-text-secondary">보유 종목이 없습니다</p>
       <p className="text-xs text-text-muted mt-1 mb-4">매수 버튼을 눌러 첫 종목을 추가해보세요</p>
-      <button onClick={onAdd} className="btn-primary text-xs">+ 거래 기록</button>
+      <button onClick={onAdd} className="btn-primary text-xs py-2">+ 거래 기록</button>
     </div>
   );
 }

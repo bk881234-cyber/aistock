@@ -1,38 +1,57 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { usePortfolioStore } from '@/store/portfolioStore';
 import { useMarketStore } from '@/store/marketStore';
+import { calcTrailingStop, calcHalfSellRecommend, calcSignalLevel } from '@/utils/tradingLogic';
+import toast from 'react-hot-toast';
 
 /**
- * 포트폴리오 + 현재가 통합 훅
- * 각 보유 종목에 현재가·수익률·수익금을 enriched 해서 반환
- *
- * @returns {{ enrichedPortfolios, totalInvested, totalCurrentValue,
- *             totalReturnPct, loading, buy, sell, updateSettings, fetchPortfolio }}
+ * 포트폴리오 통합 훅
+ * - 각 보유 종목에 현재가·수익률·수익금·신호등·트레일링스탑·목표가알림을 enriched 해서 반환
+ * - 목표 수익률 도달 시 toast 알림 (마운트 당 1회)
  */
 const usePortfolio = () => {
   const { portfolios, loading, fetchPortfolio, buy, sell, updateSettings, calcReturnPct } =
     usePortfolioStore();
-
-  // 현재가 조회 (MarketCache에서 가져옴 — 실제 종목 현재가는 2단계 이후 Yahoo Stock API 연동)
   const marketStore = useMarketStore();
+
+  // 알림 중복 방지: 이미 toast를 띄운 portfolio ID 집합
+  const alertedRef = useRef(new Set());
 
   useEffect(() => {
     fetchPortfolio();
   }, []);
 
-  // 종목별 Yahoo 심볼 변환 헬퍼 (KIS → Yahoo)
-  const toYahooSymbol = (symbol, market) => {
-    if (market === 'KOSPI' || market === 'KOSDAQ') return `${symbol}.KS`;
-    return symbol; // 미국 주식은 그대로
-  };
-
-  // enriched 포트폴리오 (현재가는 MarketCache에서 가져오거나 avg_buy_price 폴백)
+  // ── enriched 계산 ──────────────────────────────────────────
   const enrichedPortfolios = portfolios.map((p) => {
-    const cachedStock = marketStore.getIndex?.(p.stock_symbol); // 임시 폴백
+    const cachedStock  = marketStore.getIndex?.(p.stock_symbol);
     const currentPrice = cachedStock?.current_val ?? parseFloat(p.avg_buy_price);
-    const returnPct    = calcReturnPct(p, currentPrice);
+    const returnPct    = calcReturnPct(p, currentPrice) ?? 0;
     const quantity     = parseFloat(p.quantity);
     const avgBuy       = parseFloat(p.avg_buy_price);
+
+    // 트레일링 스탑 계산
+    const trailingStop = calcTrailingStop(
+      currentPrice,
+      avgBuy,
+      parseFloat(p.trailing_stop_pct) || 0,
+    );
+
+    // 절반 매도 권장
+    const halfSell = calcHalfSellRecommend(
+      returnPct,
+      parseFloat(p.target_sell_price) || 0,
+      avgBuy,
+      currentPrice,
+      quantity,
+    );
+
+    // 신호등 레벨
+    const signalLevel = calcSignalLevel({
+      return_pct:        returnPct,
+      stop_loss_price:   p.stop_loss_price,
+      current_price:     currentPrice,
+      target_return_pct_goal: 10,
+    });
 
     return {
       ...p,
@@ -41,11 +60,32 @@ const usePortfolio = () => {
       unrealized_gain: (currentPrice - avgBuy) * quantity,
       total_value:     currentPrice * quantity,
       total_cost:      avgBuy * quantity,
+      trailingStop,
+      halfSell,
+      signalLevel,
     };
   });
 
-  const totalCost         = enrichedPortfolios.reduce((s, p) => s + p.total_cost, 0);
+  // ── 목표가 달성 알림 (마운트 당 1회) ──────────────────────
+  useEffect(() => {
+    enrichedPortfolios.forEach((p) => {
+      if (!p.halfSell?.recommend) return;
+      if (alertedRef.current.has(p.id)) return;
+      if (p.halfSell.level === 'hit') {
+        toast(p.halfSell.reason, {
+          icon: '🎯',
+          duration: 8000,
+          style: { background: '#F0FDF4', color: '#166534', border: '1px solid #86EFAC' },
+        });
+        alertedRef.current.add(p.id);
+      }
+    });
+  }, [enrichedPortfolios.map((p) => p.id + ':' + p.return_pct).join(',')]);
+
+  // ── 집계 수치 ──────────────────────────────────────────────
+  const totalCost         = enrichedPortfolios.reduce((s, p) => s + p.total_cost,  0);
   const totalCurrentValue = enrichedPortfolios.reduce((s, p) => s + p.total_value, 0);
+  const totalGain         = totalCurrentValue - totalCost;
   const totalReturnPct    = totalCost > 0
     ? ((totalCurrentValue - totalCost) / totalCost) * 100
     : 0;
@@ -54,6 +94,7 @@ const usePortfolio = () => {
     enrichedPortfolios,
     totalCost,
     totalCurrentValue,
+    totalGain,
     totalReturnPct,
     loading,
     buy,
