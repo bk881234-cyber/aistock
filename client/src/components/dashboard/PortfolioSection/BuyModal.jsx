@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { usePortfolioStore } from '@/store/portfolioStore';
-import { searchStock } from '@/api/marketApi';
+import { searchStock, getStockDetail } from '@/api/marketApi';
 
 const MARKETS = ['KOSPI', 'KOSDAQ', 'NYSE', 'NASDAQ'];
 
@@ -8,13 +8,14 @@ export default function BuyModal({ onClose }) {
   const buy = usePortfolioStore((s) => s.buy);
   const [form, setForm] = useState({
     stock_symbol: '', stock_name: '', market: 'KOSPI',
-    quantity: '', price_per_share: '', fee: '',
+    quantity: '1', price_per_share: '',
   });
-  const [loading,  setLoading]  = useState(false);
-  const [query,    setQuery]    = useState('');
-  const [results,  setResults]  = useState([]);
+  const [loading,   setLoading]   = useState(false);
+  const [query,     setQuery]     = useState('');
+  const [results,   setResults]   = useState([]);
   const [searching, setSearching] = useState(false);
-  const [showDrop, setShowDrop]  = useState(false);
+  const [showDrop,  setShowDrop]  = useState(false);
+  const [fetchingPrice, setFetchingPrice] = useState(false);
   const debounceRef = useRef(null);
 
   // 검색어 변경 시 자동완성
@@ -35,20 +36,32 @@ export default function BuyModal({ onClose }) {
     }, 350);
   }, [query]);
 
-  const selectStock = (item) => {
+  const selectStock = async (item) => {
     setForm((f) => ({
       ...f,
       stock_symbol: item.symbol,
       stock_name:   item.name,
       market:       item.market,
+      quantity:     '1',
+      price_per_share: '',
     }));
     setQuery(item.name);
     setShowDrop(false);
     setResults([]);
+
+    // 현재가 자동 조회
+    setFetchingPrice(true);
+    try {
+      const detail = await getStockDetail(item.symbol, item.market);
+      if (detail?.currentPrice) {
+        setForm((f) => ({ ...f, price_per_share: String(Math.round(detail.currentPrice)) }));
+      }
+    } catch { /* 현재가 못가져와도 무시 */ }
+    finally { setFetchingPrice(false); }
   };
 
   const totalAmount = form.quantity && form.price_per_share
-    ? (Number(form.quantity) * Number(form.price_per_share) + Number(form.fee || 0)).toLocaleString()
+    ? (Number(form.quantity) * Number(form.price_per_share)).toLocaleString()
     : '—';
 
   const handleSubmit = async (e) => {
@@ -60,7 +73,7 @@ export default function BuyModal({ onClose }) {
       market:          form.market,
       quantity:        Number(form.quantity),
       price_per_share: Number(form.price_per_share),
-      fee:             Number(form.fee || 0),
+      fee:             0,
     });
     setLoading(false);
     if (ok) onClose();
@@ -115,12 +128,12 @@ export default function BuyModal({ onClose }) {
           )}
           {showDrop && results.length === 0 && !searching && (
             <div className="absolute z-10 w-full mt-1 bg-surface border border-border rounded-lg shadow-cardHover px-3 py-2 text-xs text-text-muted">
-              검색 결과가 없습니다. 직접 입력하세요.
+              검색 결과가 없습니다. 아래에 직접 입력하세요.
             </div>
           )}
         </div>
 
-        {/* 선택된 종목 정보 or 직접 입력 */}
+        {/* 종목코드 / 종목명 */}
         <div className="grid grid-cols-2 gap-3">
           <Field label="종목코드">
             <input
@@ -155,18 +168,20 @@ export default function BuyModal({ onClose }) {
         <div className="grid grid-cols-2 gap-3">
           <Field label="수량 (주)">
             <input type="number" min="0" step="0.0001" className="input"
-              value={form.quantity} onChange={(e) => setForm({ ...form, quantity: e.target.value })} required />
+              value={form.quantity}
+              onChange={(e) => setForm({ ...form, quantity: e.target.value })}
+              required
+            />
           </Field>
-          <Field label="매수가 (원/달러)">
+          <Field label={fetchingPrice ? '매수가 (조회 중...)' : '매수가 (원/달러)'}>
             <input type="number" min="0" step="1" className="input"
-              value={form.price_per_share} onChange={(e) => setForm({ ...form, price_per_share: e.target.value })} required />
+              placeholder={fetchingPrice ? '...' : '0'}
+              value={form.price_per_share}
+              onChange={(e) => setForm({ ...form, price_per_share: e.target.value })}
+              required
+            />
           </Field>
         </div>
-
-        <Field label="수수료 (선택)">
-          <input type="number" min="0" className="input" placeholder="0"
-            value={form.fee} onChange={(e) => setForm({ ...form, fee: e.target.value })} />
-        </Field>
 
         <div className="bg-surface2 rounded-lg px-4 py-2 flex justify-between text-sm">
           <span className="text-text-muted">총 매수금액</span>
@@ -175,7 +190,7 @@ export default function BuyModal({ onClose }) {
 
         <div className="flex gap-2 pt-1">
           <button type="button" onClick={onClose} className="btn-ghost flex-1">취소</button>
-          <button type="submit" disabled={loading} className="btn-primary flex-1">
+          <button type="submit" disabled={loading || fetchingPrice} className="btn-primary flex-1">
             {loading ? '처리 중...' : '매수 확인'}
           </button>
         </div>

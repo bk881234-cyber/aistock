@@ -141,10 +141,10 @@ const searchStocks = async (query) => {
 
   const q = encodeURIComponent(query.trim());
 
-  // 시도 순서: query1(글로벌) → query1(en-US) → query2 폴백
+  // 시도 순서: 한국(KR) → 글로벌 → query2 폴백
   const attempts = [
+    `https://query1.finance.yahoo.com/v1/finance/search?q=${q}&lang=ko-KR&region=KR&quotesCount=10&newsCount=0&enableFuzzyQuery=true`,
     `https://query1.finance.yahoo.com/v1/finance/search?q=${q}&quotesCount=10&newsCount=0&enableFuzzyQuery=true`,
-    `https://query1.finance.yahoo.com/v1/finance/search?q=${q}&lang=en-US&region=US&quotesCount=10&newsCount=0&enableFuzzyQuery=true`,
     `https://query2.finance.yahoo.com/v1/finance/search?q=${q}&quotesCount=10&newsCount=0&enableFuzzyQuery=true`,
   ];
 
