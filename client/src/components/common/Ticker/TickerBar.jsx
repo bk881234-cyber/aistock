@@ -13,9 +13,9 @@ const FX_LABELS = {
   USD_KRW: 'USD/KRW', EUR_KRW: 'EUR/KRW', JPY_KRW: 'JPY/KRW',
 };
 
-/** 구분점 */
+/** 구분 점 */
 const Dot = () => (
-  <span className="text-border/80 select-none px-1">•</span>
+  <span style={{ color: 'rgba(147,197,253,0.50)', userSelect: 'none', padding: '0 6px', fontSize: '10px' }}>●</span>
 );
 
 function IndexTick({ item }) {
@@ -25,17 +25,26 @@ function IndexTick({ item }) {
   const isDown = change_pct < 0;
   const isVix  = symbol === 'VIX';
 
+  const dirColor = isVix
+    ? '#A78BFA'
+    : isUp ? '#E84040'
+    : isDown ? '#2563EB'
+    : '#6B7280';
+
   return (
-    <span className="inline-flex items-center gap-1.5 px-4 whitespace-nowrap">
-      <span className="text-[12px] font-medium text-text-muted">{INDEX_LABELS[symbol]}</span>
-      <span className="text-[13px] font-bold text-text-primary font-mono">{fmtIndex(current_val)}</span>
-      <span className={clsx(
-        'text-[11px] font-semibold',
-        isVix ? 'text-accent'
-          : isUp ? 'text-bull'
-          : isDown ? 'text-bear'
-          : 'text-neutral',
-      )}>
+    <span className="inline-flex items-center gap-1.5 whitespace-nowrap" style={{ padding: '0 12px' }}>
+      {/* 발광 노드 */}
+      <span style={{
+        width: '5px', height: '5px', borderRadius: '50%', flexShrink: 0,
+        background: isUp ? '#E84040' : isDown ? '#60A5FA' : '#6B7280',
+        boxShadow: isUp
+          ? '0 0 4px rgba(232,64,64,0.70)'
+          : isDown ? '0 0 4px rgba(96,165,250,0.70)'
+          : 'none',
+      }} />
+      <span style={{ fontSize: '11px', fontWeight: '500', color: '#64748B' }}>{INDEX_LABELS[symbol]}</span>
+      <span style={{ fontSize: '12px', fontWeight: '700', color: '#0F172A', fontFamily: 'monospace' }}>{fmtIndex(current_val)}</span>
+      <span style={{ fontSize: '11px', fontWeight: '600', color: dirColor }}>
         {isVix
           ? fmtIndex(change_pct)
           : `${isUp ? '▲' : isDown ? '▼' : '—'}${fmtPct(change_pct)}`}
@@ -51,19 +60,21 @@ function FxTick({ item }) {
   const isUp   = change_pct > 0;
   const isDown = change_pct < 0;
 
-  // JPY/KRW는 소수점 2자리까지 표시
   const display = symbol === 'JPY_KRW'
     ? current_val.toFixed(2)
     : fmtIndex(current_val);
 
   return (
-    <span className="inline-flex items-center gap-1.5 px-4 whitespace-nowrap">
-      <span className="text-[12px] font-medium text-text-muted">{FX_LABELS[symbol]}</span>
-      <span className="text-[13px] font-bold text-text-primary font-mono">{display}</span>
-      <span className={clsx(
-        'text-[11px] font-semibold',
-        isUp ? 'text-bull' : isDown ? 'text-bear' : 'text-neutral',
-      )}>
+    <span className="inline-flex items-center gap-1.5 whitespace-nowrap" style={{ padding: '0 12px' }}>
+      {/* 사이안 발광 노드 (환율 표시) */}
+      <span style={{
+        width: '5px', height: '5px', borderRadius: '50%', flexShrink: 0,
+        background: '#0EA5E9',
+        boxShadow: '0 0 5px rgba(14,165,233,0.80)',
+      }} />
+      <span style={{ fontSize: '11px', fontWeight: '600', color: '#1A56DB' }}>{FX_LABELS[symbol]}</span>
+      <span style={{ fontSize: '12px', fontWeight: '700', color: '#0F172A', fontFamily: 'monospace' }}>{display}</span>
+      <span style={{ fontSize: '11px', fontWeight: '600', color: isUp ? '#E84040' : isDown ? '#2563EB' : '#6B7280' }}>
         {isUp ? '▲' : isDown ? '▼' : '—'}{fmtPct(change_pct)}
       </span>
       <Dot />
@@ -72,10 +83,8 @@ function FxTick({ item }) {
 }
 
 /**
- * 최상단 무한 스크롤 티커
- * - 지수 6개 + 환율 3개 통합
- * - CSS animation 기반 (JS interval 없음)
- * - 마우스 hover 시 일시정지
+ * 최상단 무한 스크롤 티커 — Cool Blue 스타일
+ * USD/KRW 가장 앞에 배치 → 지수 → EUR/JPY
  */
 export default function TickerBar() {
   const { indices, fx, loading } = useMarketStore();
@@ -85,32 +94,51 @@ export default function TickerBar() {
 
   if (loading && sortedIdx.length === 0) {
     return (
-      <div className="h-9 bg-surface2 border-b border-border flex items-center px-6">
-        <span className="text-xs text-text-muted animate-pulse">시장 데이터 로딩 중...</span>
+      <div style={{
+        height: '36px', background: 'rgba(219,234,254,0.30)',
+        borderBottom: '1px solid rgba(147,197,253,0.25)',
+        display: 'flex', alignItems: 'center', padding: '0 24px',
+      }}>
+        <span style={{ fontSize: '12px', color: '#94A3B8', animation: 'pulse 2s infinite' }}>시장 데이터 로딩 중...</span>
       </div>
     );
   }
 
-  // USD/KRW 맨 앞 → 나머지 지수 → EUR/JPY 순
+  // USD/KRW 맨 앞 → 지수 → EUR/JPY
   const usdItem = sortedFx.find((f) => f.symbol === 'USD_KRW');
   const otherFx = sortedFx.filter((f) => f.symbol !== 'USD_KRW');
+
   const items = [
     ...(usdItem ? [{ type: 'fx', data: usdItem }] : []),
     ...sortedIdx.map((d) => ({ type: 'index', data: d })),
     ...otherFx.map((d) => ({ type: 'fx', data: d })),
   ];
-  const doubled = [...items, ...items]; // CSS 애니메이션 무한 효과
+  const doubled = [...items, ...items];
 
   return (
     <div
-      className="h-9 bg-white border-b border-border overflow-hidden relative select-none"
-      style={{ contain: 'layout' }}
+      style={{
+        height: '36px',
+        background: 'linear-gradient(90deg, rgba(219,234,254,0.50) 0%, rgba(224,242,254,0.35) 50%, rgba(219,234,254,0.50) 100%)',
+        borderBottom: '1px solid rgba(147,197,253,0.30)',
+        overflow: 'hidden', position: 'relative',
+        contain: 'layout',
+      }}
+      className="select-none"
     >
       {/* 좌우 페이드 마스크 */}
-      <div className="pointer-events-none absolute left-0 top-0 h-full w-10 bg-gradient-to-r from-white to-transparent z-10" />
-      <div className="pointer-events-none absolute right-0 top-0 h-full w-10 bg-gradient-to-l from-white to-transparent z-10" />
+      <div style={{
+        position: 'absolute', left: 0, top: 0, height: '100%', width: '60px',
+        background: 'linear-gradient(90deg, rgba(240,245,255,0.90) 0%, transparent 100%)',
+        zIndex: 10, pointerEvents: 'none',
+      }} />
+      <div style={{
+        position: 'absolute', right: 0, top: 0, height: '100%', width: '60px',
+        background: 'linear-gradient(270deg, rgba(240,245,255,0.90) 0%, transparent 100%)',
+        zIndex: 10, pointerEvents: 'none',
+      }} />
 
-      {/* 스크롤 컨테이너 — hover 시 animation-play-state: paused */}
+      {/* 스크롤 컨테이너 */}
       <div
         className="flex items-center h-full animate-ticker-scroll hover:[animation-play-state:paused]"
         style={{ width: 'max-content' }}

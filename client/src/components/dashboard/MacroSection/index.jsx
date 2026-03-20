@@ -10,13 +10,15 @@ const FX_ORDER = ['USD_KRW', 'EUR_KRW', 'JPY_KRW'];
 export default function MacroSection() {
   const { indices, fx, commodities } = useMarketStore();
 
-  const row1   = ROW1.map((s) => indices.find((i) => i.symbol === s) ?? null);
-  const shownFx = FX_ORDER.map((s) => fx.find((f) => f.symbol === s) ?? null);
-  const gold    = commodities.find((c) => c.symbol === 'GOLD_USD')   ?? null;
-  const silver  = commodities.find((c) => c.symbol === 'SILVER_USD') ?? null;
-  const vix     = indices.find((i) => i.symbol === 'VIX');
-  const dow     = indices.find((i) => i.symbol === 'DOW');
-  const usdKrw  = fx.find((f) => f.symbol === 'USD_KRW')?.current_val ?? 0;
+  const row1     = ROW1.map((s) => indices.find((i) => i.symbol === s) ?? null);
+  const usdData  = fx.find((f) => f.symbol === 'USD_KRW') ?? null;
+  const eurData  = fx.find((f) => f.symbol === 'EUR_KRW') ?? null;
+  const jpyData  = fx.find((f) => f.symbol === 'JPY_KRW') ?? null;
+  const gold     = commodities.find((c) => c.symbol === 'GOLD_USD')   ?? null;
+  const silver   = commodities.find((c) => c.symbol === 'SILVER_USD') ?? null;
+  const vix      = indices.find((i) => i.symbol === 'VIX');
+  const dow      = indices.find((i) => i.symbol === 'DOW');
+  const usdKrw   = usdData?.current_val ?? 0;
   const vixLevel = vix ? Number(vix.current_val) : null;
 
   return (
@@ -29,18 +31,20 @@ export default function MacroSection() {
         ))}
       </div>
 
-      {/* ── Row 2: 보조 지수(DOW·VIX) + 환율 카드 ───────────── */}
+      {/* ── Row 2: USD/KRW 맨 앞 → DOW → VIX → EUR → JPY ─── */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-        {/* DOW */}
+        {/* ① USD/KRW — 가장 왼쪽 */}
+        <FxCard data={usdData} compact />
+
+        {/* ② DOW */}
         <IndexCard data={dow} label="다우" compact />
 
-        {/* VIX — 별도 강조 카드 */}
+        {/* ③ VIX — 별도 강조 카드 */}
         <VixCard data={vix} />
 
-        {/* 환율 3종 */}
-        {shownFx.map((f, i) => (
-          <FxCard key={FX_ORDER[i]} data={f} compact />
-        ))}
+        {/* ④⑤ EUR / JPY */}
+        <FxCard data={eurData} compact />
+        <FxCard data={jpyData} compact />
       </div>
 
       {/* ── Row 3: 금·은 게이지 (VIX 연동 색상) ─────────────── */}
@@ -54,43 +58,58 @@ export default function MacroSection() {
 }
 
 /**
- * VIX 전용 카드 — 공포지수를 시각적으로 강조
+ * VIX 전용 카드 — Cool Blue + 글로우 스타일
  */
 function VixCard({ data }) {
   if (!data) {
     return (
-      <div className="rounded-card border border-border bg-white p-4 animate-pulse shadow-card">
-        <div className="h-4 w-8 bg-surface3 rounded mb-2" />
-        <div className="h-7 w-16 bg-surface3 rounded" />
+      <div className="card animate-pulse">
+        <div className="h-4 w-8 rounded mb-2" style={{ background: 'rgba(147,197,253,0.30)' }} />
+        <div className="h-7 w-16 rounded" style={{ background: 'rgba(147,197,253,0.30)' }} />
       </div>
     );
   }
 
-  const val = Number(data.current_val) || 0;
-  const pct = Number(data.change_pct)  || 0;
-  const isUp = pct > 0;
+  const val    = Number(data.current_val) || 0;
+  const pct    = Number(data.change_pct)  || 0;
+  const isUp   = pct > 0;
   const isDown = pct < 0;
 
-  // VIX 레벨별 스타일
   const level =
-    val >= 30 ? { label: '공포',   bg: 'bg-danger/6  border-l-danger',  text: 'text-danger' }
-    : val >= 20 ? { label: '주의',   bg: 'bg-warn/6    border-l-warn',    text: 'text-warn'   }
-    :             { label: '안전',   bg: 'bg-safe/6    border-l-safe',    text: 'text-safe'   };
+    val >= 30 ? { label: '공포', color: '#DC2626', bg: 'rgba(220,38,38,0.08)', border: 'rgba(220,38,38,0.20)', glow: 'rgba(220,38,38,0.15)' }
+    : val >= 20 ? { label: '주의', color: '#EA580C', bg: 'rgba(234,88,12,0.08)',  border: 'rgba(234,88,12,0.20)',  glow: 'rgba(234,88,12,0.12)'  }
+    :             { label: '안전', color: '#16A34A', bg: 'rgba(22,163,74,0.08)',  border: 'rgba(22,163,74,0.20)',  glow: 'rgba(22,163,74,0.10)'  };
 
   return (
-    <div className={`relative rounded-card border-l-[3px] border-t border-r border-b border-border ${level.bg} bg-white p-4 shadow-card hover:shadow-cardHover transition-all duration-200`}>
-      <div className="flex items-center justify-between mb-1">
-        <p className="text-[12px] font-medium text-text-muted">VIX 공포지수</p>
-        <span className={`text-[11px] font-bold px-1.5 py-0.5 rounded ${level.text} bg-white/60`}>
-          {level.label}
-        </span>
+    <div className="card relative overflow-hidden" style={{
+      borderLeftWidth: '3px',
+      borderLeftColor: level.color,
+      boxShadow: `0 0 0 1px ${level.border}, 0 4px 20px ${level.glow}, 0 0 0 1px rgba(147,197,253,0.20)`,
+    }}>
+      {/* 배경 글로우 */}
+      <div style={{
+        position: 'absolute', top: 0, left: 0, right: 0, height: '50%',
+        background: `linear-gradient(180deg, ${level.bg} 0%, transparent 100%)`,
+        pointerEvents: 'none',
+      }} />
+
+      <div className="relative z-10">
+        <div className="flex items-center justify-between mb-1">
+          <p style={{ fontSize: '11px', fontWeight: '500', color: '#64748B' }}>VIX 공포지수</p>
+          <span style={{
+            fontSize: '10px', fontWeight: '700', padding: '2px 8px', borderRadius: '9999px',
+            background: level.bg, border: `1px solid ${level.border}`, color: level.color,
+          }}>
+            {level.label}
+          </span>
+        </div>
+        <p style={{ fontSize: '26px', fontWeight: '800', fontFamily: 'monospace', color: level.color, lineHeight: 1.1 }}>
+          {val.toFixed(2)}
+        </p>
+        <p style={{ fontSize: '13px', fontWeight: '600', marginTop: '4px', color: isUp ? '#E84040' : isDown ? '#2563EB' : '#6B7280' }}>
+          {isUp ? '▲' : isDown ? '▼' : '—'} {Math.abs(pct).toFixed(2)}%
+        </p>
       </div>
-      <p className={`text-2xl font-bold font-mono tabular-nums ${level.text}`}>
-        {val.toFixed(2)}
-      </p>
-      <p className={`text-sm font-semibold mt-0.5 ${isUp ? 'text-bull' : isDown ? 'text-bear' : 'text-neutral'}`}>
-        {isUp ? '▲' : isDown ? '▼' : '—'} {Math.abs(pct).toFixed(2)}%
-      </p>
     </div>
   );
 }

@@ -1,19 +1,12 @@
-import { fmtIndex, fmtPct, directionClass } from '@/utils/formatters';
+import { fmtIndex, fmtPct } from '@/utils/formatters';
 import SparkLine from '@/components/common/SparkLine';
-import clsx from 'clsx';
 
 const LABELS = {
-  USD_KRW: { name: 'USD / KRW', flag: '🇺🇸' },
-  EUR_KRW: { name: 'EUR / KRW', flag: '🇪🇺' },
-  JPY_KRW: { name: 'JPY / KRW', flag: '🇯🇵' },
+  USD_KRW: { name: 'USD / KRW', flag: '🇺🇸', accent: '#1A56DB' },
+  EUR_KRW: { name: 'EUR / KRW', flag: '🇪🇺', accent: '#7C3AED' },
+  JPY_KRW: { name: 'JPY / KRW', flag: '🇯🇵', accent: '#0EA5E9' },
 };
 
-/**
- * 환율 카드 — 스파크라인 강조 버전
- *
- * compact=false: 풀 카드 (좌: 수치, 우: 스파크라인)
- * compact=true:  작은 카드 (수치만)
- */
 export default function FxCard({ data, compact = false }) {
   if (!data) return <SkeletonFx compact={compact} />;
 
@@ -25,69 +18,101 @@ export default function FxCard({ data, compact = false }) {
   const isUp        = change_pct > 0;
   const isDown      = change_pct < 0;
   const chartColor  = isUp ? '#E84040' : isDown ? '#2563EB' : '#6B7280';
-  const meta        = LABELS[symbol] ?? { name: symbol, flag: '' };
+  const meta        = LABELS[symbol] ?? { name: symbol, flag: '', accent: '#1A56DB' };
 
-  // JPY/KRW: 소수점 2자리
   const displayVal = symbol === 'JPY_KRW'
     ? current_val.toFixed(2)
     : fmtIndex(current_val);
 
+  const dirColor = isUp ? '#E84040' : isDown ? '#2563EB' : '#6B7280';
+
   if (compact) {
     return (
-      <div className={clsx(
-        'relative rounded-card border bg-white p-4 transition-all duration-200 hover:shadow-cardHover shadow-card',
-        isUp   ? 'border-l-[3px] border-l-bull border-t border-r border-b border-border'
-        : isDown ? 'border-l-[3px] border-l-bear border-t border-r border-b border-border'
-        :          'border border-border',
-      )}>
-        <p className="text-[12px] font-medium text-text-muted">{meta.name}</p>
-        <p className="text-xl font-bold font-mono text-text-primary mt-0.5 tabular-nums">{displayVal}</p>
-        <p className={clsx('text-sm font-semibold mt-0.5', directionClass(change_pct))}>
+      <div
+        className="transition-all duration-200"
+        style={{
+          borderRadius: '16px',
+          padding: '16px',
+          background: 'linear-gradient(145deg, rgba(255,255,255,0.95) 0%, rgba(240,245,255,0.80) 100%)',
+          borderLeft: `3px solid ${meta.accent}`,
+          borderTop: '1px solid rgba(147,197,253,0.35)',
+          borderRight: '1px solid rgba(147,197,253,0.25)',
+          borderBottom: '1px solid rgba(147,197,253,0.25)',
+          boxShadow: '0 0 0 1px rgba(147,197,253,0.18), 0 4px 16px rgba(26,86,219,0.06)',
+          cursor: 'default',
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.boxShadow = `0 0 0 1px rgba(147,197,253,0.40), 0 8px 24px rgba(26,86,219,0.12), 0 0 16px rgba(14,165,233,0.07)`;
+          e.currentTarget.style.transform = 'translateY(-1px)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.boxShadow = '0 0 0 1px rgba(147,197,253,0.18), 0 4px 16px rgba(26,86,219,0.06)';
+          e.currentTarget.style.transform = '';
+        }}
+      >
+        {/* 헤더 */}
+        <div className="flex items-center gap-1.5 mb-1">
+          {/* 사이안 발광 노드 */}
+          <span style={{
+            width: '6px', height: '6px', borderRadius: '50%',
+            background: meta.accent,
+            boxShadow: `0 0 5px ${meta.accent}90`,
+            flexShrink: 0,
+          }} />
+          <span style={{ fontSize: '11px', fontWeight: '600', color: meta.accent }}>{meta.name}</span>
+        </div>
+        <p style={{ fontSize: '20px', fontWeight: '800', fontFamily: 'monospace', color: '#0F172A', letterSpacing: '-0.5px' }}>
+          {displayVal}
+        </p>
+        <p style={{ fontSize: '12px', fontWeight: '600', marginTop: '3px', color: dirColor }}>
           {isUp ? '▲' : isDown ? '▼' : '—'} {fmtPct(change_pct)}
         </p>
       </div>
     );
   }
 
-  // 풀 카드: 스파크라인 강조
+  // 풀 카드: 스파크라인
   return (
-    <div className="rounded-card border border-border bg-white p-4 flex flex-col gap-3 shadow-card hover:shadow-cardHover transition-all duration-200 hover:-translate-y-[1px]">
+    <div
+      className="transition-all duration-200"
+      style={{
+        borderRadius: '16px',
+        padding: '16px',
+        background: 'linear-gradient(145deg, rgba(255,255,255,0.95) 0%, rgba(240,245,255,0.80) 100%)',
+        border: '1px solid rgba(147,197,253,0.35)',
+        boxShadow: '0 0 0 1px rgba(147,197,253,0.18), 0 4px 20px rgba(26,86,219,0.07)',
+        display: 'flex', flexDirection: 'column', gap: '12px',
+      }}
+    >
       {/* 헤더 */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-base">{meta.flag}</span>
-          <p className="text-sm font-bold text-text-secondary">{meta.name}</p>
+          <span style={{ fontSize: '16px' }}>{meta.flag}</span>
+          <p style={{ fontSize: '13px', fontWeight: '700', color: '#1E3A5F' }}>{meta.name}</p>
         </div>
-        <span className={clsx(
-          'text-xs font-bold px-2 py-0.5 rounded-lg border',
-          isUp   ? 'text-bull bg-bull/8 border-bull/15'
-          : isDown ? 'text-bear bg-bear/8 border-bear/15'
-          :          'text-neutral bg-neutral/10 border-neutral/15',
-        )}>
+        <span style={{
+          fontSize: '11px', fontWeight: '700', padding: '3px 10px', borderRadius: '9999px',
+          background: isUp ? 'rgba(232,64,64,0.08)' : isDown ? 'rgba(37,99,235,0.08)' : 'rgba(107,114,128,0.08)',
+          border: `1px solid ${isUp ? 'rgba(232,64,64,0.20)' : isDown ? 'rgba(37,99,235,0.20)' : 'rgba(107,114,128,0.20)'}`,
+          color: dirColor,
+        }}>
           {isUp ? '▲' : isDown ? '▼' : '—'} {fmtPct(change_pct)}
         </span>
       </div>
 
-      {/* 수치 + 스파크라인 나란히 */}
+      {/* 수치 + 스파크라인 */}
       <div className="flex items-end gap-3">
-        <div className="flex-shrink-0">
-          <p className="text-2xl font-bold font-mono text-text-primary tabular-nums leading-none">
+        <div style={{ flexShrink: 0 }}>
+          <p style={{ fontSize: '24px', fontWeight: '800', fontFamily: 'monospace', color: '#0F172A', lineHeight: 1 }}>
             {displayVal}
           </p>
-          <p className={clsx('text-sm font-medium mt-1', directionClass(change_val))}>
+          <p style={{ fontSize: '12px', fontWeight: '500', marginTop: '4px', color: dirColor }}>
             {isUp ? '+' : ''}{symbol === 'JPY_KRW' ? change_val.toFixed(3) : fmtIndex(change_val)}
           </p>
         </div>
-
-        {/* 스파크라인 */}
         {sparkline.length > 1 && (
-          <div className="flex-1 h-12">
-            <SparkLine
-              data={sparkline}
-              width={120} height={48}
-              color={chartColor}
-              filled responsive
-            />
+          <div style={{ flex: 1, height: '48px' }}>
+            <SparkLine data={sparkline} width={120} height={48} color={chartColor} filled responsive />
           </div>
         )}
       </div>
@@ -95,16 +120,16 @@ export default function FxCard({ data, compact = false }) {
   );
 }
 
-function SkeletonFx({ compact = false }) {
+function SkeletonFx({ compact }) {
   return (
-    <div className={clsx(
-      'rounded-card border border-border bg-white shadow-card animate-pulse',
-      compact ? 'p-4' : 'p-4 flex flex-col gap-3',
-    )}>
-      <div className="h-4 w-20 bg-surface3 rounded mb-2" />
-      <div className="h-7 w-28 bg-surface3 rounded mb-1" />
-      <div className="h-4 w-16 bg-surface3 rounded" />
-      {!compact && <div className="h-12 bg-surface3 rounded-lg" />}
+    <div className="animate-pulse" style={{
+      borderRadius: '16px', padding: compact ? '16px' : '16px',
+      background: 'rgba(219,234,254,0.30)',
+      border: '1px solid rgba(147,197,253,0.25)',
+    }}>
+      <div style={{ height: '12px', width: '64px', borderRadius: '6px', background: 'rgba(147,197,253,0.30)', marginBottom: '8px' }} />
+      <div style={{ height: '28px', width: '96px', borderRadius: '6px', background: 'rgba(147,197,253,0.25)', marginBottom: '6px' }} />
+      <div style={{ height: '12px', width: '48px', borderRadius: '6px', background: 'rgba(147,197,253,0.20)' }} />
     </div>
   );
 }

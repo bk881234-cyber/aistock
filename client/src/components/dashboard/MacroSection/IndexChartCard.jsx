@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getIndexChart } from '@/api/marketApi';
-import { fmtIndex, fmtPct, directionClass } from '@/utils/formatters';
+import { fmtIndex, fmtPct } from '@/utils/formatters';
 import SparkLine from '@/components/common/SparkLine';
 import clsx from 'clsx';
 
@@ -17,9 +17,6 @@ const LABELS = {
   NASDAQ: '나스닥',
   SPX:    'S&P 500',
 };
-
-const chartColor = (pct) =>
-  pct > 0 ? '#E84040' : pct < 0 ? '#2563EB' : '#6B7280';
 
 export default function IndexChartCard({ data }) {
   const [period, setPeriod]   = useState('1d');
@@ -49,47 +46,79 @@ export default function IndexChartCard({ data }) {
   const isUp        = change_pct > 0;
   const isDown      = change_pct < 0;
   const marketState = raw_json?.marketState;
-  const color       = chartColor(change_pct);
+  const chartColor  = isUp ? '#E84040' : isDown ? '#2563EB' : '#6B7280';
+
+  // 방향에 따른 카드 글로우 색상
+  const accentColor = isUp
+    ? { border: 'rgba(232,64,64,0.35)', glow: 'rgba(232,64,64,0.10)', left: '#E84040' }
+    : isDown
+    ? { border: 'rgba(37,99,235,0.35)',  glow: 'rgba(37,99,235,0.10)',  left: '#2563EB' }
+    : { border: 'rgba(147,197,253,0.35)', glow: 'rgba(26,86,219,0.05)', left: '#93C5FD' };
 
   return (
-    <div className={clsx(
-      'relative overflow-hidden rounded-card border bg-white p-5 flex flex-col gap-3',
-      'transition-all duration-200 hover:shadow-cardHover hover:-translate-y-[1px]',
-      isUp   ? 'border-l-[3px] border-l-bull border-t border-r border-b border-border'
-      : isDown ? 'border-l-[3px] border-l-bear border-t border-r border-b border-border'
-      :          'border border-border',
-      'shadow-card',
-    )}>
+    <div
+      className="relative overflow-hidden flex flex-col gap-3 transition-all duration-200"
+      style={{
+        borderRadius: '16px',
+        padding: '20px',
+        background: 'linear-gradient(145deg, rgba(255,255,255,0.95) 0%, rgba(240,245,255,0.85) 100%)',
+        borderLeft: `3px solid ${accentColor.left}`,
+        borderTop: `1px solid ${accentColor.border}`,
+        borderRight: `1px solid rgba(147,197,253,0.30)`,
+        borderBottom: `1px solid rgba(147,197,253,0.30)`,
+        boxShadow: `0 0 0 1px rgba(147,197,253,0.20), 0 4px 20px ${accentColor.glow}, 0 1px 3px rgba(0,0,0,0.04)`,
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.boxShadow = `0 0 0 1px ${accentColor.border}, 0 8px 28px ${accentColor.glow}, 0 0 20px rgba(14,165,233,0.07)`;
+        e.currentTarget.style.transform = 'translateY(-1px)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.boxShadow = `0 0 0 1px rgba(147,197,253,0.20), 0 4px 20px ${accentColor.glow}, 0 1px 3px rgba(0,0,0,0.04)`;
+        e.currentTarget.style.transform = 'translateY(0)';
+      }}
+    >
       {/* 헤더 */}
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <span className="text-base font-bold text-text-secondary">
+          {/* 발광 노드 */}
+          <span style={{
+            width: '7px', height: '7px', borderRadius: '50%', flexShrink: 0,
+            background: accentColor.left,
+            boxShadow: `0 0 6px ${accentColor.left}80`,
+          }} />
+          <span style={{ fontSize: '14px', fontWeight: '700', color: '#1E3A5F' }}>
             {LABELS[symbol] ?? symbol}
           </span>
           {marketState && (
-            <span className={clsx(
-              'text-[11px] px-1.5 py-0.5 rounded-md font-semibold',
-              marketState === 'REGULAR'
-                ? 'bg-safe/10 text-safe'
-                : 'bg-surface3 text-text-muted',
-            )}>
+            <span style={{
+              fontSize: '10px', padding: '2px 6px', borderRadius: '6px', fontWeight: '600',
+              background: marketState === 'REGULAR' ? 'rgba(22,163,74,0.10)' : 'rgba(147,197,253,0.20)',
+              color: marketState === 'REGULAR' ? '#16A34A' : '#64748B',
+              border: `1px solid ${marketState === 'REGULAR' ? 'rgba(22,163,74,0.20)' : 'rgba(147,197,253,0.30)'}`,
+            }}>
               {marketState === 'REGULAR' ? '장중' : '장외'}
             </span>
           )}
         </div>
 
         {/* 기간 탭 */}
-        <div className="flex bg-surface2 rounded-lg p-0.5 gap-0.5">
+        <div className="flex rounded-lg p-0.5 gap-0.5" style={{
+          background: 'rgba(219,234,254,0.50)',
+          border: '1px solid rgba(147,197,253,0.30)',
+        }}>
           {PERIODS.map((p) => (
             <button
               key={p.key}
               onClick={() => setPeriod(p.key)}
-              className={clsx(
-                'px-2 py-0.5 text-[12px] font-semibold rounded-md transition-all duration-150',
-                period === p.key
-                  ? 'bg-white shadow-sm text-text-primary'
-                  : 'text-text-muted hover:text-text-secondary',
-              )}
+              style={{
+                padding: '2px 8px', fontSize: '11px', fontWeight: '600',
+                borderRadius: '6px', transition: 'all 0.15s',
+                background: period === p.key
+                  ? 'linear-gradient(135deg, #1A56DB, #0EA5E9)'
+                  : 'transparent',
+                color: period === p.key ? '#fff' : '#64748B',
+                boxShadow: period === p.key ? '0 2px 6px rgba(26,86,219,0.25)' : 'none',
+              }}
             >
               {p.label}
             </button>
@@ -97,33 +126,28 @@ export default function IndexChartCard({ data }) {
         </div>
       </div>
 
-      {/* 수치 */}
+      {/* 수치 + 발광 노드 */}
       <div>
-        <p className="text-2xl font-bold font-mono text-text-primary leading-none tabular-nums">
+        <p style={{ fontSize: '24px', fontWeight: '800', fontFamily: 'monospace', color: '#0F172A', lineHeight: 1, letterSpacing: '-0.5px' }}>
           {fmtIndex(current_val)}
         </p>
-        <div className={clsx(
-          'flex items-center gap-1 mt-1.5 text-sm font-semibold',
-          directionClass(change_pct),
-        )}>
+        <div className="flex items-center gap-1 mt-1.5" style={{
+          fontSize: '13px', fontWeight: '600',
+          color: isUp ? '#E84040' : isDown ? '#2563EB' : '#6B7280',
+        }}>
           <span>{isUp ? '▲' : isDown ? '▼' : '—'}</span>
-          <span className="font-mono">{fmtIndex(Math.abs(change_val))}</span>
-          <span className="opacity-75">({fmtPct(change_pct)})</span>
+          <span style={{ fontFamily: 'monospace' }}>{fmtIndex(Math.abs(change_val))}</span>
+          <span style={{ opacity: 0.75 }}>({fmtPct(change_pct)})</span>
         </div>
       </div>
 
-      {/* 차트 영역 */}
-      <div className={clsx('h-[72px] transition-opacity duration-300', chartLoading && 'opacity-30')}>
+      {/* 차트 */}
+      <div style={{ height: '72px', opacity: chartLoading ? 0.3 : 1, transition: 'opacity 0.3s' }}>
         {chartData.length > 1 ? (
-          <SparkLine
-            data={chartData}
-            width={300} height={72}
-            color={color}
-            filled responsive
-          />
+          <SparkLine data={chartData} width={300} height={72} color={chartColor} filled responsive />
         ) : (
-          <div className="h-full flex items-center justify-center">
-            <span className="text-sm text-text-muted">
+          <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <span style={{ fontSize: '13px', color: '#94A3B8' }}>
               {chartLoading ? '로딩 중...' : '데이터 없음'}
             </span>
           </div>
@@ -135,14 +159,14 @@ export default function IndexChartCard({ data }) {
 
 function SkeletonChartCard() {
   return (
-    <div className="rounded-card border border-border bg-white p-5 animate-pulse space-y-3 shadow-card">
+    <div className="card animate-pulse space-y-3">
       <div className="flex justify-between items-center">
-        <div className="h-4 w-16 bg-surface3 rounded" />
-        <div className="h-6 w-28 bg-surface3 rounded-lg" />
+        <div className="h-4 w-16 rounded-full" style={{ background: 'rgba(147,197,253,0.30)' }} />
+        <div className="h-6 w-28 rounded-lg" style={{ background: 'rgba(147,197,253,0.30)' }} />
       </div>
-      <div className="h-8 w-32 bg-surface3 rounded" />
-      <div className="h-4 w-24 bg-surface3 rounded" />
-      <div className="h-[72px] bg-surface3 rounded-lg" />
+      <div className="h-8 w-32 rounded" style={{ background: 'rgba(147,197,253,0.25)' }} />
+      <div className="h-4 w-24 rounded" style={{ background: 'rgba(147,197,253,0.20)' }} />
+      <div className="h-[72px] rounded-lg" style={{ background: 'rgba(147,197,253,0.20)' }} />
     </div>
   );
 }
