@@ -23,11 +23,6 @@ const Portfolio = sequelize.define('Portfolio', {
     type: DataTypes.STRING(10),
     allowNull: false,
   },
-  yahoo_symbol: {
-    type: DataTypes.STRING(30),
-    allowNull: true,
-    comment: 'Yahoo Finance 심볼 (예: 005930.KS, AAPL). 실시간 시세 조회에 사용.',
-  },
   quantity: {
     type: DataTypes.DECIMAL(15, 4),
     allowNull: false,

@@ -23,7 +23,12 @@ export default function CommodityGauge({ data, label, usdKrw = 0, vixLevel = nul
     : 50);
   const isUp     = pct > 0;
   const isDown   = pct < 0;
-  const krwPrice = usdKrw > 0 ? Math.round(current_val * usdKrw) : null;
+
+  // oz → g 환산 (1 troy oz = 31.1035 g)
+  const OZ_TO_G      = 31.1035;
+  const pricePerGram = current_val / OZ_TO_G;          // USD/g
+  const chgPerGram   = chgVal / OZ_TO_G;               // USD/g 변동
+  const krwPerGram   = usdKrw > 0 ? Math.round(pricePerGram * usdKrw) : null;  // KRW/g
 
   // VIX 기반 위험도 텍스트 + 색상
   const vixInfo = vixLevel === null ? null
@@ -64,46 +69,57 @@ export default function CommodityGauge({ data, label, usdKrw = 0, vixLevel = nul
         {/* 게이지 */}
         <div className="flex-shrink-0 text-center">
           <GaugeChart value={gaugePos} size={96} vix={vixLevel} />
-          <p className="text-xs text-text-muted mt-1">52주 위치</p>
+          <p className="text-xs text-text-muted mt-1">1년 위치 {gaugePos}%</p>
         </div>
 
         {/* 가격 정보 */}
         <div className="flex-1 min-w-0">
-          {/* KRW 메인 가격 */}
-          {krwPrice ? (
+          {/* KRW/g 메인 가격 */}
+          {krwPerGram ? (
             <>
               <p className="text-2xl font-bold font-mono text-text-primary leading-none tabular-nums">
-                {fmtKRW(krwPrice)}
+                {fmtKRW(krwPerGram)}<span className="text-sm font-normal text-text-muted ml-1">/g</span>
               </p>
               <p className="text-sm text-text-muted mt-1 font-mono">
-                {fmtUSD(current_val)}<span className="text-xs ml-0.5">/oz</span>
+                ${pricePerGram.toFixed(2)}<span className="text-xs ml-0.5">/g</span>
                 <span className={clsx(
                   'ml-2 text-xs font-semibold',
                   isUp ? 'text-bull' : isDown ? 'text-bear' : 'text-neutral',
                 )}>
-                  ({isUp ? '+' : ''}{fmtUSD(chgVal)})
+                  ({isUp ? '+' : ''}${chgPerGram.toFixed(2)})
                 </span>
               </p>
             </>
           ) : (
             <p className="text-2xl font-bold font-mono text-text-primary">
-              {fmtUSD(current_val)}<span className="text-sm font-normal text-text-muted ml-1">/oz</span>
+              ${pricePerGram.toFixed(2)}<span className="text-sm font-normal text-text-muted ml-1">/g</span>
             </p>
           )}
 
           {/* 52주 범위 바 */}
           {hi52 > 0 && lo52 > 0 && (
             <div className="mt-3">
-              <div className="flex justify-between text-xs text-text-muted mb-1">
-                <span>52주 저가 {fmtUSD(lo52)}</span>
-                <span>고가 {fmtUSD(hi52)}</span>
+              <div className="flex justify-between text-[11px] text-text-muted mb-1">
+                <span>1년 최저가 ${(lo52 / OZ_TO_G).toFixed(2)}/g</span>
+                <span>1년 최고가 ${(hi52 / OZ_TO_G).toFixed(2)}/g</span>
               </div>
-              <div className="h-1.5 bg-surface3 rounded-full overflow-hidden">
+              {/* 범위 바 + 현재 위치 점 */}
+              <div className="relative h-1.5 bg-surface3 rounded-full overflow-visible">
                 <div
                   className={clsx('h-full rounded-full transition-all duration-500', barColor)}
                   style={{ width: `${Math.max(4, gaugePos)}%` }}
                 />
+                {/* 현재가 위치 마커 */}
+                <div
+                  className="absolute top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-white border-2 border-text-primary shadow-sm"
+                  style={{ left: `calc(${Math.max(4, gaugePos)}% - 5px)` }}
+                />
               </div>
+              <p className="text-[10px] text-text-muted mt-1.5">
+                현재 가격은 1년 최저가~최고가 사이의 <span className="font-bold text-text-secondary">{gaugePos}%</span> 위치
+                {gaugePos >= 80 && <span className="text-danger ml-1">— 연고점 근처</span>}
+                {gaugePos <= 20 && <span className="text-safe ml-1">— 연저점 근처</span>}
+              </p>
             </div>
           )}
         </div>

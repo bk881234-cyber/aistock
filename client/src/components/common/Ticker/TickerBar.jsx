@@ -91,8 +91,14 @@ export default function TickerBar() {
     );
   }
 
-  // 지수 + 환율 섞어서 무한 반복
-  const items = [...sortedIdx.map((d) => ({ type: 'index', data: d })), ...sortedFx.map((d) => ({ type: 'fx', data: d }))];
+  // USD/KRW 맨 앞 → 나머지 지수 → EUR/JPY 순
+  const usdItem = sortedFx.find((f) => f.symbol === 'USD_KRW');
+  const otherFx = sortedFx.filter((f) => f.symbol !== 'USD_KRW');
+  const items = [
+    ...(usdItem ? [{ type: 'fx', data: usdItem }] : []),
+    ...sortedIdx.map((d) => ({ type: 'index', data: d })),
+    ...otherFx.map((d) => ({ type: 'fx', data: d })),
+  ];
   const doubled = [...items, ...items]; // CSS 애니메이션 무한 효과
 
   return (
