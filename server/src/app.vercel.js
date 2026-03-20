@@ -133,5 +133,8 @@ const handler = async (req, res) => {
   return app(req, res);
 };
 
+// 모듈 로드 시 즉시 DB 연결 워밍업 시작 (첫 요청 전에 미리 연결)
+initOnce().catch(() => {});
+
 module.exports = handler;
 module.exports.app = app;         // 개발 서버에서 직접 사용 가능

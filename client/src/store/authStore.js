@@ -36,6 +36,20 @@ export const useAuthStore = create(
           toast.success('회원가입이 완료되었습니다!');
           return true;
         } catch (err) {
+          // 409: 서버 timeout 후 재시도 케이스 — 이미 가입된 계정이므로 자동 로그인
+          if (err.response?.status === 409) {
+            try {
+              const { data } = await authApi.login(email, password);
+              localStorage.setItem('aistock_token', data.token);
+              set({ token: data.token, user: data.user, loading: false });
+              toast.success(`안녕하세요, ${data.user.name}님!`);
+              return true;
+            } catch {
+              set({ loading: false });
+              toast.error('이미 사용 중인 이메일입니다. 로그인 페이지에서 로그인해주세요.');
+              return false;
+            }
+          }
           set({ loading: false });
           if (!err._toastShown) {
             toast.error(err.response?.data?.message || err.message || '회원가입에 실패했습니다.');
