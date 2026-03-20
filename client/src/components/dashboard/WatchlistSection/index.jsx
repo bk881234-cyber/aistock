@@ -94,7 +94,7 @@ function WatchlistRow({ item, onRemove }) {
 
       <button
         onClick={() => onRemove(item.id, item.stock_name)}
-        className="opacity-0 group-hover:opacity-100 transition-opacity text-text-muted hover:text-bear text-xs px-1"
+        className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity text-text-muted hover:text-bear text-xs px-1 flex-shrink-0"
       >
         ✕
       </button>

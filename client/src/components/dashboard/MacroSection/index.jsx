@@ -25,14 +25,14 @@ export default function MacroSection() {
     <div className="space-y-4 animate-fade-in">
 
       {/* ── Row 1: 주요 4대 지수 차트 카드 ─────────────────── */}
-      <div className="grid grid-cols-2 xl:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {row1.map((idx, i) => (
           <IndexChartCard key={ROW1[i]} data={idx} />
         ))}
       </div>
 
       {/* ── Row 2: DOW → VIX → USD/KRW → EUR → JPY ─── */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
         {/* ① DOW */}
         <IndexCard data={dow} label="다우" compact />
 

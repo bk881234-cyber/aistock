@@ -22,11 +22,11 @@ export default function PortfolioSection() {
   return (
     <div className="card">
       {/* 헤더 */}
-      <div className="flex items-center justify-between mb-4">
-        <div>
+      <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+        <div className="min-w-0">
           <h2 className="text-lg font-bold text-text-primary mb-0">내 포트폴리오</h2>
           {!loading && (
-            <p className="text-xs text-text-muted mt-0.5">
+            <p className="text-xs text-text-muted mt-0.5 truncate">
               평가액 <span className="font-semibold text-text-primary">{fmtKRW(totalCurrentValue)}</span>
               {' '}·{' '}
               <span className={clsx('font-semibold', totalGain >= 0 ? 'text-bull' : 'text-bear')}>
@@ -35,7 +35,7 @@ export default function PortfolioSection() {
             </p>
           )}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-shrink-0">
           <Link to="/portfolio" className="btn-ghost text-xs py-1.5 px-3">전체 보기</Link>
           <button onClick={() => setBuyOpen(true)} className="btn-primary text-xs py-1.5">
             + 거래 기록
@@ -56,9 +56,9 @@ export default function PortfolioSection() {
                 <th className="text-left py-2 font-medium">종목</th>
                 <th className="text-right py-2 font-medium">현재가</th>
                 <th className="text-right py-2 font-medium">수익률</th>
-                <th className="text-right py-2 font-medium">평가손익</th>
-                <th className="text-center py-2 font-medium">날씨</th>
-                <th className="text-center py-2 font-medium">신호등</th>
+                <th className="hidden sm:table-cell text-right py-2 font-medium">평가손익</th>
+                <th className="hidden md:table-cell text-center py-2 font-medium">날씨</th>
+                <th className="hidden md:table-cell text-center py-2 font-medium">신호등</th>
                 <th className="py-2" />
               </tr>
             </thead>
@@ -120,18 +120,18 @@ function DashboardPortfolioRow({ portfolio, onSell }) {
       </td>
 
       {/* 평가손익 */}
-      <td className={clsx('py-2.5 text-right font-mono text-sm', directionClass(unrealized_gain))}>
+      <td className={clsx('hidden sm:table-cell py-2.5 text-right font-mono text-sm', directionClass(unrealized_gain))}>
         <p className="font-semibold tabular-nums">{fmtKRW(unrealized_gain, true)}</p>
         <p className="text-[11px] text-text-muted">{fmtCompact(quantity)}주</p>
       </td>
 
       {/* AI 날씨 */}
-      <td className="py-2.5 text-center">
+      <td className="hidden md:table-cell py-2.5 text-center">
         <WeatherWidget symbol={stock_symbol} variant="inline" />
       </td>
 
       {/* 신호등 */}
-      <td className="py-2.5 text-center">
+      <td className="hidden md:table-cell py-2.5 text-center">
         <TrafficLight level={signalLevel} size="sm" />
       </td>
 
@@ -139,7 +139,7 @@ function DashboardPortfolioRow({ portfolio, onSell }) {
       <td className="py-2.5 text-right">
         <button
           onClick={onSell}
-          className="opacity-0 group-hover:opacity-100 transition-opacity text-[11px] text-danger hover:bg-danger/8 px-2 py-1 rounded font-semibold"
+          className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity text-[11px] text-danger hover:bg-danger/8 px-2 py-1 rounded font-semibold"
         >
           매도
         </button>
