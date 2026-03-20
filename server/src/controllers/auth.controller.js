@@ -17,9 +17,18 @@ const register = async (req, res) => {
       return error(res, '이메일, 비밀번호, 이름은 필수입니다.', 400);
     }
 
-    const existing = await User.findOne({ where: { email } });
+    const existing = await User.findOne({
+      where: { email },
+      include: [{ association: 'profile', required: false }],
+    });
+
     if (existing) {
-      return error(res, '이미 사용 중인 이메일입니다.', 409);
+      // 프로필 없는 고아 유저(이전 가입 실패 잔존)는 삭제 후 재가입 허용
+      if (!existing.profile) {
+        await existing.destroy();
+      } else {
+        return error(res, '이미 사용 중인 이메일입니다.', 409);
+      }
     }
 
     const { token, user: newUser } = await sequelize.transaction(async (t) => {
