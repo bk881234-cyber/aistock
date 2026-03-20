@@ -17,7 +17,7 @@ const generate = async (symbol, type = 'news_summary') => {
   const newsContext = await buildNewsContext(symbol);
 
   // Gemini에서는 System Prompt를 모델 생성 시나 개별 요청에 포함할 수 있습니다.
-  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
 
   const prompt = `
 당신은 개인 투자자를 위한 AI 주식 분석 어시스턴트입니다.
