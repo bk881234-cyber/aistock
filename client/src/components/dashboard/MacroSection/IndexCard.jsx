@@ -10,16 +10,31 @@ const LABELS = {
   VIX:    'VIX 공포지수',
 };
 
-export default function IndexCard({ data }) {
-  if (!data) return <SkeletonCard />;
+export default function IndexCard({ data, compact = false }) {
+  if (!data) return <SkeletonCard compact={compact} />;
 
   const { symbol, current_val, change_val, change_pct, raw_json } = data;
   const isUp   = change_pct > 0;
   const isDown = change_pct < 0;
   const marketState = raw_json?.marketState;
 
+  if (compact) {
+    return (
+      <div className="card-hover p-3 relative overflow-hidden">
+        <p className="text-[10px] font-medium text-text-muted">{LABELS[symbol] ?? symbol}</p>
+        <p className="text-base font-bold font-mono text-text-primary mt-0.5">
+          {fmtIndex(current_val)}
+        </p>
+        <p className={clsx('text-[11px] font-semibold', directionClass(change_pct))}>
+          {isUp ? '▲' : isDown ? '▼' : '—'} {fmtPct(change_pct)}
+        </p>
+        <div className={clsx('absolute left-0 top-2 bottom-2 w-0.5 rounded-full', isUp ? 'bg-bull' : isDown ? 'bg-bear' : 'bg-neutral')} />
+      </div>
+    );
+  }
+
   return (
-    <div className="card-hover p-4">
+    <div className="card-hover p-4 relative overflow-hidden">
       {/* 헤더 */}
       <div className="flex items-start justify-between mb-2">
         <div>
@@ -59,11 +74,11 @@ export default function IndexCard({ data }) {
   );
 }
 
-function SkeletonCard() {
+function SkeletonCard({ compact = false }) {
   return (
-    <div className="card p-4 space-y-2 animate-pulse">
+    <div className={`card ${compact ? 'p-3' : 'p-4'} space-y-2 animate-pulse`}>
       <div className="h-3 w-16 bg-border rounded" />
-      <div className="h-6 w-24 bg-border rounded" />
+      <div className={`${compact ? 'h-5' : 'h-6'} w-24 bg-border rounded`} />
       <div className="h-3 w-20 bg-border rounded" />
     </div>
   );

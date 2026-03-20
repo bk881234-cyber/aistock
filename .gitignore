@@ -19,6 +19,7 @@ server/logs/
 Thumbs.db
 .vscode/
 .idea/
+.claude/
 
 # ── Docker ───────────────────────────────────────
 # docker-compose.override.yml  # 로컬 오버라이드는 무시

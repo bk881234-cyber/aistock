@@ -3,6 +3,40 @@ const { getCache, setCache } = require('../config/redis');
 const { success, error } = require('../utils/response');
 const { refreshAllMarketData } = require('../jobs/marketRefreshJob');
 
+/** Sequelize DECIMAL → float 변환 + 직렬화 헬퍼 */
+const toFloat = (v) => (v == null ? null : parseFloat(v) || 0);
+
+const serializeIndex = (row) => ({
+  symbol:      row.symbol,
+  current_val: toFloat(row.current_val),
+  change_val:  toFloat(row.change_val),
+  change_pct:  toFloat(row.change_pct),
+  high_52w:    row.high_52w != null ? toFloat(row.high_52w) : null,
+  low_52w:     row.low_52w  != null ? toFloat(row.low_52w)  : null,
+  raw_json:    row.raw_json ?? null,
+  last_updated: row.last_updated,
+});
+
+const serializeFx = (row) => ({
+  symbol:      row.symbol,
+  current_val: toFloat(row.current_val),
+  change_val:  toFloat(row.change_val),
+  change_pct:  toFloat(row.change_pct),
+  raw_json:    row.raw_json ?? null,
+  last_updated: row.last_updated,
+});
+
+const serializeCommodity = (row) => ({
+  symbol:      row.symbol,
+  current_val: toFloat(row.current_val),
+  change_val:  toFloat(row.change_val),
+  change_pct:  toFloat(row.change_pct),
+  high_52w:    row.high_52w != null ? toFloat(row.high_52w) : null,
+  low_52w:     row.low_52w  != null ? toFloat(row.low_52w)  : null,
+  raw_json:    row.raw_json ?? null,
+  last_updated: row.last_updated,
+});
+
 /**
  * GET /api/market/indices
  * KOSPI, KOSDAQ, NASDAQ, S&P500 현재값 반환
@@ -19,19 +53,13 @@ const getIndices = async (req, res) => {
       order: [['symbol', 'ASC']],
     });
 
-    const data = indices.map((i) => ({
-      symbol: i.symbol,
-      current_val: i.current_val,
-      change_val: i.change_val,
-      change_pct: i.change_pct,
-      last_updated: i.last_updated,
-    }));
+    const data = indices.map(serializeIndex);
 
     await setCache(CACHE_KEY, data, 5);
     return success(res, data);
   } catch (err) {
-    console.error('[market] getIndices 오류:', err);
-    return error(res);
+    console.error('[market] getIndices 오류:', err.message);
+    return success(res, []);   // 500 대신 빈 배열 → 폴링 에러 토스트 방지
   }
 };
 
@@ -46,19 +74,13 @@ const getFx = async (req, res) => {
     if (cached) return success(res, cached);
 
     const fx = await MarketCache.findAll({ where: { data_type: 'fx' } });
-    const data = fx.map((f) => ({
-      symbol: f.symbol,
-      current_val: f.current_val,
-      change_pct: f.change_pct,
-      raw_json: f.raw_json,
-      last_updated: f.last_updated,
-    }));
+    const data = fx.map(serializeFx);
 
     await setCache(CACHE_KEY, data, 30);
     return success(res, data);
   } catch (err) {
-    console.error('[market] getFx 오류:', err);
-    return error(res);
+    console.error('[market] getFx 오류:', err.message);
+    return success(res, []);
   }
 };
 
@@ -73,20 +95,13 @@ const getCommodities = async (req, res) => {
     if (cached) return success(res, cached);
 
     const commodities = await MarketCache.findAll({ where: { data_type: 'commodity' } });
-    const data = commodities.map((c) => ({
-      symbol: c.symbol,
-      current_val: c.current_val,
-      change_pct: c.change_pct,
-      high_52w: c.high_52w,
-      low_52w: c.low_52w,
-      last_updated: c.last_updated,
-    }));
+    const data = commodities.map(serializeCommodity);
 
     await setCache(CACHE_KEY, data, 60);
     return success(res, data);
   } catch (err) {
-    console.error('[market] getCommodities 오류:', err);
-    return error(res);
+    console.error('[market] getCommodities 오류:', err.message);
+    return success(res, []);
   }
 };
 
@@ -114,16 +129,17 @@ const getOverview = async (req, res) => {
     }
 
     const data = {
-      indices: all.filter((d) => d.data_type === 'index'),
-      fx: all.filter((d) => d.data_type === 'fx'),
-      commodities: all.filter((d) => d.data_type === 'commodity'),
+      indices:     all.filter((d) => d.data_type === 'index').map(serializeIndex),
+      fx:          all.filter((d) => d.data_type === 'fx').map(serializeFx),
+      commodities: all.filter((d) => d.data_type === 'commodity').map(serializeCommodity),
     };
 
     await setCache(CACHE_KEY, data, 5);
     return success(res, data);
   } catch (err) {
-    console.error('[market] getOverview 오류:', err);
-    return error(res);
+    console.error('[market] getOverview 오류:', err.message);
+    // 500 대신 빈 객체 반환 → 폴링 에러 토스트 반복 방지
+    return success(res, { indices: [], fx: [], commodities: [] });
   }
 };
 

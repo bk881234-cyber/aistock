@@ -41,11 +41,15 @@ export const fmtCompact = (value) => {
 
 /**
  * 지수값 포맷 (소수점 자릿수 자동 조정)
+ * 1000 이상: 천 단위 구분 (KOSPI, NASDAQ 등)
+ * 10~999:   소수점 2자리 (VIX, 환율 일부)
+ * 10 미만:  소수점 4자리 (JPY/KRW 등 소수 단위)
  */
 export const fmtIndex = (value) => {
   if (value == null || isNaN(value)) return '—';
   const num = Number(value);
-  if (num > 100) return num.toLocaleString('ko-KR', { maximumFractionDigits: 2 });
+  if (num >= 1000) return num.toLocaleString('ko-KR', { maximumFractionDigits: 2 });
+  if (num >= 10)   return num.toFixed(2);
   return num.toFixed(4);
 };
 

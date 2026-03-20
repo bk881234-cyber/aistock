@@ -3,49 +3,66 @@ import IndexCard from './IndexCard';
 import FxCard from './FxCard';
 import CommodityGauge from './CommodityGauge';
 
-const INDEX_ORDER = ['KOSPI', 'KOSDAQ', 'NASDAQ', 'SPX'];
-const FX_ORDER    = ['USD_KRW', 'EUR_KRW', 'JPY_KRW'];
+// Row 1: 주요 4대 지수 (col-span-3 × 4 = 12)
+const ROW1 = ['KOSPI', 'KOSDAQ', 'NASDAQ', 'SPX'];
+// Row 2 (12 col): 다우(2)+VIX(2)+USD(2)+EUR(2)+금(2)+은(2) = 12
+const ROW2_IDX = ['DOW', 'VIX'];
+const FX_ORDER  = ['USD_KRW', 'EUR_KRW'];
 
 export default function MacroSection() {
-  const { indices, fx, commodities } = useMarketStore();
+  const { indices, fx, commodities, loading, lastUpdated } = useMarketStore();
 
-  const shownIndices = INDEX_ORDER
-    .map((s) => indices.find((i) => i.symbol === s))
-    .filter(Boolean);
+  const row1     = ROW1.map((s) => indices.find((i) => i.symbol === s) ?? null);
+  const row2Idx  = ROW2_IDX.map((s) => indices.find((i) => i.symbol === s) ?? null);
+  const shownFx  = FX_ORDER.map((s) => fx.find((f) => f.symbol === s) ?? null);
+  // 세 번째 환율(JPY)은 별도 표시
+  const jpyKrw   = fx.find((f) => f.symbol === 'JPY_KRW') ?? null;
 
-  const shownFx = FX_ORDER
-    .map((s) => fx.find((f) => f.symbol === s))
-    .filter(Boolean);
-
-  const gold   = commodities.find((c) => c.symbol === 'GOLD_USD');
-  const silver = commodities.find((c) => c.symbol === 'SILVER_USD');
+  const gold   = commodities.find((c) => c.symbol === 'GOLD_USD')   ?? null;
+  const silver = commodities.find((c) => c.symbol === 'SILVER_USD') ?? null;
 
   return (
     <div className="space-y-3">
-      {/* 지수 카드 4열 */}
+      {/* Row 1: 코스피 · 코스닥 · 나스닥 · S&P500 */}
       <div className="grid grid-cols-4 gap-3">
-        {shownIndices.map((idx) => (
-          <IndexCard key={idx.symbol} data={idx} />
+        {row1.map((idx, i) => (
+          <IndexCard key={ROW1[i]} data={idx} />
         ))}
       </div>
 
-      {/* 환율 스파크라인 + 원자재 게이지 */}
+      {/* Row 2 (12칸): 다우(2) VIX(2) USD(2) EUR(2) 금(2) 은(2) */}
       <div className="grid grid-cols-12 gap-3">
-        {/* 환율 3칸 */}
-        {shownFx.map((f) => (
-          <div key={f.symbol} className="col-span-3">
-            <FxCard data={f} />
+        {row2Idx.map((idx, i) => (
+          <div key={ROW2_IDX[i]} className="col-span-2">
+            <IndexCard data={idx} compact />
           </div>
         ))}
-        {/* 금 게이지 */}
+
+        {shownFx.map((f, i) => (
+          <div key={FX_ORDER[i]} className="col-span-2">
+            <FxCard data={f} compact />
+          </div>
+        ))}
+
+        {/* JPY/KRW */}
         <div className="col-span-2">
-          <CommodityGauge data={gold} label="금" emoji="🥇" />
+          <FxCard data={jpyKrw} compact />
         </div>
-        {/* 은 게이지 */}
-        <div className="col-span-1">
-          <CommodityGauge data={silver} label="은" emoji="🥈" />
+
+        <div className="col-span-2">
+          <CommodityGauge data={gold}   label="금" emoji="🥇" compact />
+        </div>
+        <div className="col-span-2">
+          <CommodityGauge data={silver} label="은" emoji="🥈" compact />
         </div>
       </div>
+
+      {lastUpdated && (
+        <p className="text-[10px] text-text-muted text-right">
+          업데이트: {lastUpdated.toLocaleTimeString('ko-KR')}
+          {loading && <span className="ml-1 text-primary animate-pulse">●</span>}
+        </p>
+      )}
     </div>
   );
 }

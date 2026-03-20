@@ -5,11 +5,12 @@ import AlertPanel from '@/components/dashboard/AlertPanel';
 
 /**
  * 메인 대시보드
- * ┌─────────────────────────────┬──────────────┐
- * │  MacroSection (지수+환율+원자재)           │
- * ├─────────────────────────────┤  WatchlistSection │
- * │  PortfolioSection (보유종목) │  AlertPanel  │
- * └─────────────────────────────┴──────────────┘
+ * ┌─────────────────────────────────────────────────────┐
+ * │  MacroSection (지수 6개 + 환율 3개 + 원자재 2개)    │
+ * ├──────────────────────────────┬──────────────────────┤
+ * │  PortfolioSection (보유종목)  │  WatchlistSection    │
+ * │                              │  AlertPanel          │
+ * └──────────────────────────────┴──────────────────────┘
  */
 export default function Dashboard() {
   return (
@@ -22,7 +23,7 @@ export default function Dashboard() {
         <div className="col-span-8">
           <PortfolioSection />
         </div>
-        <div className="col-span-4 space-y-5">
+        <div className="col-span-4 flex flex-col gap-5">
           <WatchlistSection />
           <AlertPanel />
         </div>

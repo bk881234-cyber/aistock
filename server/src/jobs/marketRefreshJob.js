@@ -45,15 +45,26 @@ const refreshAllMarketData = async () => {
       fetchAllCommodities(),
     ]);
 
-    // API 실패 시 더미 데이터 추가 (깡통 방지)
+    // API 실패 시 더미 데이터 (깡통 방지) — 심볼은 내부 코드 기준
+    const now = new Date();
     const finalIndices     = indices.length ? indices : [
-      { symbol: 'KOSPI', data_type: 'index', current_val: 2650.0, change_val: 0, change_pct: 0, last_updated: new Date() },
-      { symbol: 'NASDAQ', data_type: 'index', current_val: 16210.0, change_val: 0, change_pct: 0, last_updated: new Date() }
+      { symbol: 'KOSPI',  data_type: 'index', current_val: 2650.0,  change_val: 0, change_pct: 0, raw_json: {}, last_updated: now },
+      { symbol: 'KOSDAQ', data_type: 'index', current_val: 870.0,   change_val: 0, change_pct: 0, raw_json: {}, last_updated: now },
+      { symbol: 'NASDAQ', data_type: 'index', current_val: 16210.0, change_val: 0, change_pct: 0, raw_json: {}, last_updated: now },
+      { symbol: 'SPX',    data_type: 'index', current_val: 5200.0,  change_val: 0, change_pct: 0, raw_json: {}, last_updated: now },
+      { symbol: 'DOW',    data_type: 'index', current_val: 39000.0, change_val: 0, change_pct: 0, raw_json: {}, last_updated: now },
+      { symbol: 'VIX',    data_type: 'index', current_val: 18.5,    change_val: 0, change_pct: 0, raw_json: {}, last_updated: now },
     ];
-    const finalFx          = fx.length ? fx : [
-      { symbol: 'USDKRW', data_type: 'fx', current_val: 1330.0, change_pct: 0, last_updated: new Date() }
+    const finalFx = fx.length ? fx : [
+      { symbol: 'USD_KRW', data_type: 'fx', current_val: 1330.0, change_val: 0, change_pct: 0, raw_json: { sparkline: [] }, last_updated: now },
+      { symbol: 'EUR_KRW', data_type: 'fx', current_val: 1440.0, change_val: 0, change_pct: 0, raw_json: { sparkline: [] }, last_updated: now },
+      { symbol: 'JPY_KRW', data_type: 'fx', current_val: 8.82,   change_val: 0, change_pct: 0, raw_json: { sparkline: [] }, last_updated: now },
     ];
-    const finalCommodities = commodities.length ? commodities : [];
+    const finalCommodities = commodities.length ? commodities : [
+      { symbol: 'GOLD_USD',   data_type: 'commodity', current_val: 2350.0, change_val: 0, change_pct: 0, high_52w: 2500.0, low_52w: 1800.0, raw_json: { gauge_position: 75, sparkline: [] }, last_updated: now },
+      { symbol: 'SILVER_USD', data_type: 'commodity', current_val: 27.5,   change_val: 0, change_pct: 0, high_52w: 35.0,   low_52w: 20.0,   raw_json: { gauge_position: 55, sparkline: [] }, last_updated: now },
+      { symbol: 'OIL_USD',    data_type: 'commodity', current_val: 78.0,   change_val: 0, change_pct: 0, high_52w: 95.0,   low_52w: 60.0,   raw_json: { gauge_position: 49, sparkline: [] }, last_updated: now },
+    ];
 
     // DB upsert 병렬 실행
     await Promise.all([
@@ -70,8 +81,6 @@ const refreshAllMarketData = async () => {
     return total;
   } catch (err) {
     console.error(`${label} 오류:`, err.message);
-    // 예기치 않은 오류 시 최소한의 데이터라도 넣기
-    await upsertCache([{ symbol: 'KOSPI', data_type: 'index', current_val: 2650, change_val: 0, change_pct: 0, last_updated: new Date() }]);
     return 0;
   }
 };

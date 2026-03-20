@@ -24,7 +24,7 @@ export const useMarketStore = create((set, get) => ({
   // ── 데이터 패치 ────────────────────────────────────────
   fetchOverview: async () => {
     if (get().loading) return;
-    set({ loading: true, error: null });
+    set({ loading: true });
     try {
       const data = await marketApi.getMarketOverview();
       set({
@@ -33,9 +33,11 @@ export const useMarketStore = create((set, get) => ({
         commodities: data.commodities ?? [],
         lastUpdated: new Date(),
         loading: false,
+        error: null,
       });
     } catch (err) {
-      set({ error: err.message, loading: false });
+      // 폴링 실패 시 기존 데이터 유지, 에러만 기록 (toast는 axiosInstance가 처리)
+      set({ loading: false, error: err.message });
     }
   },
 

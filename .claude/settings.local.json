@@ -6,7 +6,13 @@
       "Bash(docker compose:*)",
       "Bash(npx vite:*)",
       "Bash(node:*)",
-      "Bash(docker info:*)"
+      "Bash(docker info:*)",
+      "Bash(where vercel:*)",
+      "Bash(npx vercel:*)",
+      "Bash(python -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(''''deps:'''', list\\(d.get\\(''''dependencies'''',{}\\).keys\\(\\)\\)\\)\")",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
     ]
   }
 }

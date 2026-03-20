@@ -39,9 +39,13 @@ export default function WatchlistSection() {
       {loading ? (
         <WatchlistSkeleton />
       ) : items.length === 0 ? (
-        <p className="text-xs text-text-muted text-center py-6">
-          관심 종목을 추가해보세요
-        </p>
+        <div className="text-center py-6">
+          <p className="text-2xl mb-2">⭐</p>
+          <p className="text-xs font-medium text-text-secondary">관심 종목이 없습니다</p>
+          <p className="text-[11px] text-text-muted mt-1">
+            위 <span className="text-primary font-medium">+ 추가</span> 버튼으로 종목코드와 이름을 입력하세요
+          </p>
+        </div>
       ) : (
         <ul className="space-y-1">
           {items.slice(0, 8).map((item) => (
