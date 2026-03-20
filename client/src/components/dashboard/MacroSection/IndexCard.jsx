@@ -34,8 +34,8 @@ export default function IndexCard({ data, label, compact = false }) {
           e.currentTarget.style.transform = '';
         }}
       >
-        <p className="text-[12px] font-medium text-text-muted">{displayLabel}</p>
-        <p className="text-xl font-bold font-mono text-text-primary mt-0.5 tabular-nums">
+        <p className="text-[14px] font-semibold text-text-muted">{displayLabel}</p>
+        <p className="text-[22px] font-bold font-mono text-text-primary mt-0.5 tabular-nums">
           {fmtIndex(current_val)}
         </p>
         <p className={clsx('text-sm font-semibold mt-0.5', directionClass(change_pct))}>
@@ -64,8 +64,8 @@ export default function IndexCard({ data, label, compact = false }) {
         e.currentTarget.style.transform = '';
       }}
     >
-      <p className="text-base font-bold text-text-secondary">{displayLabel}</p>
-      <p className="text-2xl font-bold font-mono text-text-primary mt-1 tabular-nums">
+      <p className="text-[16px] font-bold text-text-secondary">{displayLabel}</p>
+      <p className="text-[26px] font-bold font-mono text-text-primary mt-1 tabular-nums">
         {fmtIndex(current_val)}
       </p>
       <div className={clsx('flex items-center gap-1 text-sm font-semibold mt-1', directionClass(change_pct))}>

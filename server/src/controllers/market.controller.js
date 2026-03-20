@@ -273,4 +273,70 @@ const getChart = async (req, res) => {
   }
 };
 
-module.exports = { getIndices, getFx, getCommodities, getOverview, searchStock, getChart };
+/**
+ * 심볼 → Yahoo Finance 심볼 변환
+ * 005930 → 005930.KS (KOSPI) / 035420.KQ (KOSDAQ)
+ */
+const resolveYahooSymbol = async (symbol, market) => {
+  if (market === 'KOSPI')  return `${symbol}.KS`;
+  if (market === 'KOSDAQ') return `${symbol}.KQ`;
+
+  // market 미지정 시 숫자 종목코드면 한국 주식으로 시도
+  if (/^\d+$/.test(symbol)) {
+    const { fetchQuote } = require('../utils/yahooFinance');
+    // KS 먼저 시도
+    try {
+      await fetchQuote(`${symbol}.KS`);
+      return `${symbol}.KS`;
+    } catch {
+      return `${symbol}.KQ`;
+    }
+  }
+  return symbol; // US 주식
+};
+
+/**
+ * GET /api/market/stock/:symbol?market=KOSPI&range=3mo
+ * 종목 상세 (현재가 + OHLCV 캔들) 반환
+ */
+const getStockDetail = async (req, res) => {
+  const { symbol } = req.params;
+  const { market, range = '3mo' } = req.query;
+
+  try {
+    const CACHE_KEY = `market:stock:${symbol}:${range}`;
+    const cached = await getCache(CACHE_KEY);
+    if (cached) return success(res, cached);
+
+    const { fetchCandles, fetchQuote } = require('../utils/yahooFinance');
+    const yahooSym = await resolveYahooSymbol(symbol, market);
+
+    const [candleResult, quote] = await Promise.all([
+      fetchCandles(yahooSym, range),
+      fetchQuote(yahooSym).catch(() => null),
+    ]);
+
+    const data = {
+      symbol,
+      yahooSymbol: yahooSym,
+      name:        quote?.shortName ?? quote?.longName ?? symbol,
+      currency:    quote?.currency ?? 'KRW',
+      market:      market ?? (yahooSym.endsWith('.KS') ? 'KOSPI' : yahooSym.endsWith('.KQ') ? 'KOSDAQ' : 'US'),
+      currentPrice:       quote?.regularMarketPrice ?? null,
+      change:             quote?.regularMarketChange ?? null,
+      changePct:          quote?.regularMarketChangePercent ?? null,
+      high52w:            quote?.fiftyTwoWeekHigh ?? null,
+      low52w:             quote?.fiftyTwoWeekLow ?? null,
+      candles:            candleResult.candles,
+    };
+
+    // 캔들 데이터는 길어서 TTL 짧게 (5분)
+    await setCache(CACHE_KEY, data, 300);
+    return success(res, data);
+  } catch (err) {
+    console.error('[market] getStockDetail 오류:', err.message);
+    return error(res, '종목 데이터를 가져올 수 없습니다.', 502);
+  }
+};
+
+module.exports = { getIndices, getFx, getCommodities, getOverview, searchStock, getChart, getStockDetail };

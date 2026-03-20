@@ -12,7 +12,7 @@ import * as d3 from 'd3';
  *  VIX 20-30 → 주의(오렌지 계열)
  *  VIX 30+   → 위험(빨강 계열)
  */
-export default function GaugeChart({ value = 50, size = 92, vix = null }) {
+export default function GaugeChart({ value = 50, size = 92, vix = null, color = null }) {
   const svgRef = useRef(null);
 
   useEffect(() => {
@@ -28,9 +28,12 @@ export default function GaugeChart({ value = 50, size = 92, vix = null }) {
 
     const g = svg.append('g').attr('transform', `translate(${r},${r})`);
 
-    // ── VIX → 색상 결정 ────────────────────────────────
+    // ── 색상 결정 ────────────────────────────────────────
     let fillColor, trackColor;
-    if (vix === null || vix === undefined) {
+    if (color) {
+      fillColor  = color;
+      trackColor = `${color}22`;
+    } else if (vix === null || vix === undefined) {
       // VIX 없으면 value 기반 기본 색상
       fillColor  = d3.scaleLinear().domain([0,50,100]).range(['#60A5FA','#16A34A','#F59E0B'])(Math.max(0, Math.min(100, value)));
       trackColor = '#F3F4F6';
@@ -93,7 +96,7 @@ export default function GaugeChart({ value = 50, size = 92, vix = null }) {
       .attr('font-size', '11px').attr('font-weight', '700')
       .attr('fill', fillColor)
       .text(`${Math.round(clamp)}%`);
-  }, [value, size, vix]);
+  }, [value, size, vix, color]);
 
   return <svg ref={svgRef} className="block mx-auto" />;
 }

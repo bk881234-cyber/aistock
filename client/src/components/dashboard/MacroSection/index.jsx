@@ -31,16 +31,16 @@ export default function MacroSection() {
         ))}
       </div>
 
-      {/* ── Row 2: USD/KRW 맨 앞 → DOW → VIX → EUR → JPY ─── */}
+      {/* ── Row 2: DOW → VIX → USD/KRW → EUR → JPY ─── */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-        {/* ① USD/KRW — 가장 왼쪽 */}
-        <FxCard data={usdData} compact />
-
-        {/* ② DOW */}
+        {/* ① DOW */}
         <IndexCard data={dow} label="다우" compact />
 
-        {/* ③ VIX — 별도 강조 카드 */}
+        {/* ② VIX — 별도 강조 카드 */}
         <VixCard data={vix} />
+
+        {/* ③ USD/KRW */}
+        <FxCard data={usdData} compact />
 
         {/* ④⑤ EUR / JPY */}
         <FxCard data={eurData} compact />
@@ -94,7 +94,7 @@ function VixCard({ data }) {
 
       <div className="relative z-10">
         <div className="flex items-center justify-between mb-1">
-          <p style={{ fontSize: '11px', fontWeight: '500', color: '#64748B' }}>VIX 공포지수</p>
+          <p style={{ fontSize: '14px', fontWeight: '600', color: '#64748B' }}>VIX 공포지수</p>
           <span style={{
             fontSize: '10px', fontWeight: '700', padding: '2px 8px', borderRadius: '9999px',
             background: level.bg, border: `1px solid ${level.border}`, color: level.color,
@@ -102,10 +102,10 @@ function VixCard({ data }) {
             {level.label}
           </span>
         </div>
-        <p style={{ fontSize: '26px', fontWeight: '800', fontFamily: 'monospace', color: level.color, lineHeight: 1.1 }}>
+        <p style={{ fontSize: '28px', fontWeight: '800', fontFamily: 'monospace', color: level.color, lineHeight: 1.1 }}>
           {val.toFixed(2)}
         </p>
-        <p style={{ fontSize: '13px', fontWeight: '600', marginTop: '4px', color: isUp ? '#E84040' : isDown ? '#2563EB' : '#6B7280' }}>
+        <p style={{ fontSize: '15px', fontWeight: '700', marginTop: '4px', color: isUp ? '#E84040' : isDown ? '#2563EB' : '#6B7280' }}>
           {isUp ? '▲' : isDown ? '▼' : '—'} {Math.abs(pct).toFixed(2)}%
         </p>
       </div>

@@ -102,7 +102,7 @@ function DashboardPortfolioRow({ portfolio, onSell }) {
     <tr className="hover:bg-surface2 transition-colors group">
       {/* 종목명 */}
       <td className="py-2.5 pr-4">
-        <Link to={`/stock/${stock_symbol}`} className="hover:underline">
+        <Link to={`/stock/${stock_symbol}`} state={{ market, stockName: stock_name }} className="hover:underline">
           <p className="font-semibold text-text-primary">{stock_name}</p>
           <p className="text-[11px] text-text-muted">{stock_symbol} · {market}</p>
         </Link>

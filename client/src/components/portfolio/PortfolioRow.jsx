@@ -70,6 +70,7 @@ export default function PortfolioRow({ portfolio, rank }) {
         <td className="py-3 pr-4">
           <Link
             to={`/stock/${stock_symbol}`}
+            state={{ market, stockName: stock_name }}
             className="hover:underline"
             onClick={(e) => e.stopPropagation()}
           >

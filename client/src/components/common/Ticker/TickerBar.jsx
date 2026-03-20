@@ -104,14 +104,10 @@ export default function TickerBar() {
     );
   }
 
-  // USD/KRW 맨 앞 → 지수 → EUR/JPY
-  const usdItem = sortedFx.find((f) => f.symbol === 'USD_KRW');
-  const otherFx = sortedFx.filter((f) => f.symbol !== 'USD_KRW');
-
+  // 지수 → FX (USD/KRW → EUR/KRW → JPY/KRW)
   const items = [
-    ...(usdItem ? [{ type: 'fx', data: usdItem }] : []),
     ...sortedIdx.map((d) => ({ type: 'index', data: d })),
-    ...otherFx.map((d) => ({ type: 'fx', data: d })),
+    ...sortedFx.map((d) => ({ type: 'fx', data: d })),
   ];
   const doubled = [...items, ...items];
 

@@ -171,6 +171,46 @@ const searchStocks = async (query) => {
 };
 
 /**
+ * 종목 OHLCV 캔들 데이터 조회
+ * @param {string} yahooSymbol
+ * @param {'1d'|'5d'|'1mo'|'3mo'|'6mo'|'1y'|'5y'} range
+ * @returns {Array<{ time, open, high, low, close, volume }>}
+ */
+const fetchCandles = async (yahooSymbol, range = '3mo') => {
+  const intervalMap = { '1d': '5m', '5d': '15m', '1mo': '1d', '3mo': '1d', '6mo': '1d', '1y': '1wk', '5y': '1mo' };
+  const interval = intervalMap[range] || '1d';
+
+  const url =
+    `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(yahooSymbol)}` +
+    `?interval=${interval}&range=${range}&includePrePost=false`;
+
+  const data = await withRetry(() => httpsGet(url));
+  const result = data?.chart?.result?.[0];
+  if (!result) throw new Error(`No candle data for ${yahooSymbol}`);
+
+  const timestamps = result.timestamp || [];
+  const q = result.indicators?.quote?.[0] || {};
+  const opens   = q.open   || [];
+  const highs   = q.high   || [];
+  const lows    = q.low    || [];
+  const closes  = q.close  || [];
+  const volumes = q.volume || [];
+
+  const candles = timestamps
+    .map((t, i) => ({
+      time:   t,
+      open:   opens[i],
+      high:   highs[i],
+      low:    lows[i],
+      close:  closes[i],
+      volume: volumes[i],
+    }))
+    .filter((c) => c.close != null && c.open != null);
+
+  return { candles, meta: result.meta };
+};
+
+/**
  * 여러 종목 현재가 일괄 조회 (순차 실행, 실패해도 부분 성공)
  * @param {string[]} yahooSymbols
  * @returns {Array<{ symbol, price, change, changePct, prevClose, high52w, low52w } | null>}
@@ -184,4 +224,4 @@ const fetchQuotes = async (yahooSymbols) => {
   );
 };
 
-module.exports = { fetchQuote, fetchChart, searchStocks, fetchQuotes };
+module.exports = { fetchQuote, fetchChart, fetchCandles, searchStocks, fetchQuotes };

@@ -56,12 +56,12 @@ export default function FxCard({ data, compact = false }) {
             boxShadow: `0 0 5px ${meta.accent}90`,
             flexShrink: 0,
           }} />
-          <span style={{ fontSize: '11px', fontWeight: '600', color: meta.accent }}>{meta.name}</span>
+          <span style={{ fontSize: '14px', fontWeight: '700', color: meta.accent }}>{meta.name}</span>
         </div>
-        <p style={{ fontSize: '20px', fontWeight: '800', fontFamily: 'monospace', color: '#0F172A', letterSpacing: '-0.5px' }}>
+        <p style={{ fontSize: '22px', fontWeight: '800', fontFamily: 'monospace', color: '#0F172A', letterSpacing: '-0.5px' }}>
           {displayVal}
         </p>
-        <p style={{ fontSize: '12px', fontWeight: '600', marginTop: '3px', color: dirColor }}>
+        <p style={{ fontSize: '14px', fontWeight: '700', marginTop: '4px', color: dirColor }}>
           {isUp ? '▲' : isDown ? '▼' : '—'} {fmtPct(change_pct)}
         </p>
       </div>
@@ -85,10 +85,10 @@ export default function FxCard({ data, compact = false }) {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span style={{ fontSize: '16px' }}>{meta.flag}</span>
-          <p style={{ fontSize: '13px', fontWeight: '700', color: '#1E3A5F' }}>{meta.name}</p>
+          <p style={{ fontSize: '16px', fontWeight: '700', color: '#1E3A5F' }}>{meta.name}</p>
         </div>
         <span style={{
-          fontSize: '11px', fontWeight: '700', padding: '3px 10px', borderRadius: '9999px',
+          fontSize: '13px', fontWeight: '700', padding: '3px 10px', borderRadius: '9999px',
           background: isUp ? 'rgba(232,64,64,0.08)' : isDown ? 'rgba(37,99,235,0.08)' : 'rgba(107,114,128,0.08)',
           border: `1px solid ${isUp ? 'rgba(232,64,64,0.20)' : isDown ? 'rgba(37,99,235,0.20)' : 'rgba(107,114,128,0.20)'}`,
           color: dirColor,
@@ -103,7 +103,7 @@ export default function FxCard({ data, compact = false }) {
           <p style={{ fontSize: '24px', fontWeight: '800', fontFamily: 'monospace', color: '#0F172A', lineHeight: 1 }}>
             {displayVal}
           </p>
-          <p style={{ fontSize: '12px', fontWeight: '500', marginTop: '4px', color: dirColor }}>
+          <p style={{ fontSize: '14px', fontWeight: '700', marginTop: '4px', color: dirColor }}>
             {isUp ? '+' : ''}{symbol === 'JPY_KRW' ? change_val.toFixed(3) : fmtIndex(change_val)}
           </p>
         </div>

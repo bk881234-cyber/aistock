@@ -79,7 +79,7 @@ export default function WatchlistSection() {
 function WatchlistRow({ item, onRemove }) {
   return (
     <li className="flex items-center gap-2 py-1.5 px-2 rounded-lg hover:bg-surface2 group transition-colors">
-      <Link to={`/stock/${item.stock_symbol}`} className="flex-1 min-w-0">
+      <Link to={`/stock/${item.stock_symbol}`} state={{ market: item.market, stockName: item.stock_name }} className="flex-1 min-w-0">
         <p className="text-sm font-medium text-text-primary truncate">{item.stock_name}</p>
         <p className="text-[11px] text-text-muted">{item.stock_symbol} · {item.market}</p>
       </Link>

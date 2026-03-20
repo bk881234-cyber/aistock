@@ -83,7 +83,7 @@ export default function IndexChartCard({ data }) {
             background: accentColor.left,
             boxShadow: `0 0 6px ${accentColor.left}80`,
           }} />
-          <span style={{ fontSize: '14px', fontWeight: '700', color: '#1E3A5F' }}>
+          <span style={{ fontSize: '16px', fontWeight: '700', color: '#1E3A5F' }}>
             {LABELS[symbol] ?? symbol}
           </span>
           {marketState && (
@@ -129,7 +129,7 @@ export default function IndexChartCard({ data }) {
           {fmtIndex(current_val)}
         </p>
         <div className="flex items-center gap-1 mt-1.5" style={{
-          fontSize: '13px', fontWeight: '600',
+          fontSize: '15px', fontWeight: '700',
           color: isUp ? '#E84040' : isDown ? '#2563EB' : '#6B7280',
         }}>
           <span>{isUp ? '▲' : isDown ? '▼' : '—'}</span>

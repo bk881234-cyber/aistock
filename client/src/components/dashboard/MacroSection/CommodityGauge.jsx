@@ -70,8 +70,8 @@ export default function CommodityGauge({ data, label, usdKrw = 0, vixLevel = nul
       <div className="flex items-center gap-5">
         {/* 게이지 */}
         <div className="flex-shrink-0 text-center">
-          <GaugeChart value={gaugePos} size={96} vix={vixLevel} />
-          <p className="text-xs text-text-muted mt-1">1년 위치 {gaugePos}%</p>
+          <GaugeChart value={gaugePos} size={96} vix={vixLevel} color={barHexColor} />
+          <p className="text-[13px] font-semibold text-text-muted mt-1">1년 위치 {gaugePos}%</p>
         </div>
 
         {/* 가격 정보 */}
@@ -101,7 +101,7 @@ export default function CommodityGauge({ data, label, usdKrw = 0, vixLevel = nul
           {/* 52주 범위 바 */}
           {hi52 > 0 && lo52 > 0 && (
             <div className="mt-3">
-              <div className="flex justify-between text-[11px] text-text-muted mb-1">
+              <div className="flex justify-between text-[13px] text-text-muted mb-1">
                 <span>1년 최저가 ${(lo52 / OZ_TO_G).toFixed(2)}/g</span>
                 <span>1년 최고가 ${(hi52 / OZ_TO_G).toFixed(2)}/g</span>
               </div>
@@ -122,7 +122,7 @@ export default function CommodityGauge({ data, label, usdKrw = 0, vixLevel = nul
                   }}
                 />
               </div>
-              <p className="text-[10px] text-text-muted mt-1.5">
+              <p className="text-[12px] text-text-muted mt-1.5">
                 현재 가격은 1년 최저가~최고가 사이의 <span className="font-bold text-text-secondary">{gaugePos}%</span> 위치
                 {gaugePos >= 80 && <span className="text-danger ml-1">— 연고점 근처</span>}
                 {gaugePos <= 20 && <span className="text-safe ml-1">— 연저점 근처</span>}

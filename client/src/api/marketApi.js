@@ -38,3 +38,12 @@ export const searchStock = (q) =>
  */
 export const getIndexChart = (symbol, range = '1d') =>
   api.get(`/market/chart/${symbol}`, { params: { range } }).then((r) => r.data.data);
+
+/**
+ * 종목 상세 — 현재가 + OHLCV 캔들 (3개월 기본)
+ * @param {string} symbol - '005930' | 'AAPL' | ...
+ * @param {string} market - 'KOSPI' | 'KOSDAQ' | 'US' | (생략 가능)
+ * @param {string} range  - '1mo' | '3mo' | '6mo' | '1y' | '5y'
+ */
+export const getStockDetail = (symbol, market, range = '3mo') =>
+  api.get(`/market/stock/${symbol}`, { params: { market, range } }).then((r) => r.data.data);
