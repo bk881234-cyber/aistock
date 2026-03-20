@@ -24,8 +24,12 @@ axiosInstance.interceptors.response.use(
     const message = error.response?.data?.message;
 
     if (status === 401) {
-      localStorage.removeItem('aistock_token');
-      window.dispatchEvent(new Event('auth:logout'));
+      const url = error.config?.url || '';
+      // 로그인/회원가입 요청의 401은 자격증명 오류 — 강제 로그아웃 제외
+      if (!url.includes('/auth/login') && !url.includes('/auth/register')) {
+        localStorage.removeItem('aistock_token');
+        window.dispatchEvent(new Event('auth:logout'));
+      }
     } else if (status === 429) {
       toast.error(message || '요청이 너무 많습니다. 잠시 후 다시 시도해주세요.');
       error._toastShown = true;
