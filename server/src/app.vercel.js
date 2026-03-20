@@ -113,8 +113,9 @@ const handler = async (req, res) => {
   try {
     await initOnce();
   } catch (err) {
-    console.error('[FATAL] 초기화 실패:', err.message);
-    return res.status(503).json({ success: false, message: `DB 연결 실패: ${err.message}` });
+    // DB 연결 실패해도 503 반환하지 않음
+    // → 각 엔드포인트가 개별적으로 빈 데이터(200) 반환하여 에러 토스트 방지
+    console.error('[WARN] DB 초기화 실패, 요청 처리 계속:', err.message);
   }
   return app(req, res);
 };
