@@ -34,13 +34,17 @@ module.exports = async (req, res) => {
     await sequelize.authenticate();
     result.db = '✅ DB 연결 성공';
 
+    // raw 결과 그대로 반환 — 컬럼명 파악용
     const [tables] = await sequelize.query(
       `SELECT tablename FROM pg_tables WHERE schemaname = 'public' ORDER BY tablename;`
     );
+    const [cnt] = await sequelize.query(
+      `SELECT COUNT(*)::int AS cnt FROM pg_tables WHERE schemaname = 'public';`
+    );
 
-    result.tables = tables.length > 0
-      ? tables.map((t) => t.tablename)
-      : '❌ 테이블 없음 — Supabase SQL Editor에서 스키마를 실행하세요';
+    result.table_count = cnt[0];          // 테이블 개수 raw
+    result.tables_raw = tables.slice(0, 3); // 첫 3행 raw (컬럼명 확인용)
+    result.tables = tables.map((t) => t.tablename ?? JSON.stringify(t));
 
   } catch (err) {
     result.db = `❌ DB 연결 실패: ${err.message}`;
