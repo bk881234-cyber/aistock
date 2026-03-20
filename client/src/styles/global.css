@@ -31,10 +31,22 @@
     @apply text-lg font-bold text-text-primary mb-4;
   }
 
-  /* ─ 수익률 뱃지 ─ */
-  .badge-bull  { @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-sm font-semibold bg-bull/8 text-bull border border-bull/15; }
-  .badge-bear  { @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-sm font-semibold bg-bear/8 text-bear border border-bear/15; }
-  .badge-flat  { @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-sm font-semibold bg-neutral/10 text-neutral border border-neutral/15; }
+  /* ─ 수익률 뱃지 (opacity 변형자는 @apply 불가 → rgba 직접 사용) ─ */
+  .badge-bull {
+    @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-sm font-semibold text-bull;
+    background-color: rgba(232, 64, 64, 0.08);
+    border: 1px solid rgba(232, 64, 64, 0.15);
+  }
+  .badge-bear {
+    @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-sm font-semibold text-bear;
+    background-color: rgba(37, 99, 235, 0.08);
+    border: 1px solid rgba(37, 99, 235, 0.15);
+  }
+  .badge-flat {
+    @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-sm font-semibold text-neutral;
+    background-color: rgba(107, 114, 128, 0.10);
+    border: 1px solid rgba(107, 114, 128, 0.15);
+  }
 
   /* ─ 버튼 ─ */
   .btn-primary {
