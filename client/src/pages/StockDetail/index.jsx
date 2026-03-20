@@ -5,6 +5,7 @@ import AIReport from '@/components/ai/AIReport';
 import WeatherWidget from '@/components/ai/WeatherWidget';
 import SignalLight from '@/components/common/SignalLight';
 import NewsAnalysisPanel from '@/components/ai/NewsAnalysisPanel';
+import StockMemo from '@/components/stock/StockMemo';
 import { fmtKRW, fmtPct } from '@/utils/formatters';
 import { getStockDetail } from '@/api/marketApi';
 
@@ -122,9 +123,9 @@ export default function StockDetail() {
       </div>
 
       {/* 2열 레이아웃 */}
-      <div className="grid grid-cols-12 gap-5">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         {/* 차트 */}
-        <div className="col-span-8 space-y-5">
+        <div className="lg:col-span-8 space-y-5">
           <TVChart
             symbol={symbol}
             name={displayName}
@@ -139,8 +140,8 @@ export default function StockDetail() {
           />
         </div>
 
-        {/* AI 리포트 */}
-        <div className="col-span-4">
+        {/* AI 리포트 + 메모 */}
+        <div className="lg:col-span-4 space-y-4">
           <AIReport
             symbol={symbol}
             stockData={{
@@ -151,6 +152,7 @@ export default function StockDetail() {
               returnPct: changePct ?? 0,
             }}
           />
+          <StockMemo symbol={symbol} />
         </div>
       </div>
     </div>

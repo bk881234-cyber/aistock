@@ -74,6 +74,10 @@ const getReport = async (req, res) => {
  */
 const generateReport = async (req, res) => {
   try {
+    const env = require('../config/env');
+    if (!env.gemini.apiKey) {
+      return error(res, 'AI 기능을 사용하려면 Gemini API 키 설정이 필요합니다. Vercel 환경변수에 GEMINI_API_KEY를 추가해주세요.', 503);
+    }
     const { symbol } = req.params;
     const { type = 'news_summary' } = req.body;
     const reportService = require('../services/ai/reportService');
@@ -81,7 +85,7 @@ const generateReport = async (req, res) => {
     return success(res, report, 'AI 리포트가 생성되었습니다.');
   } catch (err) {
     console.error('[ai] generateReport 오류:', err.message);
-    return error(res, 'AI 리포트 생성 중 오류가 발생했습니다.');
+    return error(res, `AI 리포트 생성 중 오류가 발생했습니다: ${err.message}`);
   }
 };
 

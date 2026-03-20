@@ -206,7 +206,7 @@ const searchStock = async (req, res) => {
 
     const normalize = (items) =>
       items
-        .filter((item) => ['EQUITY', 'ETF', 'MUTUALFUND', 'INDEX'].includes(item.quoteType))
+        .filter((item) => !['OPTION', 'CURRENCY', 'CRYPTOCURRENCY', 'FUTURE'].includes(item.quoteType))
         .slice(0, 8)
         .map((item) => {
           let market;
