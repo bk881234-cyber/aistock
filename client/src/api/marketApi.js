@@ -30,3 +30,11 @@ export const getCommodities = () =>
  */
 export const searchStock = (q) =>
   api.get('/market/search', { params: { q } }).then((r) => r.data.data);
+
+/**
+ * 지수/원자재 차트 스파크라인 (일/주/월/년)
+ * @param {string} symbol - 'KOSPI' | 'NASDAQ' | 'GOLD_USD' | ...
+ * @param {string} range  - '1d' | '5d' | '1mo' | '1y'
+ */
+export const getIndexChart = (symbol, range = '1d') =>
+  api.get(`/market/chart/${symbol}`, { params: { range } }).then((r) => r.data.data);

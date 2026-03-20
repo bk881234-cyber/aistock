@@ -12,7 +12,22 @@
       "Bash(python -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(''''deps:'''', list\\(d.get\\(''''dependencies'''',{}\\).keys\\(\\)\\)\\)\")",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(sed -i \"s/type: DataTypes.ENUM\\(''KOSPI'', ''KOSDAQ'', ''NYSE'', ''NASDAQ''\\)/type: DataTypes.STRING\\(10\\)/\" server/src/models/Portfolio.js)",
+      "Bash(sed -i \"s/type: DataTypes.ENUM\\(''active'', ''closed''\\)/type: DataTypes.STRING\\(10\\)/\" server/src/models/Portfolio.js)",
+      "Bash(sed -i \"s/type: DataTypes.ENUM\\(''index'', ''fx'', ''commodity'', ''stock''\\)/type: DataTypes.STRING\\(20\\)/\" server/src/models/MarketCache.js)",
+      "Bash(sed -i \"s/type: DataTypes.ENUM\\(''KOSPI'', ''KOSDAQ'', ''NYSE'', ''NASDAQ''\\)/type: DataTypes.STRING\\(10\\)/\" server/src/models/Watchlist.js)",
+      "Bash(sed -i \"s/type: DataTypes.ENUM\\(''news_summary'', ''sell_guide'', ''sector_outlook''\\)/type: DataTypes.STRING\\(30\\)/\" server/src/models/AIReport.js)",
+      "Bash(sed -i \"s/type: DataTypes.ENUM\\(''portfolio_snapshot'', ''stock_analysis'', ''market_overview''\\)/type: DataTypes.STRING\\(30\\)/\" server/src/models/SharedCard.js)",
+      "Bash(echo \"ENUM count: $?\")",
+      "Bash(find /c/Users/bkbk8/AIstock -type f -name *.log -o -name *error* -o -name *Error*)",
+      "Bash(find /c/Users/bkbk8/AIstock -type f \\\\\\(-name *.log -o -name logs -o -name *stdout* -o -name *stderr* \\\\\\))",
+      "mcp__ide__getDiagnostics",
+      "Bash(npm list:*)",
+      "Bash(find /c/Users/bkbk8/AIstock -name *.test.* -o -name *.spec.*)",
+      "Bash(gh run:*)",
+      "Bash(npm run:*)",
+      "Bash(find /c/Users/bkbk8/AIstock -maxdepth 3 -type f \\\\\\(-name tailwind.config.* -o -name *.config.js \\\\\\))"
     ]
   }
 }

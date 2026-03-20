@@ -7,7 +7,7 @@ const LABELS = {
   NASDAQ: '나스닥',
   SPX:    'S&P 500',
   DOW:    '다우',
-  VIX:    'VIX 공포지수',
+  VIX:    'VIX',
 };
 
 export default function IndexCard({ data, compact = false }) {
@@ -16,74 +16,87 @@ export default function IndexCard({ data, compact = false }) {
   const { symbol, current_val, change_val, change_pct, raw_json } = data;
   const isUp   = change_pct > 0;
   const isDown = change_pct < 0;
-  const marketState = raw_json?.marketState;
 
   if (compact) {
     return (
-      <div className="card-hover p-3 relative overflow-hidden">
-        <p className="text-[10px] font-medium text-text-muted">{LABELS[symbol] ?? symbol}</p>
-        <p className="text-base font-bold font-mono text-text-primary mt-0.5">
+      <div className={clsx(
+        'relative overflow-hidden rounded-card border p-4 backdrop-blur-xl transition-all duration-200',
+        isUp
+          ? 'bg-bull/8 border-bull/25'
+          : isDown
+          ? 'bg-bear/8 border-bear/25'
+          : 'bg-white/50 border-white/60',
+      )}>
+        {/* 상단 바 */}
+        <div className={clsx(
+          'absolute top-0 left-0 right-0 h-[2px] rounded-t-card',
+          isUp ? 'bg-bull' : isDown ? 'bg-bear' : 'bg-neutral',
+        )} />
+
+        <p className="text-sm font-bold text-text-secondary pt-1">{LABELS[symbol] ?? symbol}</p>
+        <p className="text-xl font-bold font-mono text-text-primary mt-0.5">
           {fmtIndex(current_val)}
         </p>
-        <p className={clsx('text-[11px] font-semibold', directionClass(change_pct))}>
+        <p className={clsx('text-base font-semibold mt-0.5', directionClass(change_pct))}>
           {isUp ? '▲' : isDown ? '▼' : '—'} {fmtPct(change_pct)}
         </p>
-        <div className={clsx('absolute left-0 top-2 bottom-2 w-0.5 rounded-full', isUp ? 'bg-bull' : isDown ? 'bg-bear' : 'bg-neutral')} />
       </div>
     );
   }
 
+  // non-compact (row 1용 - IndexChartCard로 대체됨, fallback)
   return (
     <div className={clsx(
-      'card-hover p-4 relative overflow-hidden',
-      isUp && 'bg-gradient-to-br from-surface to-bull-light',
-      isDown && 'bg-gradient-to-br from-surface to-bear-light',
+      'relative overflow-hidden rounded-card border p-5 backdrop-blur-xl transition-all duration-200',
+      'hover:-translate-y-0.5 hover:shadow-cardHover',
+      isUp
+        ? 'bg-bull/8 border-bull/25'
+        : isDown
+        ? 'bg-bear/8 border-bear/25'
+        : 'bg-white/50 border-white/60',
     )}>
-      {/* 헤더 */}
-      <div className="flex items-start justify-between mb-2">
+      <div className={clsx(
+        'absolute top-0 left-0 right-0 h-[3px] rounded-t-card',
+        isUp ? 'bg-bull' : isDown ? 'bg-bear' : 'bg-neutral',
+      )} />
+
+      <div className="flex items-start justify-between mb-2 pt-1">
         <div>
-          <p className="text-[11px] font-medium text-text-muted">{LABELS[symbol] ?? symbol}</p>
-          <p className="text-xl font-bold font-mono text-text-primary mt-0.5">
+          <p className="text-base font-bold text-text-secondary">{LABELS[symbol] ?? symbol}</p>
+          <p className="text-2xl font-bold font-mono text-text-primary mt-1">
             {fmtIndex(current_val)}
           </p>
         </div>
-        {/* 마켓 상태 뱃지 */}
-        {marketState && (
+        {raw_json?.marketState && (
           <span className={clsx(
-            'text-[10px] px-1.5 py-0.5 rounded-full font-medium',
-            marketState === 'REGULAR'
-              ? 'bg-bull-light text-bull'
-              : 'bg-neutral-light text-neutral'
+            'text-xs px-2 py-0.5 rounded-full font-semibold border',
+            raw_json.marketState === 'REGULAR'
+              ? 'bg-bull/10 text-bull border-bull/20'
+              : 'bg-neutral/10 text-neutral border-neutral/20',
           )}>
-            {marketState === 'REGULAR' ? '장중' : '장외'}
+            {raw_json.marketState === 'REGULAR' ? '장중' : '장외'}
           </span>
         )}
       </div>
 
-      {/* 등락 */}
-      <div className={clsx('flex items-center gap-1.5 text-sm font-semibold', directionClass(change_pct))}>
+      <div className={clsx('flex items-center gap-1.5 text-base font-semibold', directionClass(change_pct))}>
         <span>{isUp ? '▲' : isDown ? '▼' : '—'}</span>
         <span>{fmtIndex(Math.abs(change_val))}</span>
-        <span className="text-[12px]">({fmtPct(change_pct)})</span>
+        <span className="text-sm opacity-80">({fmtPct(change_pct)})</span>
       </div>
-
-      {/* 좌측 컬러 바 */}
-      <div
-        className={clsx(
-          'absolute left-0 top-3 bottom-3 w-1 rounded-full',
-          isUp ? 'bg-bull' : isDown ? 'bg-bear' : 'bg-neutral'
-        )}
-      />
     </div>
   );
 }
 
 function SkeletonCard({ compact = false }) {
   return (
-    <div className={`card ${compact ? 'p-3' : 'p-4'} space-y-2 animate-pulse`}>
-      <div className="h-3 w-16 bg-border rounded" />
-      <div className={`${compact ? 'h-5' : 'h-6'} w-24 bg-border rounded`} />
-      <div className="h-3 w-20 bg-border rounded" />
+    <div className={clsx(
+      'rounded-card border border-white/60 bg-white/50 backdrop-blur-xl animate-pulse',
+      compact ? 'p-4 space-y-2' : 'p-5 space-y-2',
+    )}>
+      <div className="h-4 w-16 bg-black/10 rounded" />
+      <div className={clsx('bg-black/10 rounded', compact ? 'h-6 w-24' : 'h-7 w-28')} />
+      <div className="h-4 w-20 bg-black/10 rounded" />
     </div>
   );
 }

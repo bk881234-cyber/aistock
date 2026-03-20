@@ -241,4 +241,64 @@ const searchStock = async (req, res) => {
   }
 };
 
-module.exports = { getIndices, getFx, getCommodities, getOverview, searchStock };
+/** Yahoo Finance 심볼 매핑 (차트용) */
+const CHART_SYMBOLS = {
+  KOSPI: '^KS11', KOSDAQ: '^KQ11', NASDAQ: '^IXIC', SPX: '^GSPC',
+  DOW: '^DJI', VIX: '^VIX', GOLD_USD: 'GC=F', SILVER_USD: 'SI=F',
+};
+const RANGE_PARAMS = {
+  '1d':  { interval: '5m',  range: '1d'  },
+  '5d':  { interval: '30m', range: '5d'  },
+  '1mo': { interval: '1d',  range: '1mo' },
+  '1y':  { interval: '1wk', range: '1y'  },
+};
+const CHART_TTL = { '1d': 60, '5d': 300, '1mo': 600, '1y': 3600 };
+
+/**
+ * GET /api/market/chart/:symbol?range=1d|5d|1mo|1y
+ * 지수/원자재 차트 스파크라인 반환 (Redis 캐시)
+ */
+const getChart = async (req, res) => {
+  const { symbol } = req.params;
+  const range = RANGE_PARAMS[req.query.range] ? req.query.range : '1d';
+  const yahooSym = CHART_SYMBOLS[symbol];
+  if (!yahooSym) return error(res, '지원하지 않는 심볼', 400);
+
+  try {
+    const CACHE_KEY = `market:chart:${symbol}:${range}`;
+    const cached = await getCache(CACHE_KEY);
+    if (cached) return success(res, cached);
+
+    const axios = require('axios');
+    const { interval, range: r } = RANGE_PARAMS[range];
+    const { data } = await axios.get(
+      `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(yahooSym)}`,
+      {
+        params: { interval, range: r },
+        timeout: 8000,
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+          Accept: 'application/json',
+        },
+      },
+    );
+
+    const result = data?.chart?.result?.[0];
+    if (!result) return success(res, { symbol, range, sparkline: [] });
+
+    const timestamps = result.timestamp ?? [];
+    const closes = result.indicators?.quote?.[0]?.close ?? [];
+    const sparkline = timestamps
+      .map((t, i) => ({ t: t * 1000, v: closes[i] }))
+      .filter((d) => d.v != null);
+
+    const payload = { symbol, range, sparkline };
+    await setCache(CACHE_KEY, payload, CHART_TTL[range]);
+    return success(res, payload);
+  } catch (err) {
+    console.error(`[market] getChart ${symbol}/${range} 오류:`, err.message);
+    return success(res, { symbol, range, sparkline: [] });
+  }
+};
+
+module.exports = { getIndices, getFx, getCommodities, getOverview, searchStock, getChart };

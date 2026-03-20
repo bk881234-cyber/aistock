@@ -3,27 +3,38 @@ import { useAuthStore } from '@/store/authStore';
 import clsx from 'clsx';
 
 const NAV_ITEMS = [
-  { to: '/',          icon: '📊', label: '대시보드'    },
-  { to: '/portfolio', icon: '💼', label: '포트폴리오'  },
-  { to: '/watchlist', icon: '⭐', label: '관심 종목'   },
-  { to: '/curation',  icon: '🔥', label: '트렌드'      },
+  { to: '/',          label: '대시보드',  icon: '▣' },
+  { to: '/portfolio', label: '포트폴리오', icon: '◈' },
+  { to: '/watchlist', label: '관심 종목', icon: '◎' },
+  { to: '/curation',  label: '트렌드',    icon: '◉' },
 ];
 
 const BOTTOM_ITEMS = [
-  { to: '/settings', icon: '⚙️', label: '설정' },
+  { to: '/settings', label: '설정', icon: '◐' },
 ];
 
 export default function Sidebar() {
   const { user, logout } = useAuthStore();
 
   return (
-    <aside className="w-56 flex-shrink-0 bg-surface border-r border-border flex flex-col h-full">
+    <aside className={clsx(
+      'hidden md:flex w-56 flex-shrink-0 flex-col h-full',
+      'bg-white/50 backdrop-blur-xl border-r border-white/60',
+      'shadow-[1px_0_16px_rgba(31,38,135,0.06)]',
+    )}>
       {/* 로고 */}
-      <div className="px-5 py-5 border-b border-border">
-        <span className="text-lg font-bold text-primary tracking-tight">
-          AI<span className="text-text-primary">stock</span>
-        </span>
-        <p className="text-[11px] text-text-muted mt-0.5">AI 주식 트래커</p>
+      <div className="px-5 py-5 border-b border-white/40">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+            <span className="text-white text-xs font-black">AI</span>
+          </div>
+          <div>
+            <span className="text-base font-bold text-primary tracking-tight">
+              AI<span className="text-text-primary">stock</span>
+            </span>
+            <p className="text-xs text-text-muted">주식 트래커</p>
+          </div>
+        </div>
       </div>
 
       {/* 메인 네비 */}
@@ -35,46 +46,46 @@ export default function Sidebar() {
             end={to === '/'}
             className={({ isActive }) =>
               clsx(
-                'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
+                'flex items-center gap-3 px-3 py-3 rounded-xl text-base font-semibold transition-all duration-150',
                 isActive
-                  ? 'bg-primary-light text-primary'
-                  : 'text-text-secondary hover:bg-surface2 hover:text-text-primary'
+                  ? 'bg-primary/10 text-primary shadow-sm border border-primary/20'
+                  : 'text-text-secondary hover:bg-white/60 hover:text-text-primary border border-transparent',
               )
             }
           >
-            <span className="text-base leading-none">{icon}</span>
+            <span className="text-base w-5 text-center leading-none">{icon}</span>
             {label}
           </NavLink>
         ))}
       </nav>
 
       {/* 하단 영역 */}
-      <div className="px-3 py-4 border-t border-border space-y-1">
+      <div className="px-3 py-4 border-t border-white/40 space-y-1">
         {BOTTOM_ITEMS.map(({ to, icon, label }) => (
           <NavLink
             key={to}
             to={to}
             className={({ isActive }) =>
               clsx(
-                'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
+                'flex items-center gap-3 px-3 py-3 rounded-xl text-base font-semibold transition-all duration-150',
                 isActive
-                  ? 'bg-primary-light text-primary'
-                  : 'text-text-secondary hover:bg-surface2 hover:text-text-primary'
+                  ? 'bg-primary/10 text-primary border border-primary/20'
+                  : 'text-text-secondary hover:bg-white/60 hover:text-text-primary border border-transparent',
               )
             }
           >
-            <span className="text-base leading-none">{icon}</span>
+            <span className="text-base w-5 text-center leading-none">{icon}</span>
             {label}
           </NavLink>
         ))}
 
-        {/* 사용자 정보 + 로그아웃 */}
-        <div className="mt-3 px-3 py-3 bg-surface2 rounded-lg">
-          <p className="text-xs font-semibold text-text-primary truncate">{user?.name}</p>
-          <p className="text-[11px] text-text-muted truncate">{user?.email}</p>
+        {/* 사용자 정보 */}
+        <div className="mt-3 px-3 py-3 bg-white/50 rounded-xl border border-white/60">
+          <p className="text-sm font-bold text-text-primary truncate">{user?.name}</p>
+          <p className="text-xs text-text-muted truncate">{user?.email}</p>
           <button
             onClick={logout}
-            className="mt-2 text-[11px] text-text-muted hover:text-bear transition-colors"
+            className="mt-2 text-xs text-text-muted hover:text-bear transition-colors font-medium"
           >
             로그아웃
           </button>

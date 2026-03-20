@@ -8,9 +8,9 @@ export default {
         primary:   { DEFAULT: '#1A56DB', light: '#EBF0FF', dark: '#1139A6' },
         accent:    { DEFAULT: '#7C3AED', light: '#F3EFFE' },
 
-        // ── 시그널 컬러 ────────────────────────────────────
-        bull:      { DEFAULT: '#0FA36E', light: '#E6F9F3' },  // 상승 (초록)
-        bear:      { DEFAULT: '#E84040', light: '#FEE9E9' },  // 하락 (빨강)
+        // ── 시그널 컬러 (한국 증시 관례: 상승=빨강, 하락=파랑) ──
+        bull:      { DEFAULT: '#E84040', light: '#FEF2F2' },  // 상승 (빨강)
+        bear:      { DEFAULT: '#2563EB', light: '#EFF6FF' },  // 하락 (파랑)
         neutral:   { DEFAULT: '#6B7280', light: '#F3F4F6' },  // 보합 (회색)
 
         // ── 날씨 컬러 ──────────────────────────────────────
@@ -38,9 +38,10 @@ export default {
       },
 
       boxShadow: {
-        card:  '0 1px 3px 0 rgba(0,0,0,.06), 0 1px 2px -1px rgba(0,0,0,.04)',
-        cardHover: '0 4px 12px 0 rgba(0,0,0,.10)',
-        panel: '0 0 0 1px rgba(0,0,0,.06), 0 2px 8px rgba(0,0,0,.06)',
+        card:      '0 4px 24px rgba(31,38,135,0.07), 0 1px 4px rgba(0,0,0,0.04)',
+        cardHover: '0 8px 40px rgba(31,38,135,0.13), 0 2px 8px rgba(0,0,0,0.07)',
+        panel:     '0 0 0 1px rgba(255,255,255,0.6), 0 8px 32px rgba(31,38,135,0.08)',
+        glass:     'inset 0 1px 0 rgba(255,255,255,0.7), 0 8px 32px rgba(31,38,135,0.10)',
       },
 
       borderRadius: {
@@ -70,12 +71,12 @@ export default {
           to:   { opacity: '1', transform: 'translateY(0)' },
         },
         'pulse-bull': {
-          '0%, 100%': { boxShadow: '0 0 0 0 rgba(15, 163, 110, .4)' },
-          '50%':      { boxShadow: '0 0 0 8px rgba(15, 163, 110, 0)' },
-        },
-        'pulse-bear': {
           '0%, 100%': { boxShadow: '0 0 0 0 rgba(232, 64, 64, .4)' },
           '50%':      { boxShadow: '0 0 0 8px rgba(232, 64, 64, 0)' },
+        },
+        'pulse-bear': {
+          '0%, 100%': { boxShadow: '0 0 0 0 rgba(37, 99, 235, .4)' },
+          '50%':      { boxShadow: '0 0 0 8px rgba(37, 99, 235, 0)' },
         },
       },
     },

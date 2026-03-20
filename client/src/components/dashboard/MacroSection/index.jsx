@@ -1,9 +1,10 @@
 import { useMarketStore } from '@/store/marketStore';
+import IndexChartCard from './IndexChartCard';
 import IndexCard from './IndexCard';
 import FxCard from './FxCard';
 import CommodityGauge from './CommodityGauge';
 
-// Row 1: 주요 4대 지수
+// Row 1: 주요 4대 지수 (차트 포함)
 const ROW1 = ['KOSPI', 'KOSDAQ', 'NASDAQ', 'SPX'];
 // Row 2: 보조 지수 + 환율
 const ROW2_IDX = ['DOW', 'VIX'];
@@ -21,10 +22,10 @@ export default function MacroSection() {
 
   return (
     <div className="space-y-3">
-      {/* Row 1: 코스피·코스닥·나스닥·S&P500 */}
-      <div className="grid grid-cols-4 gap-3">
+      {/* Row 1: 주요 4대 지수 (차트 카드) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {row1.map((idx, i) => (
-          <IndexCard key={ROW1[i]} data={idx} />
+          <IndexChartCard key={ROW1[i]} data={idx} />
         ))}
       </div>
 
@@ -35,7 +36,6 @@ export default function MacroSection() {
             <IndexCard data={idx} compact />
           </div>
         ))}
-
         {shownFx.map((f, i) => (
           <div key={FX_ORDER[i]} className="col-span-2">
             <FxCard data={f} compact />
@@ -44,13 +44,13 @@ export default function MacroSection() {
       </div>
 
       {/* Row 3: 금 + 은 (원자재, KRW 환산) */}
-      <div className="grid grid-cols-2 gap-3">
-        <CommodityGauge data={gold}   label="금" emoji="🥇" usdKrw={usdKrw} />
-        <CommodityGauge data={silver} label="은" emoji="🥈" usdKrw={usdKrw} />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <CommodityGauge data={gold}   label="금 (Gold)"   usdKrw={usdKrw} />
+        <CommodityGauge data={silver} label="은 (Silver)" usdKrw={usdKrw} />
       </div>
 
       {lastUpdated && (
-        <p className="text-[10px] text-text-muted text-right">
+        <p className="text-sm text-text-muted text-right">
           업데이트: {lastUpdated.toLocaleTimeString('ko-KR')}
           {loading && <span className="ml-1 text-primary animate-pulse">●</span>}
         </p>

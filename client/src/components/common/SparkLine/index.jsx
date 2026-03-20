@@ -9,7 +9,7 @@ import * as d3 from 'd3';
  * @param {string} color   - 선 색상
  * @param {boolean} filled - 아래 영역 채움 여부
  */
-export default function SparkLine({ data = [], width = 100, height = 40, color = '#1A56DB', filled = true }) {
+export default function SparkLine({ data = [], width = 100, height = 40, color = '#1A56DB', filled = true, responsive = false }) {
   const svgRef = useRef(null);
 
   useEffect(() => {
@@ -22,9 +22,14 @@ export default function SparkLine({ data = [], width = 100, height = 40, color =
     const w = width  - margin.left - margin.right;
     const h = height - margin.top  - margin.bottom;
 
+    // responsive 모드: viewBox만 설정, 실제 width/height는 CSS가 제어
+    if (responsive) {
+      svg.attr('viewBox', `0 0 ${width} ${height}`).attr('preserveAspectRatio', 'none');
+    } else {
+      svg.attr('width', width).attr('height', height);
+    }
+
     const g = svg
-      .attr('width', width)
-      .attr('height', height)
       .append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`);
 
@@ -84,5 +89,15 @@ export default function SparkLine({ data = [], width = 100, height = 40, color =
       .attr('fill', color);
   }, [data, width, height, color, filled]);
 
+  if (responsive) {
+    return (
+      <svg
+        ref={svgRef}
+        className="block w-full"
+        viewBox={`0 0 ${width} ${height}`}
+        preserveAspectRatio="none"
+      />
+    );
+  }
   return <svg ref={svgRef} className="block" />;
 }

@@ -1,0 +1,22 @@
+{
+  "name": "AIstock — AI 주식 트래커",
+  "short_name": "AIstock",
+  "description": "AI 기반 실시간 주식 트래킹 및 포트폴리오 관리",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#1A56DB",
+  "background_color": "#dbeafe",
+  "lang": "ko",
+  "categories": ["finance", "utilities"],
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "prefer_related_applications": false
+}
