@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const env = require('../config/env');
-const { User, UserProfile } = require('../models');
+const { sequelize, User, UserProfile } = require('../models');
 const { success, error } = require('../utils/response');
 
 const generateToken = (userId) =>
@@ -22,11 +22,13 @@ const register = async (req, res) => {
       return error(res, '이미 사용 중인 이메일입니다.', 409);
     }
 
-    const user = await User.create({ email, password_hash: password, name });
-    await UserProfile.create({ user_id: user.id });
+    const { token, user: newUser } = await sequelize.transaction(async (t) => {
+      const user = await User.create({ email, password_hash: password, name }, { transaction: t });
+      await UserProfile.create({ user_id: user.id }, { transaction: t });
+      return { token: generateToken(user.id), user };
+    });
 
-    const token = generateToken(user.id);
-    return success(res, { token, user: { id: user.id, email: user.email, name: user.name } }, '회원가입 성공', 201);
+    return success(res, { token, user: { id: newUser.id, email: newUser.email, name: newUser.name } }, '회원가입 성공', 201);
   } catch (err) {
     console.error('[auth] register 오류:', err);
     return error(res, `회원가입 중 오류가 발생했습니다: ${err.message}`);

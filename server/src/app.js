@@ -56,6 +56,8 @@ app.use(cors({
   origin: (origin, cb) => {
     // 서버 내부 요청 (curl, Postman 등) 허용
     if (!origin) return cb(null, true);
+    // '*' 와일드카드면 모두 허용 (개발 환경 기본값)
+    if (env.allowedOrigins.includes('*')) return cb(null, true);
     if (env.allowedOrigins.includes(origin)) return cb(null, true);
     cb(new Error(`CORS 정책 위반: ${origin}`));
   },
