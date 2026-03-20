@@ -64,7 +64,7 @@ app.use('/api/alerts',    alertRoutes);
 app.get('/api/health', async (req, res) => {
   try {
     await sequelize.authenticate();
-    res.json({ status: 'ok', timestamp: new Date().toISOString(), runtime: 'vercel' });
+    res.json({ status: 'ok', timestamp: new Date().toISOString(), runtime: 'vercel', deploy_check: 'v2026-03-20' });
   } catch {
     res.status(503).json({ status: 'error', message: 'DB 연결 오류' });
   }
