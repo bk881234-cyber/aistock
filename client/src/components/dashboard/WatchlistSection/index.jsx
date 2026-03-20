@@ -107,18 +107,16 @@ function AddWatchlistInline({ onAdd, onCancel }) {
   const [query,    setQuery]    = useState('');
   const [results,  setResults]  = useState([]);
   const [searching, setSearching] = useState(false);
-  const [showDrop, setShowDrop]  = useState(false);
   const debounceRef = useRef(null);
 
   useEffect(() => {
-    if (!query.trim()) { setResults([]); setShowDrop(false); return; }
+    if (!query.trim()) { setResults([]); return; }
     setSearching(true);
     clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(async () => {
       try {
         const data = await searchStock(query);
         setResults(data ?? []);
-        setShowDrop(true);
       } catch {
         setResults([]);
       } finally {
@@ -130,7 +128,7 @@ function AddWatchlistInline({ onAdd, onCancel }) {
   const select = (item) => {
     setForm({ stock_symbol: item.symbol, stock_name: item.name, market: item.market });
     setQuery(item.name);
-    setShowDrop(false);
+    setResults([]);
   };
 
   return (
@@ -149,20 +147,28 @@ function AddWatchlistInline({ onAdd, onCancel }) {
             <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-text-muted animate-pulse">●</span>
           )}
         </div>
-        {showDrop && results.length > 0 && (
-          <ul className="absolute z-20 w-full mt-1 bg-surface border border-border rounded-lg shadow-cardHover max-h-44 overflow-y-auto">
-            {results.map((item) => (
-              <li
-                key={item.yahooSymbol}
-                className="flex items-center gap-2 px-3 py-2 cursor-pointer hover:bg-surface2 text-xs"
-                onMouseDown={() => select(item)}
-              >
-                <span className="text-[9px] font-bold text-white bg-primary rounded px-1 flex-shrink-0">{item.market}</span>
-                <span className="font-medium text-text-primary truncate">{item.name}</span>
-                <span className="text-text-muted ml-auto flex-shrink-0">{item.symbol}</span>
-              </li>
-            ))}
-          </ul>
+        {query.trim() && !searching && (
+          <div className="absolute z-20 w-full mt-1 bg-surface border border-border rounded-lg shadow-cardHover overflow-hidden">
+            {results.length > 0 ? (
+              <ul className="max-h-44 overflow-y-auto">
+                {results.map((item) => (
+                  <li
+                    key={item.yahooSymbol}
+                    className="flex items-center gap-2 px-3 py-2 cursor-pointer hover:bg-surface2 text-xs"
+                    onMouseDown={() => select(item)}
+                  >
+                    <span className="text-[9px] font-bold text-white bg-primary rounded px-1 flex-shrink-0">{item.market}</span>
+                    <span className="font-medium text-text-primary truncate">{item.name}</span>
+                    <span className="text-text-muted ml-auto flex-shrink-0">{item.symbol}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="px-3 py-2 text-xs text-text-muted">
+                검색 결과 없음 — 영문 티커나 종목코드로 직접 입력하세요
+              </p>
+            )}
+          </div>
         )}
       </div>
 

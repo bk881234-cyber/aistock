@@ -34,7 +34,11 @@ export default function IndexCard({ data, compact = false }) {
   }
 
   return (
-    <div className="card-hover p-4 relative overflow-hidden">
+    <div className={clsx(
+      'card-hover p-4 relative overflow-hidden',
+      isUp && 'bg-gradient-to-br from-surface to-bull-light',
+      isDown && 'bg-gradient-to-br from-surface to-bear-light',
+    )}>
       {/* 헤더 */}
       <div className="flex items-start justify-between mb-2">
         <div>
@@ -66,7 +70,7 @@ export default function IndexCard({ data, compact = false }) {
       {/* 좌측 컬러 바 */}
       <div
         className={clsx(
-          'absolute left-0 top-3 bottom-3 w-0.5 rounded-full',
+          'absolute left-0 top-3 bottom-3 w-1 rounded-full',
           isUp ? 'bg-bull' : isDown ? 'bg-bear' : 'bg-neutral'
         )}
       />

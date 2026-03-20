@@ -177,7 +177,8 @@ const getOverview = async (req, res) => {
         { symbol: 'JPY_KRW', current_val: 8.82,   change_val: 0, change_pct: 0, last_updated: now },
       ],
       commodities: [
-        { symbol: 'GOLD_USD', current_val: 2350.0, change_val: 0, change_pct: 0, high_52w: 2500.0, low_52w: 1800.0, raw_json: { gauge_position: 75, sparkline: [] }, last_updated: now },
+        { symbol: 'GOLD_USD',   current_val: 2350.0, change_val: 0, change_pct: 0, high_52w: 2500.0, low_52w: 1800.0, raw_json: { gauge_position: 75, sparkline: [] }, last_updated: now },
+        { symbol: 'SILVER_USD', current_val: 29.5,   change_val: 0, change_pct: 0, high_52w: 35.0,   low_52w: 20.0,   raw_json: { gauge_position: 60, sparkline: [] }, last_updated: now },
       ],
     });
   }
@@ -191,29 +192,27 @@ const searchStock = async (req, res) => {
   const q = (req.query.q || '').trim();
   if (!q || q.length < 1) return success(res, []);
 
-  try {
-    const axios = require('axios');
-    const { data } = await axios.get('https://query1.finance.yahoo.com/v1/finance/search', {
-      params: { q, quotesCount: 10, newsCount: 0, enableFuzzyQuery: false, enableCb: false },
-      timeout: 5000,
-      headers: { 'User-Agent': 'Mozilla/5.0' },
-    });
+  const axios = require('axios');
+  const HEADERS = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+    'Accept': 'application/json, text/plain, */*',
+    'Accept-Language': 'en-US,en;q=0.9,ko;q=0.8',
+    'Referer': 'https://finance.yahoo.com/',
+    'Origin': 'https://finance.yahoo.com',
+  };
+  const PARAMS = { q, quotesCount: 10, newsCount: 0, enableFuzzyQuery: true, enableCb: false };
 
-    const results = (data?.quotes ?? [])
+  const mapQuotes = (quotes) =>
+    (quotes ?? [])
       .filter((item) => item.quoteType === 'EQUITY' || item.quoteType === 'ETF')
       .slice(0, 8)
       .map((item) => {
-        // Yahoo 심볼 → 내부 시장 코드 변환
         let market = 'NASDAQ';
         if (item.exchange === 'KSC' || item.symbol.endsWith('.KS')) market = 'KOSPI';
         else if (item.exchange === 'KOE' || item.symbol.endsWith('.KQ')) market = 'KOSDAQ';
         else if (item.exchange === 'NYQ') market = 'NYSE';
-
-        // 내부 심볼: 한국 종목은 숫자 코드만 (005930.KS → 005930)
-        const internalSymbol = item.symbol.replace(/\.(KS|KQ)$/, '');
-
         return {
-          symbol:      internalSymbol,
+          symbol:      item.symbol.replace(/\.(KS|KQ)$/, ''),
           yahooSymbol: item.symbol,
           name:        item.longname || item.shortname || item.symbol,
           market,
@@ -221,7 +220,21 @@ const searchStock = async (req, res) => {
         };
       });
 
-    return success(res, results);
+  try {
+    let data;
+    try {
+      const r = await axios.get('https://query1.finance.yahoo.com/v1/finance/search', {
+        params: PARAMS, timeout: 5000, headers: HEADERS,
+      });
+      data = r.data;
+    } catch {
+      // query1 차단 시 query2 fallback
+      const r = await axios.get('https://query2.finance.yahoo.com/v1/finance/search', {
+        params: PARAMS, timeout: 5000, headers: HEADERS,
+      });
+      data = r.data;
+    }
+    return success(res, mapQuotes(data?.quotes));
   } catch (err) {
     console.error('[market] searchStock 오류:', err.message);
     return success(res, []);
