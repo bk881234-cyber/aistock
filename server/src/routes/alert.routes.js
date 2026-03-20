@@ -3,6 +3,9 @@ const { authenticate } = require('../middleware/auth.middleware');
 const { Alert, AlertHistory } = require('../models');
 const { success, error } = require('../utils/response');
 
+// 진단용: 인증 없이 접근 — authenticate 이전에 위치
+router.get('/ping', (req, res) => res.json({ ok: true }));
+
 router.use(authenticate);
 
 /** GET /api/alerts - 알림 목록 */

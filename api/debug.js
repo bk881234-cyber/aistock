@@ -35,11 +35,11 @@ module.exports = async (req, res) => {
     result.db = '✅ DB 연결 성공';
 
     const [tables] = await sequelize.query(
-      `SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' ORDER BY table_name;`
+      `SELECT tablename FROM pg_tables WHERE schemaname = 'public' ORDER BY tablename;`
     );
 
     result.tables = tables.length > 0
-      ? tables.map((t) => t.table_name)
+      ? tables.map((t) => t.tablename)
       : '❌ 테이블 없음 — Supabase SQL Editor에서 스키마를 실행하세요';
 
   } catch (err) {
