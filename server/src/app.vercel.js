@@ -95,8 +95,8 @@ const initOnce = () => {
     initPromise = (async () => {
       await connectDB();
       await connectRedis();
-      // 누락 컬럼 자동 추가 (alter:true = 기존 데이터 유지하며 신규 컬럼만 추가)
-      await sequelize.sync({ alter: true });
+      // 테이블이 없으면 생성 (alter:false = 기존 컬럼 변경 없이 CREATE IF NOT EXISTS만)
+      await sequelize.sync({ alter: false });
       console.log('[DB] 테이블 동기화 완료');
 
       // 시장 데이터가 1시간 이상 오래되었거나 없으면 즉시 갱신
