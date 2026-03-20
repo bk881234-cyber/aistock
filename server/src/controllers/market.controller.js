@@ -160,25 +160,25 @@ const getOverview = async (req, res) => {
       }
     } catch { /* Yahoo도 실패 시 더미 데이터로 */ }
 
-    // 최후 더미 데이터 (DB·Yahoo 모두 실패)
+    // 최후 더미 데이터 (DB·Yahoo 모두 실패) — 2026년 3월 기준
     const now = new Date();
     return success(res, {
       indices: [
-        { symbol: 'KOSPI',  current_val: 2650.0,  change_val: 0, change_pct: 0, last_updated: now },
-        { symbol: 'KOSDAQ', current_val: 870.0,   change_val: 0, change_pct: 0, last_updated: now },
-        { symbol: 'NASDAQ', current_val: 16210.0, change_val: 0, change_pct: 0, last_updated: now },
-        { symbol: 'SPX',    current_val: 5200.0,  change_val: 0, change_pct: 0, last_updated: now },
-        { symbol: 'DOW',    current_val: 39000.0, change_val: 0, change_pct: 0, last_updated: now },
-        { symbol: 'VIX',    current_val: 18.5,    change_val: 0, change_pct: 0, last_updated: now },
+        { symbol: 'KOSPI',  current_val: 2520.0,  change_val: 0, change_pct: 0, last_updated: now },
+        { symbol: 'KOSDAQ', current_val: 720.0,   change_val: 0, change_pct: 0, last_updated: now },
+        { symbol: 'NASDAQ', current_val: 17800.0, change_val: 0, change_pct: 0, last_updated: now },
+        { symbol: 'SPX',    current_val: 5650.0,  change_val: 0, change_pct: 0, last_updated: now },
+        { symbol: 'DOW',    current_val: 41800.0, change_val: 0, change_pct: 0, last_updated: now },
+        { symbol: 'VIX',    current_val: 22.0,    change_val: 0, change_pct: 0, last_updated: now },
       ],
       fx: [
-        { symbol: 'USD_KRW', current_val: 1330.0, change_val: 0, change_pct: 0, last_updated: now },
-        { symbol: 'EUR_KRW', current_val: 1440.0, change_val: 0, change_pct: 0, last_updated: now },
-        { symbol: 'JPY_KRW', current_val: 8.82,   change_val: 0, change_pct: 0, last_updated: now },
+        { symbol: 'USD_KRW', current_val: 1460.0, change_val: 0, change_pct: 0, last_updated: now },
+        { symbol: 'EUR_KRW', current_val: 1580.0, change_val: 0, change_pct: 0, last_updated: now },
+        { symbol: 'JPY_KRW', current_val: 9.60,   change_val: 0, change_pct: 0, last_updated: now },
       ],
       commodities: [
-        { symbol: 'GOLD_USD',   current_val: 2350.0, change_val: 0, change_pct: 0, high_52w: 2500.0, low_52w: 1800.0, raw_json: { gauge_position: 75, sparkline: [] }, last_updated: now },
-        { symbol: 'SILVER_USD', current_val: 29.5,   change_val: 0, change_pct: 0, high_52w: 35.0,   low_52w: 20.0,   raw_json: { gauge_position: 60, sparkline: [] }, last_updated: now },
+        { symbol: 'GOLD_USD',   current_val: 3020.0, change_val: 0, change_pct: 0, high_52w: 3100.0, low_52w: 2000.0, raw_json: { gauge_position: 80, sparkline: [] }, last_updated: now },
+        { symbol: 'SILVER_USD', current_val: 33.5,   change_val: 0, change_pct: 0, high_52w: 36.0,   low_52w: 22.0,   raw_json: { gauge_position: 65, sparkline: [] }, last_updated: now },
       ],
     });
   }
@@ -192,17 +192,8 @@ const searchStock = async (req, res) => {
   const q = (req.query.q || '').trim();
   if (!q || q.length < 1) return success(res, []);
 
-  const axios = require('axios');
-  const HEADERS = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-    'Accept': 'application/json, text/plain, */*',
-    'Accept-Language': 'en-US,en;q=0.9,ko;q=0.8',
-    'Referer': 'https://finance.yahoo.com/',
-    'Origin': 'https://finance.yahoo.com',
-  };
-  const PARAMS = { q, quotesCount: 10, newsCount: 0, enableFuzzyQuery: true, enableCb: false };
+  const { searchStocks } = require('../utils/yahooFinance');
 
-  // Yahoo Finance exchange 코드 → 내부 시장 코드
   const EXCHANGE_MAP = {
     KSC: 'KOSPI',  KOE: 'KOSDAQ',
     NYQ: 'NYSE',   PCX: 'NYSE',   ASE: 'NYSE',
@@ -210,17 +201,16 @@ const searchStock = async (req, res) => {
     TOR: 'TSX',    LSE: 'LSE',    FRA: 'FSE',
   };
 
-  const mapQuotes = (quotes) =>
-    (quotes ?? [])
+  try {
+    const quotes = await searchStocks(q);
+    const result = quotes
       .filter((item) => item.quoteType === 'EQUITY' || item.quoteType === 'ETF')
       .slice(0, 8)
       .map((item) => {
-        // 한국 심볼 suffix 우선 체크
         let market;
         if (item.symbol.endsWith('.KS')) market = 'KOSPI';
         else if (item.symbol.endsWith('.KQ')) market = 'KOSDAQ';
         else market = EXCHANGE_MAP[item.exchange] ?? item.exchange ?? 'US';
-
         return {
           symbol:      item.symbol.replace(/\.(KS|KQ)$/, ''),
           yahooSymbol: item.symbol,
@@ -229,22 +219,7 @@ const searchStock = async (req, res) => {
           exchange:    item.exchange,
         };
       });
-
-  try {
-    let data;
-    try {
-      const r = await axios.get('https://query1.finance.yahoo.com/v1/finance/search', {
-        params: PARAMS, timeout: 5000, headers: HEADERS,
-      });
-      data = r.data;
-    } catch {
-      // query1 차단 시 query2 fallback
-      const r = await axios.get('https://query2.finance.yahoo.com/v1/finance/search', {
-        params: PARAMS, timeout: 5000, headers: HEADERS,
-      });
-      data = r.data;
-    }
-    return success(res, mapQuotes(data?.quotes));
+    return success(res, result);
   } catch (err) {
     console.error('[market] searchStock 오류:', err.message);
     return success(res, []);
@@ -279,27 +254,10 @@ const getChart = async (req, res) => {
     const cached = await getCache(CACHE_KEY);
     if (cached) return success(res, cached);
 
-    const axios = require('axios');
-    const { interval, range: r } = RANGE_PARAMS[range];
-    const { data } = await axios.get(
-      `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(yahooSym)}`,
-      {
-        params: { interval, range: r },
-        timeout: 8000,
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-          Accept: 'application/json',
-        },
-      },
-    );
-
-    const result = data?.chart?.result?.[0];
-    if (!result) return success(res, { symbol, range, sparkline: [] });
-
-    const timestamps = result.timestamp ?? [];
-    const closes = result.indicators?.quote?.[0]?.close ?? [];
-    const sparkline = timestamps
-      .map((t, i) => ({ t: t * 1000, v: closes[i] }))
+    const { fetchChart } = require('../utils/yahooFinance');
+    const chartData = await fetchChart(yahooSym, range);
+    const sparkline = chartData.timestamps
+      .map((t, i) => ({ t: t * 1000, v: chartData.closes[i] }))
       .filter((d) => d.v != null);
 
     const payload = { symbol, range, sparkline };

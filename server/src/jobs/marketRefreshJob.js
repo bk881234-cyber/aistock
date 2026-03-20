@@ -47,23 +47,24 @@ const refreshAllMarketData = async () => {
 
     // API 실패 시 더미 데이터 (깡통 방지) — 심볼은 내부 코드 기준
     const now = new Date();
+    // 2026년 3월 기준 현실적 수치 (API 실패 시 폴백용)
     const finalIndices     = indices.length ? indices : [
-      { symbol: 'KOSPI',  data_type: 'index', current_val: 2650.0,  change_val: 0, change_pct: 0, raw_json: {}, last_updated: now },
-      { symbol: 'KOSDAQ', data_type: 'index', current_val: 870.0,   change_val: 0, change_pct: 0, raw_json: {}, last_updated: now },
-      { symbol: 'NASDAQ', data_type: 'index', current_val: 16210.0, change_val: 0, change_pct: 0, raw_json: {}, last_updated: now },
-      { symbol: 'SPX',    data_type: 'index', current_val: 5200.0,  change_val: 0, change_pct: 0, raw_json: {}, last_updated: now },
-      { symbol: 'DOW',    data_type: 'index', current_val: 39000.0, change_val: 0, change_pct: 0, raw_json: {}, last_updated: now },
-      { symbol: 'VIX',    data_type: 'index', current_val: 18.5,    change_val: 0, change_pct: 0, raw_json: {}, last_updated: now },
+      { symbol: 'KOSPI',  data_type: 'index', current_val: 2520.0,  change_val: 0, change_pct: 0, raw_json: {}, last_updated: now },
+      { symbol: 'KOSDAQ', data_type: 'index', current_val: 720.0,   change_val: 0, change_pct: 0, raw_json: {}, last_updated: now },
+      { symbol: 'NASDAQ', data_type: 'index', current_val: 17800.0, change_val: 0, change_pct: 0, raw_json: {}, last_updated: now },
+      { symbol: 'SPX',    data_type: 'index', current_val: 5650.0,  change_val: 0, change_pct: 0, raw_json: {}, last_updated: now },
+      { symbol: 'DOW',    data_type: 'index', current_val: 41800.0, change_val: 0, change_pct: 0, raw_json: {}, last_updated: now },
+      { symbol: 'VIX',    data_type: 'index', current_val: 22.0,    change_val: 0, change_pct: 0, raw_json: {}, last_updated: now },
     ];
     const finalFx = fx.length ? fx : [
-      { symbol: 'USD_KRW', data_type: 'fx', current_val: 1330.0, change_val: 0, change_pct: 0, raw_json: { sparkline: [] }, last_updated: now },
-      { symbol: 'EUR_KRW', data_type: 'fx', current_val: 1440.0, change_val: 0, change_pct: 0, raw_json: { sparkline: [] }, last_updated: now },
-      { symbol: 'JPY_KRW', data_type: 'fx', current_val: 8.82,   change_val: 0, change_pct: 0, raw_json: { sparkline: [] }, last_updated: now },
+      { symbol: 'USD_KRW', data_type: 'fx', current_val: 1460.0, change_val: 0, change_pct: 0, raw_json: { sparkline: [] }, last_updated: now },
+      { symbol: 'EUR_KRW', data_type: 'fx', current_val: 1580.0, change_val: 0, change_pct: 0, raw_json: { sparkline: [] }, last_updated: now },
+      { symbol: 'JPY_KRW', data_type: 'fx', current_val: 9.60,   change_val: 0, change_pct: 0, raw_json: { sparkline: [] }, last_updated: now },
     ];
     const finalCommodities = commodities.length ? commodities : [
-      { symbol: 'GOLD_USD',   data_type: 'commodity', current_val: 2350.0, change_val: 0, change_pct: 0, high_52w: 2500.0, low_52w: 1800.0, raw_json: { gauge_position: 75, sparkline: [] }, last_updated: now },
-      { symbol: 'SILVER_USD', data_type: 'commodity', current_val: 27.5,   change_val: 0, change_pct: 0, high_52w: 35.0,   low_52w: 20.0,   raw_json: { gauge_position: 55, sparkline: [] }, last_updated: now },
-      { symbol: 'OIL_USD',    data_type: 'commodity', current_val: 78.0,   change_val: 0, change_pct: 0, high_52w: 95.0,   low_52w: 60.0,   raw_json: { gauge_position: 49, sparkline: [] }, last_updated: now },
+      { symbol: 'GOLD_USD',   data_type: 'commodity', current_val: 3020.0, change_val: 0, change_pct: 0, high_52w: 3100.0, low_52w: 2000.0, raw_json: { gauge_position: 80, sparkline: [] }, last_updated: now },
+      { symbol: 'SILVER_USD', data_type: 'commodity', current_val: 33.5,   change_val: 0, change_pct: 0, high_52w: 36.0,   low_52w: 22.0,   raw_json: { gauge_position: 65, sparkline: [] }, last_updated: now },
+      { symbol: 'OIL_USD',    data_type: 'commodity', current_val: 70.0,   change_val: 0, change_pct: 0, high_52w: 90.0,   low_52w: 60.0,   raw_json: { gauge_position: 40, sparkline: [] }, last_updated: now },
     ];
 
     // DB upsert 병렬 실행

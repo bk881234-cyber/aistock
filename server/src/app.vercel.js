@@ -14,6 +14,8 @@ const morgan      = require('morgan');
 const env              = require('./config/env');
 const { connectDB, sequelize } = require('./config/database');
 const { connectRedis } = require('./config/redis');
+const { refreshAllMarketData } = require('./jobs/marketRefreshJob');
+const { MarketCache } = require('./models');
 
 const authRoutes      = require('./routes/auth.routes');
 const portfolioRoutes = require('./routes/portfolio.routes');
@@ -96,6 +98,21 @@ const initOnce = () => {
       // 테이블이 없으면 생성 (alter:false = 기존 컬럼 변경 없이 CREATE IF NOT EXISTS만)
       await sequelize.sync({ alter: false });
       console.log('[DB] 테이블 동기화 완료');
+
+      // 시장 데이터가 1시간 이상 오래되었거나 없으면 즉시 갱신
+      try {
+        const STALE_MS = 60 * 60 * 1000; // 1시간
+        const latest = await MarketCache.findOne({ order: [['updatedAt', 'DESC']] });
+        const isStale = !latest || (Date.now() - new Date(latest.updatedAt).getTime() > STALE_MS);
+        if (isStale) {
+          console.log('[DB] 시장 데이터 stale — 백그라운드 갱신 시작');
+          refreshAllMarketData().catch((e) =>
+            console.warn('[marketRefresh] cold-start 갱신 실패:', e.message)
+          );
+        }
+      } catch (e) {
+        console.warn('[marketRefresh] stale 체크 실패:', e.message);
+      }
     })().catch((err) => {
       initPromise = null; // 실패 시 다음 요청에서 재시도 가능
       throw err;

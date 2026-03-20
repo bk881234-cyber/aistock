@@ -12,12 +12,14 @@ const UserProfile = sequelize.define('UserProfile', {
     allowNull: false,
   },
   risk_tolerance: {
-    type: DataTypes.STRING(20),
+    type: DataTypes.ENUM('conservative', 'moderate', 'aggressive'),
     defaultValue: 'moderate',
+    comment: '투자 성향: conservative(안전), moderate(중립), aggressive(공격)',
   },
   investment_style: {
-    type: DataTypes.STRING(20),
+    type: DataTypes.ENUM('value', 'growth', 'dividend', 'momentum', 'mixed'),
     defaultValue: 'mixed',
+    comment: '투자 스타일: value(가치), growth(성장), dividend(배당), momentum(모멘텀), mixed(혼합)',
   },
   target_return_pct: {
     type: DataTypes.DECIMAL(5, 2),
@@ -38,6 +40,11 @@ const UserProfile = sequelize.define('UserProfile', {
   notif_sms: {
     type: DataTypes.BOOLEAN,
     defaultValue: false,
+  },
+  onboarding_complete: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+    comment: '투자 성향 온보딩 완료 여부',
   },
 }, {
   tableName: 'user_profiles',
