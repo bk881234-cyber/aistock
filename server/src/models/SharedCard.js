@@ -12,7 +12,7 @@ const SharedCard = sequelize.define('SharedCard', {
     allowNull: false,
   },
   card_type: {
-    type: DataTypes.ENUM('portfolio_snapshot', 'stock_analysis', 'market_overview'),
+    type: DataTypes.STRING(30),
     allowNull: false,
   },
   image_url: {

@@ -20,7 +20,7 @@ const Portfolio = sequelize.define('Portfolio', {
     allowNull: false,
   },
   market: {
-    type: DataTypes.ENUM('KOSPI', 'KOSDAQ', 'NYSE', 'NASDAQ'),
+    type: DataTypes.STRING(10),
     allowNull: false,
   },
   quantity: {
@@ -50,7 +50,7 @@ const Portfolio = sequelize.define('Portfolio', {
     defaultValue: 0,    // 부분 매도 후 누적 실현 손익
   },
   status: {
-    type: DataTypes.ENUM('active', 'closed'),
+    type: DataTypes.STRING(10),
     defaultValue: 'active',
   },
 }, {

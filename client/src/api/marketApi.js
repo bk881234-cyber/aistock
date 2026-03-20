@@ -23,3 +23,10 @@ export const getFx = () =>
  */
 export const getCommodities = () =>
   api.get('/market/commodities').then((r) => r.data.data);
+
+/**
+ * 종목 검색 자동완성 (BuyModal, WatchlistInline 용)
+ * @param {string} q - 검색어 (종목명 or 코드)
+ */
+export const searchStock = (q) =>
+  api.get('/market/search', { params: { q } }).then((r) => r.data.data);

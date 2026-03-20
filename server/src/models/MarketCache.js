@@ -8,7 +8,7 @@ const MarketCache = sequelize.define('MarketCache', {
     primaryKey: true,
   },
   data_type: {
-    type: DataTypes.ENUM('index', 'fx', 'commodity', 'stock'),
+    type: DataTypes.STRING(20),
     allowNull: false,
   },
   symbol: {

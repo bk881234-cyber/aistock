@@ -16,7 +16,7 @@ const Transaction = sequelize.define('Transaction', {
     allowNull: false,
   },
   type: {
-    type: DataTypes.ENUM('buy', 'sell', 'dividend'),
+    type: DataTypes.STRING(10),
     allowNull: false,
   },
   quantity: {

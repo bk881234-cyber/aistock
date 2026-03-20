@@ -143,4 +143,49 @@ const getOverview = async (req, res) => {
   }
 };
 
-module.exports = { getIndices, getFx, getCommodities, getOverview };
+/**
+ * GET /api/market/search?q=삼성전자
+ * Yahoo Finance 종목 검색 (자동완성용)
+ */
+const searchStock = async (req, res) => {
+  const q = (req.query.q || '').trim();
+  if (!q || q.length < 1) return success(res, []);
+
+  try {
+    const axios = require('axios');
+    const { data } = await axios.get('https://query1.finance.yahoo.com/v1/finance/search', {
+      params: { q, quotesCount: 10, newsCount: 0, enableFuzzyQuery: false, enableCb: false },
+      timeout: 5000,
+      headers: { 'User-Agent': 'Mozilla/5.0' },
+    });
+
+    const results = (data?.quotes ?? [])
+      .filter((item) => item.quoteType === 'EQUITY' || item.quoteType === 'ETF')
+      .slice(0, 8)
+      .map((item) => {
+        // Yahoo 심볼 → 내부 시장 코드 변환
+        let market = 'NASDAQ';
+        if (item.exchange === 'KSC' || item.symbol.endsWith('.KS')) market = 'KOSPI';
+        else if (item.exchange === 'KOE' || item.symbol.endsWith('.KQ')) market = 'KOSDAQ';
+        else if (item.exchange === 'NYQ') market = 'NYSE';
+
+        // 내부 심볼: 한국 종목은 숫자 코드만 (005930.KS → 005930)
+        const internalSymbol = item.symbol.replace(/\.(KS|KQ)$/, '');
+
+        return {
+          symbol:      internalSymbol,
+          yahooSymbol: item.symbol,
+          name:        item.longname || item.shortname || item.symbol,
+          market,
+          exchange:    item.exchange,
+        };
+      });
+
+    return success(res, results);
+  } catch (err) {
+    console.error('[market] searchStock 오류:', err.message);
+    return success(res, []);
+  }
+};
+
+module.exports = { getIndices, getFx, getCommodities, getOverview, searchStock };

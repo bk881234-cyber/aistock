@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import * as watchlistApi from '@/api/watchlistApi';
+import { searchStock } from '@/api/marketApi';
 import WeatherWidget from '@/components/ai/WeatherWidget';
 import { fmtKRW } from '@/utils/formatters';
 import toast from 'react-hot-toast';
@@ -32,27 +33,11 @@ export default function WatchlistSection() {
         <h2 className="section-title mb-0">⭐ 관심 종목</h2>
         <div className="flex gap-2">
           <Link to="/watchlist" className="btn-ghost text-xs">전체</Link>
-          <button onClick={() => setAdding(true)} className="btn-ghost text-xs">+ 추가</button>
+          <button onClick={() => setAdding((v) => !v)} className="btn-ghost text-xs">
+            {adding ? '닫기' : '+ 추가'}
+          </button>
         </div>
       </div>
-
-      {loading ? (
-        <WatchlistSkeleton />
-      ) : items.length === 0 ? (
-        <div className="text-center py-6">
-          <p className="text-2xl mb-2">⭐</p>
-          <p className="text-xs font-medium text-text-secondary">관심 종목이 없습니다</p>
-          <p className="text-[11px] text-text-muted mt-1">
-            위 <span className="text-primary font-medium">+ 추가</span> 버튼으로 종목코드와 이름을 입력하세요
-          </p>
-        </div>
-      ) : (
-        <ul className="space-y-1">
-          {items.slice(0, 8).map((item) => (
-            <WatchlistRow key={item.id} item={item} onRemove={remove} />
-          ))}
-        </ul>
-      )}
 
       {adding && (
         <AddWatchlistInline
@@ -68,6 +53,24 @@ export default function WatchlistSection() {
           }}
           onCancel={() => setAdding(false)}
         />
+      )}
+
+      {loading ? (
+        <WatchlistSkeleton />
+      ) : items.length === 0 ? (
+        <div className="text-center py-6">
+          <p className="text-2xl mb-2">⭐</p>
+          <p className="text-xs font-medium text-text-secondary">관심 종목이 없습니다</p>
+          <p className="text-[11px] text-text-muted mt-1">
+            위 <span className="text-primary font-medium">+ 추가</span>로 종목명을 검색하세요
+          </p>
+        </div>
+      ) : (
+        <ul className="space-y-1">
+          {items.slice(0, 8).map((item) => (
+            <WatchlistRow key={item.id} item={item} onRemove={remove} />
+          ))}
+        </ul>
       )}
     </div>
   );
@@ -100,10 +103,70 @@ function WatchlistRow({ item, onRemove }) {
 }
 
 function AddWatchlistInline({ onAdd, onCancel }) {
-  const [form, setForm] = useState({ stock_symbol: '', stock_name: '', market: 'KOSPI' });
+  const [form,     setForm]     = useState({ stock_symbol: '', stock_name: '', market: 'KOSPI' });
+  const [query,    setQuery]    = useState('');
+  const [results,  setResults]  = useState([]);
+  const [searching, setSearching] = useState(false);
+  const [showDrop, setShowDrop]  = useState(false);
+  const debounceRef = useRef(null);
+
+  useEffect(() => {
+    if (!query.trim()) { setResults([]); setShowDrop(false); return; }
+    setSearching(true);
+    clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(async () => {
+      try {
+        const data = await searchStock(query);
+        setResults(data ?? []);
+        setShowDrop(true);
+      } catch {
+        setResults([]);
+      } finally {
+        setSearching(false);
+      }
+    }, 350);
+  }, [query]);
+
+  const select = (item) => {
+    setForm({ stock_symbol: item.symbol, stock_name: item.name, market: item.market });
+    setQuery(item.name);
+    setShowDrop(false);
+  };
 
   return (
-    <div className="mt-3 p-3 bg-surface2 rounded-lg space-y-2">
+    <div className="mb-3 p-3 bg-surface2 rounded-lg space-y-2 border border-border">
+      {/* 종목 검색 */}
+      <div className="relative">
+        <div className="relative">
+          <input
+            className="input text-xs pr-8"
+            placeholder="종목명 검색 (예: 삼성전자, AAPL)"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            autoComplete="off"
+          />
+          {searching && (
+            <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-text-muted animate-pulse">●</span>
+          )}
+        </div>
+        {showDrop && results.length > 0 && (
+          <ul className="absolute z-20 w-full mt-1 bg-surface border border-border rounded-lg shadow-cardHover max-h-44 overflow-y-auto">
+            {results.map((item) => (
+              <li
+                key={item.yahooSymbol}
+                className="flex items-center gap-2 px-3 py-2 cursor-pointer hover:bg-surface2 text-xs"
+                onMouseDown={() => select(item)}
+              >
+                <span className="text-[9px] font-bold text-white bg-primary rounded px-1 flex-shrink-0">{item.market}</span>
+                <span className="font-medium text-text-primary truncate">{item.name}</span>
+                <span className="text-text-muted ml-auto flex-shrink-0">{item.symbol}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      {/* 수동 입력 */}
       <div className="grid grid-cols-2 gap-2">
         <input
           className="input text-xs" placeholder="종목코드"
@@ -121,9 +184,7 @@ function AddWatchlistInline({ onAdd, onCancel }) {
         value={form.market}
         onChange={(e) => setForm({ ...form, market: e.target.value })}
       >
-        {['KOSPI', 'KOSDAQ', 'NYSE', 'NASDAQ'].map((m) => (
-          <option key={m}>{m}</option>
-        ))}
+        {['KOSPI', 'KOSDAQ', 'NYSE', 'NASDAQ'].map((m) => <option key={m}>{m}</option>)}
       </select>
       <div className="flex gap-2">
         <button onClick={onCancel} className="btn-ghost flex-1 text-xs">취소</button>

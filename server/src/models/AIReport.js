@@ -12,7 +12,7 @@ const AIReport = sequelize.define('AIReport', {
     allowNull: false,
   },
   report_type: {
-    type: DataTypes.ENUM('news_summary', 'sell_guide', 'sector_outlook'),
+    type: DataTypes.STRING(30),
     allowNull: false,
   },
   positives: {

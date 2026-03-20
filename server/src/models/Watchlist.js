@@ -20,7 +20,7 @@ const Watchlist = sequelize.define('Watchlist', {
     allowNull: false,
   },
   market: {
-    type: DataTypes.ENUM('KOSPI', 'KOSDAQ', 'NYSE', 'NASDAQ'),
+    type: DataTypes.STRING(10),
     allowNull: false,
   },
   alert_price: {

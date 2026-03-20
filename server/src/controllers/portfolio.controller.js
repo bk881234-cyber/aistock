@@ -10,7 +10,7 @@ const getPortfolio = async (req, res) => {
   try {
     const portfolios = await Portfolio.findAll({
       where: { user_id: req.user.id, status: 'active' },
-      include: [{ association: 'transactions', limit: 5, order: [['transaction_date', 'DESC']] }],
+      
       order: [['created_at', 'DESC']],
     });
     return success(res, { portfolios });
