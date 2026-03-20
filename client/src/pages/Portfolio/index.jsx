@@ -3,6 +3,7 @@ import usePortfolio from '@/hooks/usePortfolio';
 import { fmtKRW, fmtPct, directionClass } from '@/utils/formatters';
 import PortfolioRow from '@/components/portfolio/PortfolioRow';
 import BuyModal from '@/components/dashboard/PortfolioSection/BuyModal';
+import ExportModal from '@/components/export/ExportModal';
 import clsx from 'clsx';
 
 /**
@@ -25,7 +26,8 @@ export default function Portfolio() {
     loading,
   } = usePortfolio();
 
-  const [buyOpen, setBuyOpen] = useState(false);
+  const [buyOpen,    setBuyOpen]    = useState(false);
+  const [exportOpen, setExportOpen] = useState(false);
   const [sortKey, setSortKey] = useState('return_pct'); // 정렬 기준
   const [sortAsc, setSortAsc] = useState(false);
 
@@ -81,6 +83,16 @@ export default function Portfolio() {
               행 클릭 시 상세 설정 표시
             </span>
             <button
+              onClick={() => setExportOpen(true)}
+              className="btn-ghost text-sm py-2 flex items-center gap-1.5"
+              title="포트폴리오 카드 이미지로 내보내기"
+            >
+              <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+              </svg>
+              카드 내보내기
+            </button>
+            <button
               onClick={() => setBuyOpen(true)}
               className="btn-primary text-sm py-2"
             >
@@ -126,6 +138,20 @@ export default function Portfolio() {
       </div>
 
       {buyOpen && <BuyModal onClose={() => setBuyOpen(false)} />}
+
+      {exportOpen && (
+        <ExportModal
+          variant="portfolio"
+          data={{
+            totalCurrentValue,
+            totalGain,
+            totalReturnPct,
+            totalCost,
+            enrichedPortfolios,
+          }}
+          onClose={() => setExportOpen(false)}
+        />
+      )}
     </div>
   );
 }

@@ -4,6 +4,7 @@ import TVChart from '@/components/charts/TVChart';
 import AIReport from '@/components/ai/AIReport';
 import WeatherWidget from '@/components/ai/WeatherWidget';
 import SignalLight from '@/components/common/SignalLight';
+import NewsAnalysisPanel from '@/components/ai/NewsAnalysisPanel';
 import { fmtKRW, fmtPct } from '@/utils/formatters';
 
 /**
@@ -81,17 +82,33 @@ export default function StockDetail() {
       {/* 2열 레이아웃 */}
       <div className="grid grid-cols-12 gap-5">
         {/* 차트 */}
-        <div className="col-span-8">
+        <div className="col-span-8 space-y-5">
           <TVChart
             symbol={symbol}
             name={meta?.name ?? symbol}
             candleData={candleData}
           />
+
+          {/* 뉴스 AI 분석 — 급등락 시 자동 펼침 */}
+          <NewsAnalysisPanel
+            symbol={symbol}
+            priceChangePct={changePct ?? 0}
+            autoExpand={Math.abs(changePct ?? 0) >= 3}
+          />
         </div>
 
         {/* AI 리포트 */}
         <div className="col-span-4">
-          <AIReport symbol={symbol} />
+          <AIReport
+            symbol={symbol}
+            stockData={{
+              symbol,
+              stockName: meta?.name ?? symbol,
+              market:    meta?.market ?? '',
+              currentPrice: last?.close ?? 0,
+              returnPct:    changePct ?? 0,
+            }}
+          />
         </div>
       </div>
     </div>

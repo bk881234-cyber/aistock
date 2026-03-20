@@ -2,20 +2,11 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 const env = require('../../config/env');
 const { AIReport } = require('../../models');
 const { setCache, KEYS, TTL } = require('../cache/cacheService');
+const { buildNewsContext } = require('./newsService');
 
 const genAI = new GoogleGenerativeAI(env.gemini.apiKey);
 
 const REPORT_TTL_HOURS = 4;
-
-/**
- * 종목 뉴스 수집 (스텁 - 2단계에서 실제 뉴스 API 연동)
- * @param {string} symbol
- * @returns {string} 뉴스 컨텍스트 문자열
- */
-const fetchNewsContext = async (symbol) => {
-  // TODO: 2단계에서 Yahoo Finance / Google News API 연동
-  return `${symbol} 관련 최근 뉴스를 분석해주세요.`;
-};
 
 /**
  * AI 3줄 요약 리포트 생성
@@ -23,7 +14,7 @@ const fetchNewsContext = async (symbol) => {
  * @param {'news_summary'|'sell_guide'|'sector_outlook'} type
  */
 const generate = async (symbol, type = 'news_summary') => {
-  const newsContext = await fetchNewsContext(symbol);
+  const newsContext = await buildNewsContext(symbol);
 
   // Gemini에서는 System Prompt를 모델 생성 시나 개별 요청에 포함할 수 있습니다.
   const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });

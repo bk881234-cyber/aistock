@@ -3,15 +3,18 @@ import { getReport, generateReport } from '@/api/aiApi';
 import { fmtDateTime } from '@/utils/formatters';
 import toast from 'react-hot-toast';
 import clsx from 'clsx';
+import ExportModal from '@/components/export/ExportModal';
 
 /**
  * AI 3줄 요약 리포트 컴포넌트
  * @param {string} symbol
+ * @param {object} [stockData]  ShareCard에 전달할 종목 데이터 (symbol, stockName, market, currentPrice, returnPct, weather)
  */
-export default function AIReport({ symbol }) {
-  const [report,    setReport]    = useState(null);
-  const [loading,   setLoading]   = useState(false);
-  const [generated, setGenerated] = useState(false);
+export default function AIReport({ symbol, stockData }) {
+  const [report,      setReport]      = useState(null);
+  const [loading,     setLoading]     = useState(false);
+  const [generated,   setGenerated]   = useState(false);
+  const [exportOpen,  setExportOpen]  = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -76,7 +79,7 @@ export default function AIReport({ symbol }) {
           <p className="font-bold text-text-primary">AI 분석 리포트</p>
           {generated && <span className="badge-bull text-[10px]">방금 생성</span>}
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <span className="text-[11px] text-text-muted">
             신뢰도{' '}
             <span className={clsx(
@@ -88,6 +91,14 @@ export default function AIReport({ symbol }) {
           </span>
           <button onClick={generate} disabled={loading} className="btn-ghost text-xs">
             새로고침
+          </button>
+          <button
+            onClick={() => setExportOpen(true)}
+            className="btn-ghost text-xs flex items-center gap-1"
+            title="카드 이미지로 내보내기"
+          >
+            <ShareIcon />
+            내보내기
           </button>
         </div>
       </div>
@@ -132,7 +143,23 @@ export default function AIReport({ symbol }) {
       <p className="text-[11px] text-text-muted text-right">
         생성: {fmtDateTime(report.generated_at)} · 만료: {fmtDateTime(report.expires_at)}
       </p>
+
+      {exportOpen && (
+        <ExportModal
+          variant="stock"
+          data={{ ...stockData, report }}
+          onClose={() => setExportOpen(false)}
+        />
+      )}
     </div>
+  );
+}
+
+function ShareIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth={2}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+    </svg>
   );
 }
 
