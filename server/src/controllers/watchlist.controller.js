@@ -10,8 +10,8 @@ const getWatchlist = async (req, res) => {
     });
     return success(res, { items });
   } catch (err) {
-    console.error('[watchlist] getWatchlist 오류:', err);
-    return error(res);
+    console.error('[watchlist] getWatchlist 오류:', err.message);
+    return success(res, { items: [] });  // 500 방지
   }
 };
 

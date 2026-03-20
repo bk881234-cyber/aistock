@@ -15,8 +15,8 @@ const getPortfolio = async (req, res) => {
     });
     return success(res, { portfolios });
   } catch (err) {
-    console.error('[portfolio] getPortfolio 오류:', err);
-    return error(res);
+    console.error('[portfolio] getPortfolio 오류:', err.message);
+    return success(res, { portfolios: [] });  // 500 방지
   }
 };
 

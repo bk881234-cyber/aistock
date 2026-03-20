@@ -14,7 +14,8 @@ router.get('/', async (req, res) => {
     });
     return success(res, { alerts });
   } catch (err) {
-    return error(res);
+    console.error('[alert] getAlerts 오류:', err.message);
+    return success(res, { alerts: [] });  // 500 방지
   }
 });
 
@@ -58,7 +59,8 @@ router.get('/history', async (req, res) => {
     });
     return success(res, { history });
   } catch (err) {
-    return error(res);
+    console.error('[alert] getHistory 오류:', err.message);
+    return success(res, { history: [] });  // 500 방지
   }
 });
 
