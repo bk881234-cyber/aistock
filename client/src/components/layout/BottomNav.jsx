@@ -2,11 +2,11 @@ import { NavLink } from 'react-router-dom';
 import clsx from 'clsx';
 
 const NAV_ITEMS = [
-  { to: '/',          label: '홈',       icon: HomeIcon    },
-  { to: '/portfolio', label: '포트폴리오', icon: BriefcaseIcon },
-  { to: '/watchlist', label: '관심종목',  icon: StarIcon    },
-  { to: '/curation',  label: '트렌드',    icon: FireIcon    },
-  { to: '/settings',  label: '설정',      icon: SettingsIcon },
+  { to: '/',            label: '홈',      icon: HomeIcon      },
+  { to: '/portfolio',   label: '포트폴리오', icon: BriefcaseIcon },
+  { to: '/calculator',  label: '물타기',   icon: CalcIcon      },
+  { to: '/watchlist',   label: '관심종목', icon: StarIcon      },
+  { to: '/settings',    label: '설정',     icon: SettingsIcon  },
 ];
 
 /**
@@ -77,6 +77,14 @@ function FireIcon({ active }) {
     <svg viewBox="0 0 24 24" className="w-6 h-6" fill={active ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={2}>
       <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
       <path strokeLinecap="round" strokeLinejoin="round" d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z" />
+    </svg>
+  );
+}
+function CalcIcon({ active }) {
+  return (
+    <svg viewBox="0 0 24 24" className="w-6 h-6" fill={active ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={2}>
+      <rect x="4" y="2" width="16" height="20" rx="2" strokeLinecap="round" strokeLinejoin="round" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M8 7h8M8 11h3M8 15h3M15 11l2 2m0 0l2-2m-2 2v-4" />
     </svg>
   );
 }

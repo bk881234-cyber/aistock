@@ -13,6 +13,7 @@ const Watchlist   = lazy(() => import('@/pages/Watchlist'));
 const StockDetail = lazy(() => import('@/pages/StockDetail'));
 const Curation    = lazy(() => import('@/pages/Curation'));
 const Settings    = lazy(() => import('@/pages/Settings'));
+const Calculator  = lazy(() => import('@/pages/Calculator'));
 const Login       = lazy(() => import('@/pages/Auth/Login'));
 const Register    = lazy(() => import('@/pages/Auth/Register'));
 
@@ -50,6 +51,7 @@ export default function App() {
           <Route path="watchlist"        element={<Watchlist />} />
           <Route path="stock/:symbol"    element={<StockDetail />} />
           <Route path="curation"         element={<Curation />} />
+          <Route path="calculator"       element={<Calculator />} />
           <Route path="settings"         element={<Settings />} />
         </Route>
 

@@ -68,7 +68,12 @@ export default function BuyModal({ onClose }) {
 
   return (
     <Overlay onClose={onClose}>
-      <h2 className="text-base font-bold text-text-primary mb-5">📥 매수 입력</h2>
+      <div className="mb-5">
+        <h2 className="text-xl font-bold text-text-primary">거래 기록 추가</h2>
+        <p className="text-sm text-text-muted mt-1">
+          실제로 매수한 내역을 기록합니다. 평균 단가·수익률이 자동 계산됩니다.
+        </p>
+      </div>
       <form onSubmit={handleSubmit} className="space-y-3">
 
         {/* 종목 검색 자동완성 */}
@@ -191,10 +196,10 @@ function Field({ label, children }) {
 function Overlay({ children, onClose }) {
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 animate-fade-in"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm animate-fade-in"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="bg-surface rounded-xl shadow-2xl w-full max-w-md p-6 animate-slide-up">
+      <div className="bg-white/80 backdrop-blur-xl border border-white/70 rounded-2xl shadow-2xl w-full max-w-md p-6 animate-slide-up">
         {children}
       </div>
     </div>

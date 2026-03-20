@@ -202,15 +202,25 @@ const searchStock = async (req, res) => {
   };
   const PARAMS = { q, quotesCount: 10, newsCount: 0, enableFuzzyQuery: true, enableCb: false };
 
+  // Yahoo Finance exchange 코드 → 내부 시장 코드
+  const EXCHANGE_MAP = {
+    KSC: 'KOSPI',  KOE: 'KOSDAQ',
+    NYQ: 'NYSE',   PCX: 'NYSE',   ASE: 'NYSE',
+    NMS: 'NASDAQ', NGM: 'NASDAQ', NCM: 'NASDAQ', NQB: 'NASDAQ',
+    TOR: 'TSX',    LSE: 'LSE',    FRA: 'FSE',
+  };
+
   const mapQuotes = (quotes) =>
     (quotes ?? [])
       .filter((item) => item.quoteType === 'EQUITY' || item.quoteType === 'ETF')
       .slice(0, 8)
       .map((item) => {
-        let market = 'NASDAQ';
-        if (item.exchange === 'KSC' || item.symbol.endsWith('.KS')) market = 'KOSPI';
-        else if (item.exchange === 'KOE' || item.symbol.endsWith('.KQ')) market = 'KOSDAQ';
-        else if (item.exchange === 'NYQ') market = 'NYSE';
+        // 한국 심볼 suffix 우선 체크
+        let market;
+        if (item.symbol.endsWith('.KS')) market = 'KOSPI';
+        else if (item.symbol.endsWith('.KQ')) market = 'KOSDAQ';
+        else market = EXCHANGE_MAP[item.exchange] ?? item.exchange ?? 'US';
+
         return {
           symbol:      item.symbol.replace(/\.(KS|KQ)$/, ''),
           yahooSymbol: item.symbol,

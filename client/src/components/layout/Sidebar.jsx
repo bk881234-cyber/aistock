@@ -3,10 +3,11 @@ import { useAuthStore } from '@/store/authStore';
 import clsx from 'clsx';
 
 const NAV_ITEMS = [
-  { to: '/',          label: '대시보드',  icon: '▣' },
-  { to: '/portfolio', label: '포트폴리오', icon: '◈' },
-  { to: '/watchlist', label: '관심 종목', icon: '◎' },
-  { to: '/curation',  label: '트렌드',    icon: '◉' },
+  { to: '/',            label: '대시보드',    icon: '▣' },
+  { to: '/portfolio',   label: '포트폴리오',  icon: '◈' },
+  { to: '/watchlist',   label: '관심 종목',  icon: '◎' },
+  { to: '/calculator',  label: '물타기 계산', icon: '≈' },
+  { to: '/curation',    label: '트렌드',      icon: '◉' },
 ];
 
 const BOTTOM_ITEMS = [

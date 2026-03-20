@@ -40,7 +40,7 @@ export default function PortfolioSection() {
         <div className="flex items-center gap-2">
           <Link to="/portfolio" className="btn-ghost text-xs">전체 보기</Link>
           <button onClick={() => setBuyOpen(true)} className="btn-primary text-xs">
-            + 매수 입력
+            + 거래 기록
           </button>
         </div>
       </div>
@@ -179,7 +179,7 @@ function EmptyState({ onAdd }) {
       <span className="text-4xl mb-3">📭</span>
       <p className="text-sm font-medium text-text-secondary">보유 종목이 없습니다</p>
       <p className="text-xs text-text-muted mt-1 mb-4">매수 버튼을 눌러 첫 종목을 추가해보세요</p>
-      <button onClick={onAdd} className="btn-primary text-xs">+ 매수 입력</button>
+      <button onClick={onAdd} className="btn-primary text-xs">+ 거래 기록</button>
     </div>
   );
 }
