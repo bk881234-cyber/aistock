@@ -92,11 +92,9 @@ const initOnce = () => {
     initPromise = (async () => {
       await connectDB();
       await connectRedis();
-      // 프로덕션: sequelize.sync 사용 안 함 → Supabase 대시보드에서 마이그레이션
-      if (!isProd) {
-        await sequelize.sync({ alter: true });
-        console.log('[DB] 테이블 동기화 완료');
-      }
+      // 테이블이 없으면 생성 (alter:false = 기존 컬럼 변경 없이 CREATE IF NOT EXISTS만)
+      await sequelize.sync({ alter: false });
+      console.log('[DB] 테이블 동기화 완료');
     })().catch((err) => {
       initPromise = null; // 실패 시 다음 요청에서 재시도 가능
       throw err;
