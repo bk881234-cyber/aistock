@@ -203,22 +203,26 @@ const searchStock = async (req, res) => {
 
   try {
     const quotes = await searchStocks(q);
-    const result = quotes
-      .filter((item) => item.quoteType === 'EQUITY' || item.quoteType === 'ETF')
-      .slice(0, 8)
-      .map((item) => {
-        let market;
-        if (item.symbol.endsWith('.KS')) market = 'KOSPI';
-        else if (item.symbol.endsWith('.KQ')) market = 'KOSDAQ';
-        else market = EXCHANGE_MAP[item.exchange] ?? item.exchange ?? 'US';
-        return {
-          symbol:      item.symbol.replace(/\.(KS|KQ)$/, ''),
-          yahooSymbol: item.symbol,
-          name:        item.longname || item.shortname || item.symbol,
-          market,
-          exchange:    item.exchange,
-        };
-      });
+
+    const normalize = (items) =>
+      items
+        .filter((item) => ['EQUITY', 'ETF', 'MUTUALFUND', 'INDEX'].includes(item.quoteType))
+        .slice(0, 8)
+        .map((item) => {
+          let market;
+          if (item.symbol.endsWith('.KS')) market = 'KOSPI';
+          else if (item.symbol.endsWith('.KQ')) market = 'KOSDAQ';
+          else market = EXCHANGE_MAP[item.exchange] ?? item.exchange ?? 'US';
+          return {
+            symbol:      item.symbol.replace(/\.(KS|KQ)$/, ''),
+            yahooSymbol: item.symbol,
+            name:        item.longname || item.shortname || item.symbol,
+            market,
+            exchange:    item.exchange,
+          };
+        });
+
+    const result = normalize(quotes);
     return success(res, result);
   } catch (err) {
     console.error('[market] searchStock 오류:', err.message);

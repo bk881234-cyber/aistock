@@ -122,31 +122,45 @@ const fetchChart = async (yahooSymbol, range = '1d') => {
 };
 
 /**
+ * 응답에서 quotes 배열 추출 — Yahoo Finance 응답 형식 두 가지 모두 처리
+ *  구형: data.finance.result[0].quotes
+ *  신형: data.quotes
+ */
+const extractQuotes = (data) =>
+  data?.quotes ||
+  data?.finance?.result?.[0]?.quotes ||
+  [];
+
+/**
  * 종목 검색 자동완성
- * @param {string} query  예) '삼성', 'AAPL'
+ * @param {string} query  예) '삼성', 'AAPL', '테슬라'
  * @returns {Array<{ symbol, shortname, longname, exchange, quoteType }>}
  */
 const searchStocks = async (query) => {
   if (!query?.trim()) return [];
 
-  const url =
-    `https://query1.finance.yahoo.com/v1/finance/search` +
-    `?q=${encodeURIComponent(query)}&lang=ko-KR&region=KR` +
-    `&quotesCount=10&newsCount=0&enableFuzzyQuery=true&quotesQueryId=tss_match_phrase_query`;
+  const q = encodeURIComponent(query.trim());
 
-  let data;
-  try {
-    data = await withRetry(() => httpsGet(url));
-  } catch {
-    // query2 폴백
-    const fallback =
-      `https://query2.finance.yahoo.com/v1/finance/search` +
-      `?q=${encodeURIComponent(query)}&quotesCount=10&newsCount=0&enableFuzzyQuery=true`;
-    data = await withRetry(() => httpsGet(fallback));
+  // 시도 순서: query1(글로벌) → query1(en-US) → query2 폴백
+  const attempts = [
+    `https://query1.finance.yahoo.com/v1/finance/search?q=${q}&quotesCount=10&newsCount=0&enableFuzzyQuery=true`,
+    `https://query1.finance.yahoo.com/v1/finance/search?q=${q}&lang=en-US&region=US&quotesCount=10&newsCount=0&enableFuzzyQuery=true`,
+    `https://query2.finance.yahoo.com/v1/finance/search?q=${q}&quotesCount=10&newsCount=0&enableFuzzyQuery=true`,
+  ];
+
+  let quotes = [];
+  for (const url of attempts) {
+    try {
+      const data = await withRetry(() => httpsGet(url), 1, 300);
+      quotes = extractQuotes(data);
+      if (quotes.length > 0) break;
+    } catch {
+      // 다음 URL 시도
+    }
   }
 
-  return (data?.finance?.result?.[0]?.quotes || [])
-    .filter((q) => q.quoteType !== 'OPTION')
+  return quotes
+    .filter((q) => q.quoteType !== 'OPTION' && q.quoteType !== 'CURRENCY')
     .map((q) => ({
       symbol:    q.symbol,
       shortname: q.shortname || q.longname || q.symbol,
