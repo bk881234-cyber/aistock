@@ -18,25 +18,24 @@ const LABELS = {
   SPX:    'S&P 500',
 };
 
-/** 상승 = 빨강 (#E84040), 하락 = 파랑 (#2563EB) */
 const chartColor = (pct) =>
   pct > 0 ? '#E84040' : pct < 0 ? '#2563EB' : '#6B7280';
 
 export default function IndexChartCard({ data }) {
-  const [period, setPeriod]     = useState('1d');
-  const [chartData, setChart]   = useState([]);
-  const [chartLoading, setChartLoading] = useState(false);
+  const [period, setPeriod]   = useState('1d');
+  const [chartData, setChart] = useState([]);
+  const [chartLoading, setCL] = useState(false);
 
   const fetchChart = useCallback(async (sym, p) => {
     if (!sym) return;
-    setChartLoading(true);
+    setCL(true);
     try {
       const d = await getIndexChart(sym, p);
       setChart(d?.sparkline ?? []);
     } catch {
       setChart([]);
     } finally {
-      setChartLoading(false);
+      setCL(false);
     }
   }, []);
 
@@ -47,40 +46,32 @@ export default function IndexChartCard({ data }) {
   if (!data) return <SkeletonChartCard />;
 
   const { symbol, current_val, change_val, change_pct, raw_json } = data;
-  const isUp   = change_pct > 0;
-  const isDown = change_pct < 0;
+  const isUp        = change_pct > 0;
+  const isDown      = change_pct < 0;
   const marketState = raw_json?.marketState;
-  const color = chartColor(change_pct);
+  const color       = chartColor(change_pct);
 
   return (
     <div className={clsx(
-      'relative overflow-hidden rounded-card border p-5 flex flex-col gap-3',
-      'backdrop-blur-xl transition-all duration-300',
-      'hover:-translate-y-0.5 hover:shadow-cardHover',
-      isUp
-        ? 'bg-bull/8 border-bull/25 shadow-[0_4px_24px_rgba(232,64,64,0.10)]'
-        : isDown
-        ? 'bg-bear/8 border-bear/25 shadow-[0_4px_24px_rgba(37,99,235,0.10)]'
-        : 'bg-white/50 border-white/60 shadow-card',
+      'relative overflow-hidden rounded-card border bg-white p-5 flex flex-col gap-3',
+      'transition-all duration-200 hover:shadow-cardHover hover:-translate-y-[1px]',
+      isUp   ? 'border-l-[3px] border-l-bull border-t border-r border-b border-border'
+      : isDown ? 'border-l-[3px] border-l-bear border-t border-r border-b border-border'
+      :          'border border-border',
+      'shadow-card',
     )}>
-      {/* 상단 강조 바 */}
-      <div className={clsx(
-        'absolute top-0 left-0 right-0 h-[3px] rounded-t-card',
-        isUp ? 'bg-bull' : isDown ? 'bg-bear' : 'bg-neutral',
-      )} />
-
-      {/* 헤더: 이름 + 장 상태 + 기간 탭 */}
-      <div className="flex items-center justify-between gap-2 pt-1">
+      {/* 헤더 */}
+      <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <span className="text-base font-bold text-text-secondary tracking-tight">
+          <span className="text-base font-bold text-text-secondary">
             {LABELS[symbol] ?? symbol}
           </span>
           {marketState && (
             <span className={clsx(
-              'text-xs px-2 py-0.5 rounded-full font-semibold border',
+              'text-[11px] px-1.5 py-0.5 rounded-md font-semibold',
               marketState === 'REGULAR'
-                ? 'bg-bull/10 text-bull border-bull/20'
-                : 'bg-neutral/10 text-neutral border-neutral/20',
+                ? 'bg-safe/10 text-safe'
+                : 'bg-surface3 text-text-muted',
             )}>
               {marketState === 'REGULAR' ? '장중' : '장외'}
             </span>
@@ -88,15 +79,15 @@ export default function IndexChartCard({ data }) {
         </div>
 
         {/* 기간 탭 */}
-        <div className="flex bg-black/5 backdrop-blur-sm rounded-lg p-0.5 gap-0.5">
+        <div className="flex bg-surface2 rounded-lg p-0.5 gap-0.5">
           {PERIODS.map((p) => (
             <button
               key={p.key}
               onClick={() => setPeriod(p.key)}
               className={clsx(
-                'px-2.5 py-1 text-sm font-semibold rounded-md transition-all duration-150',
+                'px-2 py-0.5 text-[12px] font-semibold rounded-md transition-all duration-150',
                 period === p.key
-                  ? 'bg-white/90 shadow text-text-primary'
+                  ? 'bg-white shadow-sm text-text-primary'
                   : 'text-text-muted hover:text-text-secondary',
               )}
             >
@@ -108,34 +99,32 @@ export default function IndexChartCard({ data }) {
 
       {/* 수치 */}
       <div>
-        <p className="text-3xl font-bold font-mono text-text-primary leading-none">
+        <p className="text-2xl font-bold font-mono text-text-primary leading-none tabular-nums">
           {fmtIndex(current_val)}
         </p>
         <div className={clsx(
-          'flex items-center gap-1.5 mt-1.5 text-base font-semibold',
+          'flex items-center gap-1 mt-1.5 text-sm font-semibold',
           directionClass(change_pct),
         )}>
-          <span className="text-lg">{isUp ? '▲' : isDown ? '▼' : '—'}</span>
-          <span>{fmtIndex(Math.abs(change_val))}</span>
-          <span className="text-sm opacity-80">({fmtPct(change_pct)})</span>
+          <span>{isUp ? '▲' : isDown ? '▼' : '—'}</span>
+          <span className="font-mono">{fmtIndex(Math.abs(change_val))}</span>
+          <span className="opacity-75">({fmtPct(change_pct)})</span>
         </div>
       </div>
 
-      {/* 차트 */}
-      <div className={clsx('transition-opacity duration-300 h-20', chartLoading && 'opacity-30')}>
+      {/* 차트 영역 */}
+      <div className={clsx('h-[72px] transition-opacity duration-300', chartLoading && 'opacity-30')}>
         {chartData.length > 1 ? (
           <SparkLine
             data={chartData}
-            width={300}
-            height={80}
+            width={300} height={72}
             color={color}
-            filled
-            responsive
+            filled responsive
           />
         ) : (
           <div className="h-full flex items-center justify-center">
             <span className="text-sm text-text-muted">
-              {chartLoading ? '불러오는 중...' : '데이터 없음'}
+              {chartLoading ? '로딩 중...' : '데이터 없음'}
             </span>
           </div>
         )}
@@ -146,14 +135,14 @@ export default function IndexChartCard({ data }) {
 
 function SkeletonChartCard() {
   return (
-    <div className="rounded-card border border-white/60 bg-white/50 backdrop-blur-xl p-5 animate-pulse space-y-3">
+    <div className="rounded-card border border-border bg-white p-5 animate-pulse space-y-3 shadow-card">
       <div className="flex justify-between items-center">
-        <div className="h-5 w-20 bg-black/10 rounded-lg" />
-        <div className="h-7 w-32 bg-black/10 rounded-lg" />
+        <div className="h-4 w-16 bg-surface3 rounded" />
+        <div className="h-6 w-28 bg-surface3 rounded-lg" />
       </div>
-      <div className="h-9 w-40 bg-black/10 rounded-lg" />
-      <div className="h-5 w-32 bg-black/10 rounded-lg" />
-      <div className="h-20 bg-black/10 rounded-lg" />
+      <div className="h-8 w-32 bg-surface3 rounded" />
+      <div className="h-4 w-24 bg-surface3 rounded" />
+      <div className="h-[72px] bg-surface3 rounded-lg" />
     </div>
   );
 }

@@ -3,67 +3,66 @@
 @tailwind utilities;
 
 /* ── 스크롤바 ──────────────────────────────────────────── */
-::-webkit-scrollbar        { width: 6px; height: 6px; }
+::-webkit-scrollbar        { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track  { background: transparent; }
-::-webkit-scrollbar-thumb  { background: rgba(255,255,255,0.4); border-radius: 9999px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.6); }
+::-webkit-scrollbar-thumb  { background: #D1D5DB; border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: #9CA3AF; }
 
 /* ── 기본 폰트 ─────────────────────────────────────────── */
 @layer base {
-  html { font-size: 16px; }
-  body { @apply font-sans text-text-primary antialiased; }
+  html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+  body { @apply font-sans text-text-primary bg-surface2; }
 }
 
-/* ── 글래스모피즘 카드 ─────────────────────────────────── */
+/* ── 디자인 시스템 컴포넌트 ────────────────────────────── */
 @layer components {
-  .card {
-    @apply rounded-card border border-white/60 p-5
-           bg-white/60 backdrop-blur-xl shadow-card;
-  }
 
+  /* ─ 카드 (클린 화이트 + 섬세한 테두리) ─ */
+  .card {
+    @apply rounded-card bg-white border border-border p-5 shadow-card;
+  }
   .card-hover {
     @apply card cursor-default transition-all duration-200
-           hover:bg-white/80 hover:shadow-cardHover hover:-translate-y-0.5;
+           hover:shadow-cardHover hover:-translate-y-[1px];
   }
 
-  /* 수익률 뱃지 */
-  .badge-bull  { @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-sm font-semibold bg-bull/10 text-bull border border-bull/20; }
-  .badge-bear  { @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-sm font-semibold bg-bear/10 text-bear border border-bear/20; }
-  .badge-flat  { @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-sm font-semibold bg-neutral/10 text-neutral border border-neutral/20; }
-
-  /* 버튼 */
-  .btn-primary {
-    @apply px-4 py-2.5 bg-primary text-white rounded-xl text-base font-semibold
-           hover:bg-primary-dark active:scale-95 transition-all duration-150
-           shadow-md shadow-primary/20 disabled:opacity-50;
-  }
-  .btn-ghost {
-    @apply px-4 py-2.5 text-text-secondary rounded-xl text-base font-medium
-           hover:bg-white/60 active:scale-95 transition-all duration-150
-           border border-white/40;
-  }
-  .btn-danger {
-    @apply px-4 py-2.5 bg-red-600 text-white rounded-xl text-base font-semibold
-           hover:bg-red-700 active:scale-95 transition-all duration-150
-           shadow-md shadow-red-600/20;
-  }
-
-  /* 입력창 */
-  .input {
-    @apply w-full px-4 py-2.5 rounded-xl text-base
-           bg-white/50 backdrop-blur-sm border border-white/60
-           placeholder:text-text-muted text-text-primary
-           focus:outline-none focus:ring-2 focus:ring-primary/30
-           focus:border-primary/50 focus:bg-white/80
-           transition-all duration-200;
-  }
-
-  /* 섹션 타이틀 */
+  /* ─ 섹션 타이틀 ─ */
   .section-title {
     @apply text-lg font-bold text-text-primary mb-4;
   }
 
-  /* 방향 색상 인라인 유틸 */
+  /* ─ 수익률 뱃지 ─ */
+  .badge-bull  { @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-sm font-semibold bg-bull/8 text-bull border border-bull/15; }
+  .badge-bear  { @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-sm font-semibold bg-bear/8 text-bear border border-bear/15; }
+  .badge-flat  { @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-sm font-semibold bg-neutral/10 text-neutral border border-neutral/15; }
+
+  /* ─ 버튼 ─ */
+  .btn-primary {
+    @apply px-4 py-2.5 bg-primary text-white rounded-xl text-base font-semibold
+           hover:bg-primary-dark active:scale-95 transition-all duration-150
+           shadow-sm disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-ghost {
+    @apply px-4 py-2.5 text-text-secondary rounded-xl text-base font-medium
+           hover:bg-surface2 active:scale-95 transition-all duration-150
+           border border-border;
+  }
+  .btn-danger {
+    @apply px-4 py-2.5 bg-red-600 text-white rounded-xl text-base font-semibold
+           hover:bg-red-700 active:scale-95 transition-all duration-150
+           shadow-sm shadow-red-600/20;
+  }
+
+  /* ─ 입력창 ─ */
+  .input {
+    @apply w-full px-4 py-2.5 rounded-xl text-base
+           bg-white border border-border
+           placeholder:text-text-muted text-text-primary
+           focus:outline-none focus:ring-2 focus:ring-primary/20
+           focus:border-primary/40 transition-all duration-200;
+  }
+
+  /* ─ 방향 색상 ─ */
   .text-up   { @apply text-bull; }
   .text-down { @apply text-bear; }
 }
