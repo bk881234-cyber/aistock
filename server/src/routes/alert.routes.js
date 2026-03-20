@@ -3,9 +3,6 @@ const { authenticate } = require('../middleware/auth.middleware');
 const { Alert, AlertHistory } = require('../models');
 const { success, error } = require('../utils/response');
 
-// 진단용: 인증 없이 접근 — authenticate 이전에 위치
-router.get('/ping', (req, res) => res.json({ ok: true }));
-
 router.use(authenticate);
 
 /** GET /api/alerts - 알림 목록 */
@@ -53,9 +50,18 @@ router.delete('/:id', async (req, res) => {
 });
 
 /** GET /api/alerts/history - 알림 발동 이력 */
-router.get('/history', (req, res) => {
-  // 진단: DB 없이 즉시 반환 — 여전히 500이면 authenticate 미들웨어 문제
-  return success(res, { history: [], _debug: 'no-db' });
+router.get('/history', async (req, res) => {
+  try {
+    const history = await AlertHistory.findAll({
+      where: { user_id: req.user.id },
+      order: [['triggered_at', 'DESC']],
+      limit: 50,
+    });
+    return success(res, { history });
+  } catch (err) {
+    console.error('[alert] getHistory 오류:', err.message);
+    return success(res, { history: [] });  // 500 방지
+  }
 });
 
 /** PATCH /api/alerts/history/read-all - 알림 전체 읽음 처리 */

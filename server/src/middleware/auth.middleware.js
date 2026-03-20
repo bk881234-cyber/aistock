@@ -22,10 +22,14 @@ const authenticate = async (req, res, next) => {
     req.user = user;
     next();
   } catch (err) {
-    if (err.name === 'TokenExpiredError') {
-      return res.status(401).json({ success: false, message: '토큰이 만료되었습니다.' });
+    // JWT 오류는 401 (클라이언트 토큰 문제)
+    if (['JsonWebTokenError', 'TokenExpiredError', 'NotBeforeError'].includes(err.name)) {
+      const msg = err.name === 'TokenExpiredError' ? '토큰이 만료되었습니다.' : '인증에 실패했습니다.';
+      return res.status(401).json({ success: false, message: msg });
     }
-    return res.status(401).json({ success: false, message: '인증에 실패했습니다.' });
+    // DB 연결 오류 등 → 503 반환 (401 반환 시 클라이언트가 토큰 삭제 후 강제 로그아웃됨)
+    console.error('[auth] authenticate DB 오류:', err.message);
+    return res.status(503).json({ success: false, message: '서버 오류가 발생했습니다.' });
   }
 };
 
