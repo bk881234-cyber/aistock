@@ -36,8 +36,10 @@ export default function CommodityGauge({ data, label, usdKrw = 0, vixLevel = nul
     : vixLevel >= 20 ? { label: '주의 구간', color: 'text-warn',   bg: 'bg-warn/8 border-warn/20'   }
     :                  { label: '안전 구간', color: 'text-safe',   bg: 'bg-safe/8 border-safe/20'   };
 
-  // 52주 bar 위치 클래스
-  const barColor = isUp ? 'bg-bull' : isDown ? 'bg-bear' : 'bg-neutral';
+  // 금/은 색상 (심볼 기반)
+  const isGold   = data.symbol === 'GOLD_USD';
+  const isSilver = data.symbol === 'SILVER_USD';
+  const barHexColor = isGold ? '#D4A017' : isSilver ? '#A8A9AD' : (isUp ? '#E84040' : isDown ? '#2563EB' : '#6B7280');
 
   return (
     <div className="card flex flex-col gap-4">
@@ -106,13 +108,18 @@ export default function CommodityGauge({ data, label, usdKrw = 0, vixLevel = nul
               {/* 범위 바 + 현재 위치 점 */}
               <div className="relative h-1.5 bg-surface3 rounded-full overflow-visible">
                 <div
-                  className={clsx('h-full rounded-full transition-all duration-500', barColor)}
-                  style={{ width: `${Math.max(4, gaugePos)}%` }}
+                  className="h-full rounded-full transition-all duration-500"
+                  style={{ width: `${Math.max(4, gaugePos)}%`, background: barHexColor }}
                 />
                 {/* 현재가 위치 마커 */}
                 <div
-                  className="absolute top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-white border-2 border-text-primary shadow-sm"
-                  style={{ left: `calc(${Math.max(4, gaugePos)}% - 5px)` }}
+                  className="absolute top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full shadow-sm"
+                  style={{
+                    left: `calc(${Math.max(4, gaugePos)}% - 5px)`,
+                    background: '#fff',
+                    border: `2px solid ${barHexColor}`,
+                    boxShadow: `0 0 6px ${barHexColor}80`,
+                  }}
                 />
               </div>
               <p className="text-[10px] text-text-muted mt-1.5">

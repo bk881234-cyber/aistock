@@ -62,10 +62,7 @@ export default function IndexChartCard({ data }) {
         borderRadius: '16px',
         padding: '20px',
         background: 'linear-gradient(145deg, rgba(255,255,255,0.95) 0%, rgba(240,245,255,0.85) 100%)',
-        borderLeft: `3px solid ${accentColor.left}`,
-        borderTop: `1px solid ${accentColor.border}`,
-        borderRight: `1px solid rgba(147,197,253,0.30)`,
-        borderBottom: `1px solid rgba(147,197,253,0.30)`,
+        border: `1px solid ${accentColor.border}`,
         boxShadow: `0 0 0 1px rgba(147,197,253,0.20), 0 4px 20px ${accentColor.glow}, 0 1px 3px rgba(0,0,0,0.04)`,
       }}
       onMouseEnter={(e) => {

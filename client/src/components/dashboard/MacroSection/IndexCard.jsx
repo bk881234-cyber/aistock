@@ -16,11 +16,24 @@ export default function IndexCard({ data, label, compact = false }) {
 
   if (compact) {
     return (
-      <div className={clsx(
-        'rounded-card bg-white border-l-[3px] border-t border-r border-b border-border p-4 shadow-card',
-        'hover:shadow-cardHover transition-all duration-200',
-        isUp ? 'border-l-bull' : isDown ? 'border-l-bear' : 'border-l-neutral',
-      )}>
+      <div
+        className="transition-all duration-200"
+        style={{
+          borderRadius: '16px',
+          padding: '16px',
+          background: 'linear-gradient(145deg, rgba(255,255,255,0.95) 0%, rgba(240,245,255,0.80) 100%)',
+          border: '1px solid rgba(147,197,253,0.35)',
+          boxShadow: '0 0 0 1px rgba(147,197,253,0.18), 0 4px 16px rgba(26,86,219,0.06)',
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.boxShadow = '0 0 0 1px rgba(147,197,253,0.40), 0 8px 24px rgba(26,86,219,0.12)';
+          e.currentTarget.style.transform = 'translateY(-1px)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.boxShadow = '0 0 0 1px rgba(147,197,253,0.18), 0 4px 16px rgba(26,86,219,0.06)';
+          e.currentTarget.style.transform = '';
+        }}
+      >
         <p className="text-[12px] font-medium text-text-muted">{displayLabel}</p>
         <p className="text-xl font-bold font-mono text-text-primary mt-0.5 tabular-nums">
           {fmtIndex(current_val)}
@@ -33,11 +46,24 @@ export default function IndexCard({ data, label, compact = false }) {
   }
 
   return (
-    <div className={clsx(
-      'rounded-card bg-white border-l-[3px] border-t border-r border-b border-border p-5 shadow-card',
-      'hover:shadow-cardHover hover:-translate-y-[1px] transition-all duration-200',
-      isUp ? 'border-l-bull' : isDown ? 'border-l-bear' : 'border-l-neutral',
-    )}>
+    <div
+      className="transition-all duration-200"
+      style={{
+        borderRadius: '16px',
+        padding: '20px',
+        background: 'linear-gradient(145deg, rgba(255,255,255,0.95) 0%, rgba(240,245,255,0.85) 100%)',
+        border: '1px solid rgba(147,197,253,0.35)',
+        boxShadow: '0 0 0 1px rgba(147,197,253,0.20), 0 4px 20px rgba(26,86,219,0.07)',
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.boxShadow = '0 0 0 1px rgba(147,197,253,0.40), 0 8px 28px rgba(26,86,219,0.12)';
+        e.currentTarget.style.transform = 'translateY(-1px)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.boxShadow = '0 0 0 1px rgba(147,197,253,0.20), 0 4px 20px rgba(26,86,219,0.07)';
+        e.currentTarget.style.transform = '';
+      }}
+    >
       <p className="text-base font-bold text-text-secondary">{displayLabel}</p>
       <p className="text-2xl font-bold font-mono text-text-primary mt-1 tabular-nums">
         {fmtIndex(current_val)}

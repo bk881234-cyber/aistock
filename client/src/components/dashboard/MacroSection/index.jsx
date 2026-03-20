@@ -82,9 +82,8 @@ function VixCard({ data }) {
 
   return (
     <div className="card relative overflow-hidden" style={{
-      borderLeftWidth: '3px',
-      borderLeftColor: level.color,
-      boxShadow: `0 0 0 1px ${level.border}, 0 4px 20px ${level.glow}, 0 0 0 1px rgba(147,197,253,0.20)`,
+      border: `1px solid ${level.border}`,
+      boxShadow: `0 0 0 1px ${level.border}, 0 4px 20px ${level.glow}`,
     }}>
       {/* 배경 글로우 */}
       <div style={{
