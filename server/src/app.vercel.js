@@ -61,6 +61,7 @@ app.use('/api/market',    marketRoutes);
 app.use('/api/ai',        aiRoutes);
 app.use('/api/alerts',    alertRoutes);
 
+// 배포 확인용 더미 주석 (v2026-03-20-rev1)
 app.get('/api/health', async (req, res) => {
   try {
     await sequelize.authenticate();
