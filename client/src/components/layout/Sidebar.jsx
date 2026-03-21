@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, Link } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
 import clsx from 'clsx';
 
@@ -38,7 +38,7 @@ export default function Sidebar() {
 
       {/* ── 로고 ── */}
       <div className="px-5 py-5 flex-shrink-0" style={{ borderBottom: '1px solid rgba(147,197,253,0.12)' }}>
-        <div className="flex items-center gap-2.5">
+        <Link to="/" className="flex items-center gap-2.5 no-underline">
           {/* 로고 아이콘 — 블루 글로우 */}
           <div style={{
             width: '36px', height: '36px', borderRadius: '10px',
@@ -55,7 +55,7 @@ export default function Sidebar() {
             </p>
             <p style={{ fontSize: '11px', color: '#64748B', marginTop: '3px' }}>주식 트래커</p>
           </div>
-        </div>
+        </Link>
       </div>
 
       {/* ── 메인 네비 ── */}
@@ -70,7 +70,7 @@ export default function Sidebar() {
                 'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 relative group',
                 isActive
                   ? 'text-white'
-                  : 'text-slate-400 hover:text-slate-200',
+                  : 'text-slate-300 hover:text-white',
               )
             }
             style={({ isActive }) => isActive ? {
@@ -149,15 +149,15 @@ export default function Sidebar() {
             </div>
             <div className="min-w-0">
               <p className="text-sm font-semibold truncate leading-none" style={{ color: '#E2E8F0' }}>{user?.name}</p>
-              <p className="text-xs truncate mt-0.5" style={{ color: '#475569' }}>{user?.email}</p>
+              <p className="text-xs truncate mt-0.5" style={{ color: '#94A3B8' }}>{user?.email}</p>
             </div>
           </div>
           <button
             onClick={logout}
             className="text-xs font-medium transition-colors"
-            style={{ color: '#475569' }}
+            style={{ color: '#94A3B8' }}
             onMouseEnter={(e) => e.target.style.color = '#F87171'}
-            onMouseLeave={(e) => e.target.style.color = '#475569'}
+            onMouseLeave={(e) => e.target.style.color = '#94A3B8'}
           >
             로그아웃
           </button>

@@ -127,7 +127,7 @@ const getNewsAnalysis = async (req, res) => {
     const { GoogleGenerativeAI } = require('@google/generative-ai');
     const env = require('../config/env');
     const genAI = new GoogleGenerativeAI(env.gemini.apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
     const direction = priceChangePct > 0 ? `+${priceChangePct.toFixed(1)}% 급등` : `${priceChangePct.toFixed(1)}% 급락`;
 
