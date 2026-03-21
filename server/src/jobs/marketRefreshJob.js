@@ -58,6 +58,7 @@ const refreshAllMarketData = async () => {
     ];
     const finalFx = fx.length ? fx : [
       { symbol: 'USD_KRW', data_type: 'fx', current_val: 1460.0, change_val: 0, change_pct: 0, raw_json: { sparkline: [] }, last_updated: now },
+      { symbol: 'CNY_KRW', data_type: 'fx', current_val: 200.0,  change_val: 0, change_pct: 0, raw_json: { sparkline: [] }, last_updated: now },
       { symbol: 'EUR_KRW', data_type: 'fx', current_val: 1580.0, change_val: 0, change_pct: 0, raw_json: { sparkline: [] }, last_updated: now },
       { symbol: 'JPY_KRW', data_type: 'fx', current_val: 9.60,   change_val: 0, change_pct: 0, raw_json: { sparkline: [] }, last_updated: now },
     ];

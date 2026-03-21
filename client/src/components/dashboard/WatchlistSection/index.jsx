@@ -29,8 +29,8 @@ export default function WatchlistSection() {
 
   return (
     <div className="card">
-      <div className="flex items-center justify-between mb-3">
-        <h2 className="section-title mb-0">⭐ 관심 종목</h2>
+      <div className="mb-3">
+        <h2 className="section-title mb-2">⭐ 관심 종목</h2>
         <div className="flex gap-2">
           <Link to="/watchlist" className="btn-ghost text-xs">전체</Link>
           <button onClick={() => setAdding((v) => !v)} className="btn-ghost text-xs">

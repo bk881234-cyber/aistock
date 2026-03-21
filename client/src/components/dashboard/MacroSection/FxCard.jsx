@@ -5,6 +5,7 @@ const LABELS = {
   USD_KRW: { name: 'USD / KRW', flag: '🇺🇸', accent: '#1A56DB' },
   EUR_KRW: { name: 'EUR / KRW', flag: '🇪🇺', accent: '#7C3AED' },
   JPY_KRW: { name: 'JPY / KRW', flag: '🇯🇵', accent: '#0EA5E9' },
+  CNY_KRW: { name: 'CNY / KRW', flag: '🇨🇳', accent: '#DC2626' },
 };
 
 export default function FxCard({ data, compact = false }) {
@@ -20,7 +21,7 @@ export default function FxCard({ data, compact = false }) {
   const chartColor  = isUp ? '#E84040' : isDown ? '#2563EB' : '#6B7280';
   const meta        = LABELS[symbol] ?? { name: symbol, flag: '', accent: '#1A56DB' };
 
-  const displayVal = symbol === 'JPY_KRW'
+  const displayVal = (symbol === 'JPY_KRW' || symbol === 'CNY_KRW')
     ? current_val.toFixed(2)
     : fmtIndex(current_val);
 

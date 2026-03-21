@@ -5,8 +5,6 @@ import CommodityGauge from './CommodityGauge';
 import IndexCard from './IndexCard';
 
 const ROW1     = ['KOSPI', 'KOSDAQ', 'NASDAQ', 'SPX'];
-const FX_ORDER = ['USD_KRW', 'EUR_KRW', 'JPY_KRW'];
-
 export default function MacroSection() {
   const { indices, fx, commodities } = useMarketStore();
 
@@ -14,6 +12,7 @@ export default function MacroSection() {
   const usdData  = fx.find((f) => f.symbol === 'USD_KRW') ?? null;
   const eurData  = fx.find((f) => f.symbol === 'EUR_KRW') ?? null;
   const jpyData  = fx.find((f) => f.symbol === 'JPY_KRW') ?? null;
+  const cnyData  = fx.find((f) => f.symbol === 'CNY_KRW') ?? null;
   const gold     = commodities.find((c) => c.symbol === 'GOLD_USD')   ?? null;
   const silver   = commodities.find((c) => c.symbol === 'SILVER_USD') ?? null;
   const vix      = indices.find((i) => i.symbol === 'VIX');
@@ -31,18 +30,16 @@ export default function MacroSection() {
         ))}
       </div>
 
-      {/* ── Row 2: DOW → VIX → USD/KRW → EUR → JPY ─── */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-        {/* ① DOW */}
+      {/* ── Row 2: DOW + VIX ─────────────────────────────── */}
+      <div className="grid grid-cols-2 gap-3">
         <IndexCard data={dow} label="다우" compact />
-
-        {/* ② VIX — 별도 강조 카드 */}
         <VixCard data={vix} />
+      </div>
 
-        {/* ③ USD/KRW */}
+      {/* ── Row 3: USD / CNY / EUR / JPY — 4개 동일 너비 ─── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <FxCard data={usdData} compact />
-
-        {/* ④⑤ EUR / JPY */}
+        <FxCard data={cnyData} compact />
         <FxCard data={eurData} compact />
         <FxCard data={jpyData} compact />
       </div>

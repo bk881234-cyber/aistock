@@ -173,6 +173,7 @@ const getOverview = async (req, res) => {
       ],
       fx: [
         { symbol: 'USD_KRW', current_val: 1460.0, change_val: 0, change_pct: 0, last_updated: now },
+        { symbol: 'CNY_KRW', current_val: 200.0,  change_val: 0, change_pct: 0, last_updated: now },
         { symbol: 'EUR_KRW', current_val: 1580.0, change_val: 0, change_pct: 0, last_updated: now },
         { symbol: 'JPY_KRW', current_val: 9.60,   change_val: 0, change_pct: 0, last_updated: now },
       ],

@@ -56,10 +56,17 @@ export default function StockDetail() {
   return (
     <div className="space-y-5 animate-fade-in">
       {/* 상단 요약 바 */}
-      <div className="card flex flex-wrap items-center gap-6 py-4">
-        <div>
-          <p className="text-xl font-bold text-text-primary">{displayName}</p>
-          <p className="text-sm text-text-muted">{symbol} · {displayMkt}</p>
+      <div className="card py-4 space-y-3">
+        {/* 종목명 + 날씨/신호 */}
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            <p className="text-xl font-bold text-text-primary truncate">{displayName}</p>
+            <p className="text-sm text-text-muted">{symbol} · {displayMkt}</p>
+          </div>
+          <div className="flex items-center gap-3 flex-shrink-0">
+            <WeatherWidget symbol={symbol} variant="card" />
+            <SignalLight score={55} size="lg" />
+          </div>
         </div>
 
         {loading ? (
@@ -71,28 +78,30 @@ export default function StockDetail() {
           <p className="text-sm text-danger font-medium">{fetchError}</p>
         ) : (
           <>
-            <div>
-              <p className="text-2xl font-bold font-mono text-text-primary">
-                {stockData?.currency === 'USD'
-                  ? `$${currentPrice?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-                  : fmtKRW(currentPrice)}
-              </p>
-              {changePct !== null && (
-                <p className={`text-sm font-semibold ${changePct >= 0 ? 'text-bull' : 'text-bear'}`}>
-                  {changePct >= 0 ? '▲' : '▼'} {fmtPct(changePct)}
+            {/* 가격 + 고저가 */}
+            <div className="flex flex-wrap items-end gap-4">
+              <div>
+                <p className="text-2xl font-bold font-mono text-text-primary">
+                  {stockData?.currency === 'USD'
+                    ? `$${currentPrice?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                    : fmtKRW(currentPrice)}
                 </p>
+                {changePct !== null && (
+                  <p className={`text-sm font-semibold ${changePct >= 0 ? 'text-bull' : 'text-bear'}`}>
+                    {changePct >= 0 ? '▲' : '▼'} {fmtPct(changePct)}
+                  </p>
+                )}
+              </div>
+              {last && (
+                <div className="text-sm text-text-muted space-y-0.5">
+                  <p>고가 <span className="font-mono font-semibold text-text-primary">{fmtKRW(last.high)}</span></p>
+                  <p>저가 <span className="font-mono font-semibold text-text-primary">{fmtKRW(last.low)}</span></p>
+                </div>
               )}
             </div>
 
-            {last && (
-              <div className="text-sm text-text-muted space-y-0.5">
-                <p>고가 <span className="font-mono font-semibold text-text-primary">{fmtKRW(last.high)}</span></p>
-                <p>저가 <span className="font-mono font-semibold text-text-primary">{fmtKRW(last.low)}</span></p>
-              </div>
-            )}
-
-            {/* 기간 탭 */}
-            <div className="flex rounded-lg p-0.5 gap-0.5 ml-auto" style={{
+            {/* 기간 탭 — 항상 별도 행 */}
+            <div className="flex rounded-lg p-0.5 gap-0.5 w-full" style={{
               background: 'rgba(219,234,254,0.50)',
               border: '1px solid rgba(147,197,253,0.30)',
             }}>
@@ -100,8 +109,9 @@ export default function StockDetail() {
                 <button
                   key={r.key}
                   onClick={() => setRange(r.key)}
+                  className="flex-1"
                   style={{
-                    padding: '4px 12px', fontSize: '13px', fontWeight: '600',
+                    padding: '6px 0', fontSize: '13px', fontWeight: '600',
                     borderRadius: '6px', transition: 'all 0.15s',
                     background: range === r.key ? 'linear-gradient(135deg, #1A56DB, #0EA5E9)' : 'transparent',
                     color: range === r.key ? '#fff' : '#64748B',
@@ -114,11 +124,6 @@ export default function StockDetail() {
             </div>
           </>
         )}
-
-        <div className="flex items-center gap-4">
-          <WeatherWidget symbol={symbol} variant="card" />
-          <SignalLight score={55} size="lg" />
-        </div>
       </div>
 
       {/* 2열 레이아웃 */}
