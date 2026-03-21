@@ -99,7 +99,7 @@ function AnalysisLoading() {
       <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin flex-shrink-0" />
       <div className="space-y-1.5">
         <p className="text-sm font-medium text-text-secondary">뉴스를 수집하고 있습니다...</p>
-        <p className="text-xs text-text-muted">Gemini AI가 호재/악재를 분석 중입니다</p>
+        <p className="text-xs text-text-muted">AI가 호재/악재를 분석 중입니다</p>
       </div>
     </div>
   );
@@ -138,6 +138,19 @@ function AnalysisResult({ result }) {
         <FactBox title="호재" items={result.positives} color="text-bull" bg="bg-bull/8 border-bull/15" icon="✅" />
         <FactBox title="악재" items={result.negatives} color="text-bear" bg="bg-bear/8 border-bear/15" icon="⚠️" />
       </div>
+
+      {/* 관련 뉴스 링크 */}
+      {result.source_links?.length > 0 && (
+        <div className="space-y-1.5">
+          <p className="text-[11px] font-semibold text-text-muted">📰 관련 뉴스</p>
+          {result.source_links.map((url, i) => (
+            <a key={i} href={url} target="_blank" rel="noopener noreferrer"
+              className="block text-xs text-primary hover:underline truncate">
+              {url}
+            </a>
+          ))}
+        </div>
+      )}
 
       {/* 신뢰도 + 시각 */}
       <div className="flex items-center gap-3 pt-1">

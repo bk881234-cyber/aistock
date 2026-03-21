@@ -75,8 +75,8 @@ const getReport = async (req, res) => {
 const generateReport = async (req, res) => {
   try {
     const env = require('../config/env');
-    if (!env.gemini.apiKey) {
-      return error(res, 'AI 기능을 사용하려면 Gemini API 키 설정이 필요합니다. Vercel 환경변수에 GEMINI_API_KEY를 추가해주세요.', 503);
+    if (!env.groq.apiKey) {
+      return error(res, 'AI 기능을 사용하려면 Groq API 키 설정이 필요합니다. Vercel 환경변수에 GROQ_API_KEY를 추가해주세요.', 503);
     }
     const { symbol } = req.params;
     const { type = 'news_summary' } = req.body;
@@ -133,16 +133,17 @@ const getNewsAnalysis = async (req, res) => {
     const prompt = `
 당신은 개인 투자자를 위한 AI 주식 분석가입니다.
 종목이 오늘 ${direction} 했습니다.
-아래 최신 뉴스를 분석하여 호재와 악재를 명확히 구분해주세요.
+아래 최신 뉴스를 바탕으로 구체적이고 맥락 있는 분석을 제공해주세요.
 
 ${newsContext}
 
 반드시 아래 JSON 형식만 반환하세요 (마크다운 없이):
 {
-  "one_liner": "시황 한 줄 요약 (25자 이내, ${direction} 이유 포함)",
-  "full_text": "1줄: 핵심 원인\\n2줄: 시장 반응\\n3줄: 투자자 유의사항",
-  "positives": ["호재 요인 1 (20자 이내)", "호재 요인 2"],
-  "negatives": ["악재 요인 1 (20자 이내)"],
+  "one_liner": "오늘 ${direction}한 핵심 이유를 구체적으로 설명 (예: 'XX 실적 호조로 기관 매수 집중')",
+  "full_text": "1줄: 오늘 주가 움직임의 핵심 원인 (뉴스 근거 포함)\\n2줄: 시장 및 섹터 반응, 수급 상황\\n3줄: 투자자가 주의해야 할 리스크 또는 기회",
+  "positives": ["구체적 호재 요인 1 (뉴스 근거 포함)", "구체적 호재 요인 2"],
+  "negatives": ["구체적 악재 요인 1 (뉴스 근거 포함)"],
+  "source_links": ["관련 뉴스 URL 1", "관련 뉴스 URL 2"],
   "confidence": 70
 }
 `.trim();
@@ -169,7 +170,7 @@ ${newsContext}
       };
     }
 
-    const payload = { symbol, priceChangePct, ...parsed, analyzedAt: new Date().toISOString() };
+    const payload = { symbol, priceChangePct, ...parsed, source_links: parsed.source_links || [], analyzedAt: new Date().toISOString() };
     await setCache(CACHE_KEY, payload, 1800); // 30분 캐시
     return success(res, payload, '뉴스 분석이 완료되었습니다.');
   } catch (err) {

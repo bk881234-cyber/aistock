@@ -68,7 +68,7 @@ const buildNewsContext = async (symbol) => {
   const lines = news.map((n, i) => {
     const hoursAgo = Math.round((now - n.publishedAt) / 3600);
     const timeLabel = hoursAgo < 1 ? '방금 전' : hoursAgo < 24 ? `${hoursAgo}시간 전` : `${Math.round(hoursAgo / 24)}일 전`;
-    return `${i + 1}. [${n.publisher} / ${timeLabel}] ${n.title}`;
+    return `${i + 1}. [${n.publisher} / ${timeLabel}] ${n.title}${n.link ? ` (${n.link})` : ''}`;
   });
 
   return `${symbol} 종목 최근 뉴스 ${news.length}건:\n${lines.join('\n')}`;
