@@ -18,15 +18,13 @@ export default function Dashboard() {
       {/* 매크로 지표 풀-width */}
       <MacroSection />
 
-      {/* 좌/우 2열 */}
-      <div className="grid grid-cols-12 gap-5">
-        <div className="col-span-8">
-          <PortfolioSection />
-        </div>
-        <div className="col-span-4 flex flex-col gap-5">
-          <WatchlistSection />
-          <AlertPanel />
-        </div>
+      {/* 포트폴리오 풀-width */}
+      <PortfolioSection />
+
+      {/* 관심종목 + 알림 — 2열 (모바일 1열) */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <WatchlistSection />
+        <AlertPanel />
       </div>
     </div>
   );

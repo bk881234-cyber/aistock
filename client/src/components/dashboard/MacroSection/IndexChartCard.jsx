@@ -75,7 +75,7 @@ export default function IndexChartCard({ data }) {
       }}
     >
       {/* 헤더 */}
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex flex-col gap-2">
         <div className="flex items-center gap-2">
           {/* 발광 노드 */}
           <span style={{
@@ -98,8 +98,8 @@ export default function IndexChartCard({ data }) {
           )}
         </div>
 
-        {/* 기간 탭 */}
-        <div className="flex rounded-lg p-0.5 gap-0.5" style={{
+        {/* 기간 탭 — 항상 아래 행 */}
+        <div className="flex rounded-lg p-0.5 gap-0.5 w-full" style={{
           background: 'rgba(219,234,254,0.50)',
           border: '1px solid rgba(147,197,253,0.30)',
         }}>
@@ -107,8 +107,9 @@ export default function IndexChartCard({ data }) {
             <button
               key={p.key}
               onClick={() => setPeriod(p.key)}
+              className="flex-1"
               style={{
-                padding: '2px 8px', fontSize: '11px', fontWeight: '600',
+                padding: '3px 0', fontSize: '11px', fontWeight: '600',
                 borderRadius: '6px', transition: 'all 0.15s',
                 background: period === p.key
                   ? 'linear-gradient(135deg, #1A56DB, #0EA5E9)'

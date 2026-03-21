@@ -8,29 +8,21 @@ import StockMemo from '@/components/stock/StockMemo';
 import { fmtKRW, fmtPct } from '@/utils/formatters';
 import { getStockDetail } from '@/api/marketApi';
 
-const RANGES = [
-  { key: '1mo', label: '1개월' },
-  { key: '3mo', label: '3개월' },
-  { key: '6mo', label: '6개월' },
-  { key: '1y',  label: '1년'  },
-];
-
 export default function StockDetail() {
   const { symbol }   = useParams();
   const { state }    = useLocation();
   const market       = state?.market ?? null;
   const stockName    = state?.stockName ?? symbol;
 
-  const [range,      setRange]  = useState('3mo');
   const [stockData,  setStock]  = useState(null);
   const [loading,    setLoading] = useState(true);
   const [fetchError, setError]  = useState(null);
 
-  const load = useCallback(async (sym, mkt, rng) => {
+  const load = useCallback(async (sym, mkt) => {
     setLoading(true);
     setError(null);
     try {
-      const data = await getStockDetail(sym, mkt, rng);
+      const data = await getStockDetail(sym, mkt);
       setStock(data);
     } catch (err) {
       console.error('[StockDetail] fetch error:', err.message);
@@ -41,8 +33,8 @@ export default function StockDetail() {
   }, []);
 
   useEffect(() => {
-    load(symbol, market, range);
-  }, [symbol, market, range, load]);
+    load(symbol, market);
+  }, [symbol, market, load]);
 
   const candles    = stockData?.candles ?? [];
   const last       = candles[candles.length - 1];
@@ -100,28 +92,6 @@ export default function StockDetail() {
               )}
             </div>
 
-            {/* 기간 탭 — 항상 별도 행 */}
-            <div className="flex rounded-lg p-0.5 gap-0.5 w-full" style={{
-              background: 'rgba(219,234,254,0.50)',
-              border: '1px solid rgba(147,197,253,0.30)',
-            }}>
-              {RANGES.map((r) => (
-                <button
-                  key={r.key}
-                  onClick={() => setRange(r.key)}
-                  className="flex-1"
-                  style={{
-                    padding: '6px 0', fontSize: '13px', fontWeight: '600',
-                    borderRadius: '6px', transition: 'all 0.15s',
-                    background: range === r.key ? 'linear-gradient(135deg, #1A56DB, #0EA5E9)' : 'transparent',
-                    color: range === r.key ? '#fff' : '#64748B',
-                    boxShadow: range === r.key ? '0 2px 6px rgba(26,86,219,0.25)' : 'none',
-                  }}
-                >
-                  {r.label}
-                </button>
-              ))}
-            </div>
           </>
         )}
       </div>
