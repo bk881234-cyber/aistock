@@ -7,6 +7,7 @@
  */
 require('pg');
 require('pg-hstore');
+require('groq-sdk');
 
 let handler;
 try {
