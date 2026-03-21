@@ -1,7 +1,7 @@
 const { AIReport, StockWeather } = require('../models');
 const { getCache, setCache } = require('../config/redis');
 const { success, error } = require('../utils/response');
-const { buildNewsContext } = require('../services/ai/newsService');
+const { buildNewsContext, fetchNews } = require('../services/ai/newsService');
 
 /**
  * GET /api/ai/weather/:symbol
@@ -104,79 +104,36 @@ const getSellGuide = async (req, res) => {
 };
 
 /**
- * POST /api/ai/news-analysis
- * 가격 급등락 감지 시 뉴스를 수집해 호재/악재 3줄 요약 반환
- * body: { symbol, priceChangePct }
- *
- * - 캐시 30분 (동일 심볼 연속 요청 방지)
- * - priceChangePct는 컨텍스트로만 사용 (분석 품질 향상)
+ * GET /api/ai/news/:symbol
+ * 종목 관련 최신 뉴스 목록 반환
  */
-const getNewsAnalysis = async (req, res) => {
+const getRelatedNews = async (req, res) => {
   try {
-    const { symbol, priceChangePct = 0 } = req.body;
-    if (!symbol) return error(res, 'symbol이 필요합니다.', 400);
-
-    const CACHE_KEY = `news-analysis:${symbol}`;
+    const { symbol } = req.params;
+    const CACHE_KEY = `related-news:${symbol}`;
     const cached = await getCache(CACHE_KEY);
     if (cached) return success(res, cached);
 
-    // 뉴스 수집
-    const newsContext = await buildNewsContext(symbol);
+    const yahooSym = /^\d{6}$/.test(symbol) ? `${symbol}.KS` : symbol;
+    const news = await fetchNews(yahooSym, 8);
 
-    // Groq 3줄 요약 생성
-    const Groq = require('groq-sdk');
-    const env = require('../config/env');
-    const groq = new Groq({ apiKey: env.groq.apiKey });
+    const now = Date.now() / 1000;
+    const result = news.map((n) => ({
+      title:       n.title,
+      publisher:   n.publisher,
+      link:        n.link,
+      timeLabel:   (() => {
+        const hoursAgo = Math.round((now - n.publishedAt) / 3600);
+        return hoursAgo < 1 ? '방금 전' : hoursAgo < 24 ? `${hoursAgo}시간 전` : `${Math.round(hoursAgo / 24)}일 전`;
+      })(),
+    }));
 
-    const direction = priceChangePct > 0 ? `+${priceChangePct.toFixed(1)}% 급등` : `${priceChangePct.toFixed(1)}% 급락`;
-
-    const prompt = `
-당신은 개인 투자자를 위한 AI 주식 분석가입니다.
-종목이 오늘 ${direction} 했습니다.
-아래 최신 뉴스를 바탕으로 구체적이고 맥락 있는 분석을 제공해주세요.
-
-${newsContext}
-
-반드시 아래 JSON 형식만 반환하세요 (마크다운 없이):
-{
-  "one_liner": "오늘 ${direction}한 핵심 이유를 구체적으로 설명 (예: 'XX 실적 호조로 기관 매수 집중')",
-  "full_text": "1줄: 오늘 주가 움직임의 핵심 원인 (뉴스 근거 포함)\\n2줄: 시장 및 섹터 반응, 수급 상황\\n3줄: 투자자가 주의해야 할 리스크 또는 기회",
-  "positives": ["구체적 호재 요인 1 (뉴스 근거 포함)", "구체적 호재 요인 2"],
-  "negatives": ["구체적 악재 요인 1 (뉴스 근거 포함)"],
-  "source_links": ["관련 뉴스 URL 1", "관련 뉴스 URL 2"],
-  "confidence": 70
-}
-`.trim();
-
-    const completion = await groq.chat.completions.create({
-      model: 'llama-3.3-70b-versatile',
-      messages: [{ role: 'user', content: prompt }],
-      temperature: 0.3,
-    });
-    const rawText = completion.choices[0].message.content;
-    const cleaned  = rawText.replace(/```json|```/g, '').trim();
-
-    let parsed;
-    try {
-      parsed = JSON.parse(cleaned);
-    } catch {
-      // JSON 파싱 실패 시 기본값
-      parsed = {
-        one_liner:  `${symbol} 분석 결과`,
-        full_text:  `1. ${direction} 발생\n2. 뉴스 분석 중\n3. 신중한 판단 권고`,
-        positives:  [],
-        negatives:  [],
-        confidence: 40,
-      };
-    }
-
-    const payload = { symbol, priceChangePct, ...parsed, source_links: parsed.source_links || [], analyzedAt: new Date().toISOString() };
-    await setCache(CACHE_KEY, payload, 1800); // 30분 캐시
-    return success(res, payload, '뉴스 분석이 완료되었습니다.');
+    await setCache(CACHE_KEY, result, 600); // 10분 캐시
+    return success(res, result);
   } catch (err) {
-    console.error('[ai] getNewsAnalysis 오류:', err.message);
-    return error(res, 'AI 뉴스 분석 중 오류가 발생했습니다.');
+    console.error('[ai] getRelatedNews 오류:', err.message);
+    return success(res, []);
   }
 };
 
-module.exports = { getWeather, getReport, generateReport, getSellGuide, getNewsAnalysis };
+module.exports = { getWeather, getReport, generateReport, getSellGuide, getRelatedNews };

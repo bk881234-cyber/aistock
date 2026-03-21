@@ -12,5 +12,5 @@ export const generateReport = (symbol, type = 'news_summary') =>
 export const getSellGuide = (portfolioId) =>
   api.get(`/ai/sell-guide/${portfolioId}`).then((r) => r.data.data);
 
-export const getNewsAnalysis = (symbol, priceChangePct = 0) =>
-  api.post('/ai/news-analysis', { symbol, priceChangePct }).then((r) => r.data.data);
+export const getRelatedNews = (symbol) =>
+  api.get(`/ai/news/${symbol}`).then((r) => r.data.data);

@@ -4,7 +4,6 @@ import TVChart from '@/components/charts/TVChart';
 import AIReport from '@/components/ai/AIReport';
 import WeatherWidget from '@/components/ai/WeatherWidget';
 import SignalLight from '@/components/common/SignalLight';
-import NewsAnalysisPanel from '@/components/ai/NewsAnalysisPanel';
 import StockMemo from '@/components/stock/StockMemo';
 import { fmtKRW, fmtPct } from '@/utils/formatters';
 import { getStockDetail } from '@/api/marketApi';
@@ -132,12 +131,6 @@ export default function StockDetail() {
             candleData={candles}
           />
 
-          {/* 뉴스 AI 분석 — 급등락 시 자동 펼침 */}
-          <NewsAnalysisPanel
-            symbol={symbol}
-            priceChangePct={changePct ?? 0}
-            autoExpand={Math.abs(changePct ?? 0) >= 3}
-          />
         </div>
 
         {/* AI 리포트 + 메모 */}

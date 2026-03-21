@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { getReport, generateReport } from '@/api/aiApi';
+import { useState, useEffect } from 'react';
+import { getReport, generateReport, getRelatedNews } from '@/api/aiApi';
 import { fmtDateTime } from '@/utils/formatters';
 import toast from 'react-hot-toast';
 import clsx from 'clsx';
@@ -15,6 +15,11 @@ export default function AIReport({ symbol, stockData }) {
   const [loading,     setLoading]     = useState(false);
   const [generated,   setGenerated]   = useState(false);
   const [exportOpen,  setExportOpen]  = useState(false);
+  const [news,        setNews]        = useState([]);
+
+  useEffect(() => {
+    getRelatedNews(symbol).then(setNews).catch(() => {});
+  }, [symbol]);
 
   const load = async () => {
     setLoading(true);
@@ -41,8 +46,8 @@ export default function AIReport({ symbol, stockData }) {
 
   if (!report && !loading) {
     return (
-      <div className="card border border-dashed border-border">
-        <div className="flex flex-col items-center py-6 text-center">
+      <div className="card space-y-4">
+        <div className="flex flex-col items-center py-4 text-center border border-dashed border-border rounded-xl">
           <span className="text-3xl mb-2">🤖</span>
           <p className="text-sm font-medium text-text-secondary">AI 3줄 요약 리포트</p>
           <p className="text-xs text-text-muted mt-1 mb-4">
@@ -53,6 +58,22 @@ export default function AIReport({ symbol, stockData }) {
             <button onClick={generate} className="btn-primary text-xs">🤖 AI 생성</button>
           </div>
         </div>
+        {news.length > 0 && (
+          <div className="bg-surface2 rounded-lg px-4 py-3 space-y-2">
+            <p className="text-xs font-medium text-text-muted">📰 관련 뉴스</p>
+            {news.map((n, i) => (
+              <a key={i} href={n.link} target="_blank" rel="noopener noreferrer"
+                className="block group">
+                <p className="text-xs text-text-secondary group-hover:text-primary transition-colors leading-relaxed line-clamp-2">
+                  {n.title}
+                </p>
+                <p className="text-[10px] text-text-muted mt-0.5">
+                  {n.publisher} · {n.timeLabel}
+                </p>
+              </a>
+            ))}
+          </div>
+        )}
       </div>
     );
   }
@@ -139,6 +160,24 @@ export default function AIReport({ symbol, stockData }) {
           textClass="text-bear"
         />
       </div>
+
+      {/* 관련 뉴스 */}
+      {news.length > 0 && (
+        <div className="bg-surface2 rounded-lg px-4 py-3 space-y-2">
+          <p className="text-xs font-medium text-text-muted">📰 관련 뉴스</p>
+          {news.map((n, i) => (
+            <a key={i} href={n.link} target="_blank" rel="noopener noreferrer"
+              className="block group">
+              <p className="text-xs text-text-secondary group-hover:text-primary transition-colors leading-relaxed line-clamp-2">
+                {n.title}
+              </p>
+              <p className="text-[10px] text-text-muted mt-0.5">
+                {n.publisher} · {n.timeLabel}
+              </p>
+            </a>
+          ))}
+        </div>
+      )}
 
       <p className="text-[11px] text-text-muted text-right">
         생성: {fmtDateTime(report.generated_at)} · 만료: {fmtDateTime(report.expires_at)}
