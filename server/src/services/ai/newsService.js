@@ -20,34 +20,69 @@ const httpsGet = (url) =>
       });
     });
     req.on('error', reject);
-    req.setTimeout(6000, () => req.destroy(new Error('timeout')));
+    req.setTimeout(8000, () => req.destroy(new Error('timeout')));
   });
+
+/** Yahoo Finance 응답에서 뉴스 배열 추출 (API 버전별 경로 대응) */
+const extractNews = (data) => {
+  // 최신 포맷: { news: [...], quotes: [...] }
+  if (Array.isArray(data?.news)) return data.news;
+  // 구 포맷: { finance: { result: [{ news: [...] }] } }
+  if (Array.isArray(data?.finance?.result?.[0]?.news)) return data.finance.result[0].news;
+  // 구 포맷 v2: { finance: { result: { news: [...] } } }
+  if (Array.isArray(data?.finance?.result?.news)) return data.finance.result.news;
+  return [];
+};
 
 /**
  * 종목 뉴스 수집
  * @param {string} symbol  Yahoo Finance 심볼 (예: '005930.KS', 'AAPL')
  * @param {number} count   가져올 뉴스 수 (최대 10)
- * @returns {Array<{title:string, publisher:string, publishedAt:number}>}
+ * @returns {Array<{title:string, publisher:string, publishedAt:number, link:string}>}
  */
 const fetchNews = async (symbol, count = 8) => {
+  const makeUrl = (host, q) =>
+    `https://${host}/v1/finance/search?q=${encodeURIComponent(q)}&quotesCount=0&newsCount=${count}&enableFuzzyQuery=false&lang=ko-KR`;
+
+  const toItems = (rawNews) =>
+    rawNews
+      .map((n) => ({
+        title:       n.title       || '',
+        publisher:   n.publisher   || '',
+        publishedAt: n.providerPublishTime || 0,
+        link:        n.link        || '',
+      }))
+      .filter((n) => n.title);
+
+  // 1차: query1으로 심볼 검색
   try {
-    const url =
-      `https://query1.finance.yahoo.com/v1/finance/search` +
-      `?q=${encodeURIComponent(symbol)}&quotesCount=0&newsCount=${count}&enableFuzzyQuery=false`;
+    const data = await httpsGet(makeUrl('query1.finance.yahoo.com', symbol));
+    const items = toItems(extractNews(data));
+    if (items.length) return items;
+  } catch { /* 다음 시도 */ }
 
-    const data = await httpsGet(url);
-    const rawNews = data?.finance?.result?.[0]?.news ?? [];
+  // 2차: query2 fallback
+  try {
+    const data = await httpsGet(makeUrl('query2.finance.yahoo.com', symbol));
+    const items = toItems(extractNews(data));
+    if (items.length) return items;
+  } catch { /* 다음 시도 */ }
 
-    return rawNews.map((n) => ({
-      title:       n.title       || '',
-      publisher:   n.publisher   || '',
-      publishedAt: n.providerPublishTime || 0,
-      link:        n.link        || '',
-    })).filter((n) => n.title);
-  } catch (err) {
-    console.warn('[newsService] 뉴스 조회 실패:', err.message);
-    return [];
+  // 3차: 한국 종목(6자리)이면 회사명으로 재검색
+  if (/^\d{6}(\.KS|\.KQ)?$/.test(symbol)) {
+    try {
+      const code = symbol.replace(/\.(KS|KQ)$/, '');
+      const { searchKoreanStocks } = require('../../utils/koreanStocks');
+      const found = searchKoreanStocks(code);
+      if (found.length) {
+        const data = await httpsGet(makeUrl('query1.finance.yahoo.com', found[0].name));
+        const items = toItems(extractNews(data));
+        if (items.length) return items;
+      }
+    } catch { /* 무시 */ }
   }
+
+  return [];
 };
 
 /**
