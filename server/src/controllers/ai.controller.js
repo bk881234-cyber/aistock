@@ -58,14 +58,22 @@ const getReport = async (req, res) => {
     });
 
     if (report && new Date(report.expires_at) > new Date()) {
-      await setCache(CACHE_KEY, report, 600);
-      return success(res, report);
+      const yahooSym = /^\d{6}$/.test(symbol) ? `${symbol}.KS` : symbol;
+      const newsItems = await fetchNews(yahooSym, 6);
+      const now = Date.now() / 1000;
+      const news = newsItems.map((n) => ({
+        title: n.title, publisher: n.publisher, link: n.link,
+        timeLabel: (() => { const h = Math.round((now - n.publishedAt) / 3600); return h < 1 ? '방금 전' : h < 24 ? `${h}시간 전` : `${Math.round(h/24)}일 전`; })(),
+      }));
+      const payload = { ...report.toJSON(), news };
+      await setCache(CACHE_KEY, payload, 600);
+      return success(res, payload);
     }
 
     return success(res, null, '리포트를 생성 중입니다.', 202);
   } catch (err) {
     console.error('[ai] getReport 오류:', err.message);
-    return success(res, null);   // 500 방지
+    return success(res, null);
   }
 };
 
@@ -82,7 +90,14 @@ const generateReport = async (req, res) => {
     const { type = 'news_summary' } = req.body;
     const reportService = require('../services/ai/reportService');
     const report = await reportService.generate(symbol, type);
-    return success(res, report, 'AI 리포트가 생성되었습니다.');
+    const yahooSym = /^\d{6}$/.test(symbol) ? `${symbol}.KS` : symbol;
+    const newsItems = await fetchNews(yahooSym, 6);
+    const now = Date.now() / 1000;
+    const news = newsItems.map((n) => ({
+      title: n.title, publisher: n.publisher, link: n.link,
+      timeLabel: (() => { const h = Math.round((now - n.publishedAt) / 3600); return h < 1 ? '방금 전' : h < 24 ? `${h}시간 전` : `${Math.round(h/24)}일 전`; })(),
+    }));
+    return success(res, { ...report.toJSON(), news }, 'AI 리포트가 생성되었습니다.');
   } catch (err) {
     console.error('[ai] generateReport 오류:', err.message);
     return error(res, `AI 리포트 생성 중 오류가 발생했습니다: ${err.message}`);

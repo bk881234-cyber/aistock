@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { getReport, generateReport, getRelatedNews } from '@/api/aiApi';
+import { useState } from 'react';
+import { getReport, generateReport } from '@/api/aiApi';
 import { fmtDateTime } from '@/utils/formatters';
 import toast from 'react-hot-toast';
 import clsx from 'clsx';
@@ -11,21 +11,17 @@ import ExportModal from '@/components/export/ExportModal';
  * @param {object} [stockData]  ShareCard에 전달할 종목 데이터 (symbol, stockName, market, currentPrice, returnPct, weather)
  */
 export default function AIReport({ symbol, stockData }) {
-  const [report,      setReport]      = useState(null);
-  const [loading,     setLoading]     = useState(false);
-  const [generated,   setGenerated]   = useState(false);
-  const [exportOpen,  setExportOpen]  = useState(false);
-  const [news,        setNews]        = useState([]);
-
-  useEffect(() => {
-    getRelatedNews(symbol).then(setNews).catch(() => {});
-  }, [symbol]);
+  const [report,     setReport]    = useState(null);
+  const [news,       setNews]      = useState([]);
+  const [loading,    setLoading]   = useState(false);
+  const [generated,  setGenerated] = useState(false);
+  const [exportOpen, setExportOpen] = useState(false);
 
   const load = async () => {
     setLoading(true);
     try {
       const data = await getReport(symbol);
-      setReport(data);
+      if (data) { setReport(data); setNews(data.news ?? []); }
     } catch { /* 무시 */ }
     finally { setLoading(false); }
   };
@@ -35,6 +31,7 @@ export default function AIReport({ symbol, stockData }) {
     try {
       const data = await generateReport(symbol);
       setReport(data);
+      setNews(data.news ?? []);
       setGenerated(true);
       toast.success('AI 리포트가 생성되었습니다.');
     } catch {
