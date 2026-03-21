@@ -1,7 +1,8 @@
 const Groq = require('groq-sdk');
 const env = require('../../config/env');
 const { AIReport } = require('../../models');
-const { setCache, KEYS, TTL } = require('../cache/cacheService');
+const { setCache } = require('../../config/redis');
+const { KEYS, TTL } = require('../cache/cacheService');
 const { buildNewsContext } = require('./newsService');
 
 const groq = new Groq({ apiKey: env.groq.apiKey });
