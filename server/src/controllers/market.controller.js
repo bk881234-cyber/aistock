@@ -194,6 +194,7 @@ const searchStock = async (req, res) => {
   if (!q || q.length < 1) return success(res, []);
 
   const { searchStocks } = require('../utils/yahooFinance');
+  const { searchKoreanStocks } = require('../utils/koreanStocks');
 
   const EXCHANGE_MAP = {
     KSC: 'KOSPI',  KOE: 'KOSDAQ',
@@ -203,12 +204,15 @@ const searchStock = async (req, res) => {
   };
 
   try {
-    const quotes = await searchStocks(q);
+    // 로컬 한국 종목 검색 (한글 검색어 우선 처리)
+    const koreanResults = searchKoreanStocks(q);
 
-    const normalize = (items) =>
-      items
+    // Yahoo Finance 검색 (병렬)
+    let yahooResults = [];
+    try {
+      const quotes = await searchStocks(q);
+      yahooResults = quotes
         .filter((item) => !['OPTION', 'CURRENCY', 'CRYPTOCURRENCY', 'FUTURE'].includes(item.quoteType))
-        .slice(0, 8)
         .map((item) => {
           let market;
           if (item.symbol.endsWith('.KS')) market = 'KOSPI';
@@ -222,8 +226,13 @@ const searchStock = async (req, res) => {
             exchange:    item.exchange,
           };
         });
+    } catch { /* Yahoo 실패 시 로컬 결과만 사용 */ }
 
-    const result = normalize(quotes);
+    // 로컬 결과 우선, Yahoo 결과 중복 제거 후 병합
+    const koreanSymbols = new Set(koreanResults.map((r) => r.symbol));
+    const extraYahoo = yahooResults.filter((r) => !koreanSymbols.has(r.symbol));
+
+    const result = [...koreanResults, ...extraYahoo].slice(0, 10);
     return success(res, result);
   } catch (err) {
     console.error('[market] searchStock 오류:', err.message);
