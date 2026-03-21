@@ -7,7 +7,7 @@
  */
 require('pg');
 require('pg-hstore');
-require('groq-sdk');
+try { require('groq-sdk'); } catch (_) {}
 
 let handler;
 try {
