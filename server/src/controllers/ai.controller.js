@@ -123,11 +123,10 @@ const getNewsAnalysis = async (req, res) => {
     // 뉴스 수집
     const newsContext = await buildNewsContext(symbol);
 
-    // Gemini 3줄 요약 생성
-    const { GoogleGenerativeAI } = require('@google/generative-ai');
+    // Groq 3줄 요약 생성
+    const Groq = require('groq-sdk');
     const env = require('../config/env');
-    const genAI = new GoogleGenerativeAI(env.gemini.apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+    const groq = new Groq({ apiKey: env.groq.apiKey });
 
     const direction = priceChangePct > 0 ? `+${priceChangePct.toFixed(1)}% 급등` : `${priceChangePct.toFixed(1)}% 급락`;
 
@@ -148,8 +147,12 @@ ${newsContext}
 }
 `.trim();
 
-    const result   = await model.generateContent(prompt);
-    const rawText  = result.response.text();
+    const completion = await groq.chat.completions.create({
+      model: 'llama-3.3-70b-versatile',
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 0.3,
+    });
+    const rawText = completion.choices[0].message.content;
     const cleaned  = rawText.replace(/```json|```/g, '').trim();
 
     let parsed;

@@ -1,10 +1,10 @@
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const Groq = require('groq-sdk');
 const env = require('../../config/env');
 const { AIReport } = require('../../models');
 const { setCache, KEYS, TTL } = require('../cache/cacheService');
 const { buildNewsContext } = require('./newsService');
 
-const genAI = new GoogleGenerativeAI(env.gemini.apiKey);
+const groq = new Groq({ apiKey: env.groq.apiKey });
 
 const REPORT_TTL_HOURS = 4;
 
@@ -15,9 +15,6 @@ const REPORT_TTL_HOURS = 4;
  */
 const generate = async (symbol, type = 'news_summary') => {
   const newsContext = await buildNewsContext(symbol);
-
-  // Gemini에서는 System Prompt를 모델 생성 시나 개별 요청에 포함할 수 있습니다.
-  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
   const prompt = `
 당신은 개인 투자자를 위한 AI 주식 분석 어시스턴트입니다.
@@ -38,9 +35,12 @@ const generate = async (symbol, type = 'news_summary') => {
 }
   `;
 
-  const result = await model.generateContent(prompt);
-  const response = await result.response;
-  const rawText = response.text();
+  const completion = await groq.chat.completions.create({
+    model: 'llama-3.3-70b-versatile',
+    messages: [{ role: 'user', content: prompt }],
+    temperature: 0.3,
+  });
+  const rawText = completion.choices[0].message.content;
 
   let parsed;
   try {
@@ -48,7 +48,7 @@ const generate = async (symbol, type = 'news_summary') => {
     const cleanText = rawText.replace(/```json|```/g, '').trim();
     parsed = JSON.parse(cleanText);
   } catch (err) {
-    console.error('[Gemini] 파싱 실패:', rawText);
+    console.error('[Groq] 파싱 실패:', rawText);
     throw new Error('AI 응답 파싱 실패');
   }
 

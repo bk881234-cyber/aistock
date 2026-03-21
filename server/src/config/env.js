@@ -48,8 +48,8 @@ const env = {
   // Vercel Cron 보안 시크릿
   cronSecret: process.env.CRON_SECRET || '',
 
-  gemini: {
-    apiKey: process.env.GEMINI_API_KEY,
+  groq: {
+    apiKey: process.env.GROQ_API_KEY,
   },
 
   marketApis: {
