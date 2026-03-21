@@ -75,56 +75,28 @@ export default function IndexChartCard({ data }) {
       }}
     >
       {/* 헤더 */}
-      <div className="flex flex-col gap-2">
-        <div className="flex items-center gap-2">
-          {/* 발광 노드 */}
+      <div className="flex items-center gap-2">
+        <span style={{
+          width: '7px', height: '7px', borderRadius: '50%', flexShrink: 0,
+          background: accentColor.left,
+          boxShadow: `0 0 6px ${accentColor.left}80`,
+        }} />
+        <span style={{ fontSize: '16px', fontWeight: '700', color: '#1E3A5F' }}>
+          {LABELS[symbol] ?? symbol}
+        </span>
+        {marketState && (
           <span style={{
-            width: '7px', height: '7px', borderRadius: '50%', flexShrink: 0,
-            background: accentColor.left,
-            boxShadow: `0 0 6px ${accentColor.left}80`,
-          }} />
-          <span style={{ fontSize: '16px', fontWeight: '700', color: '#1E3A5F' }}>
-            {LABELS[symbol] ?? symbol}
+            fontSize: '10px', padding: '2px 6px', borderRadius: '6px', fontWeight: '600',
+            background: marketState === 'REGULAR' ? 'rgba(22,163,74,0.10)' : 'rgba(147,197,253,0.20)',
+            color: marketState === 'REGULAR' ? '#16A34A' : '#64748B',
+            border: `1px solid ${marketState === 'REGULAR' ? 'rgba(22,163,74,0.20)' : 'rgba(147,197,253,0.30)'}`,
+          }}>
+            {marketState === 'REGULAR' ? '장중' : '장외'}
           </span>
-          {marketState && (
-            <span style={{
-              fontSize: '10px', padding: '2px 6px', borderRadius: '6px', fontWeight: '600',
-              background: marketState === 'REGULAR' ? 'rgba(22,163,74,0.10)' : 'rgba(147,197,253,0.20)',
-              color: marketState === 'REGULAR' ? '#16A34A' : '#64748B',
-              border: `1px solid ${marketState === 'REGULAR' ? 'rgba(22,163,74,0.20)' : 'rgba(147,197,253,0.30)'}`,
-            }}>
-              {marketState === 'REGULAR' ? '장중' : '장외'}
-            </span>
-          )}
-        </div>
-
-        {/* 기간 탭 — 항상 아래 행 */}
-        <div className="flex rounded-lg p-0.5 gap-0.5 w-full" style={{
-          background: 'rgba(219,234,254,0.50)',
-          border: '1px solid rgba(147,197,253,0.30)',
-        }}>
-          {PERIODS.map((p) => (
-            <button
-              key={p.key}
-              onClick={() => setPeriod(p.key)}
-              className="flex-1"
-              style={{
-                padding: '3px 0', fontSize: '11px', fontWeight: '600',
-                borderRadius: '6px', transition: 'all 0.15s',
-                background: period === p.key
-                  ? 'linear-gradient(135deg, #1A56DB, #0EA5E9)'
-                  : 'transparent',
-                color: period === p.key ? '#fff' : '#64748B',
-                boxShadow: period === p.key ? '0 2px 6px rgba(26,86,219,0.25)' : 'none',
-              }}
-            >
-              {p.label}
-            </button>
-          ))}
-        </div>
+        )}
       </div>
 
-      {/* 수치 + 발광 노드 */}
+      {/* 수치 */}
       <div>
         <p style={{ fontSize: '24px', fontWeight: '800', fontFamily: 'monospace', color: '#0F172A', lineHeight: 1, letterSpacing: '-0.5px' }}>
           {fmtIndex(current_val)}
@@ -150,6 +122,31 @@ export default function IndexChartCard({ data }) {
             </span>
           </div>
         )}
+      </div>
+
+      {/* 기간 탭 — 차트 바로 아래, 카드 풀너비 */}
+      <div className="flex rounded-lg p-0.5 gap-0.5" style={{
+        background: 'rgba(219,234,254,0.50)',
+        border: '1px solid rgba(147,197,253,0.30)',
+      }}>
+        {PERIODS.map((p) => (
+          <button
+            key={p.key}
+            onClick={() => setPeriod(p.key)}
+            className="flex-1"
+            style={{
+              padding: '4px 0', fontSize: '11px', fontWeight: '600',
+              borderRadius: '6px', transition: 'all 0.15s',
+              background: period === p.key
+                ? 'linear-gradient(135deg, #1A56DB, #0EA5E9)'
+                : 'transparent',
+              color: period === p.key ? '#fff' : '#64748B',
+              boxShadow: period === p.key ? '0 2px 6px rgba(26,86,219,0.25)' : 'none',
+            }}
+          >
+            {p.label}
+          </button>
+        ))}
       </div>
     </div>
   );

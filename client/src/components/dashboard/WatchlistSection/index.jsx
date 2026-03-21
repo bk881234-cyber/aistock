@@ -32,8 +32,8 @@ export default function WatchlistSection() {
       <div className="mb-3">
         <h2 className="section-title mb-2">⭐ 관심 종목</h2>
         <div className="flex gap-2">
-          <Link to="/watchlist" className="btn-ghost text-xs">전체</Link>
-          <button onClick={() => setAdding((v) => !v)} className="btn-ghost text-xs">
+          <Link to="/watchlist" className="btn-ghost text-sm flex-1 text-center py-3">전체</Link>
+          <button onClick={() => setAdding((v) => !v)} className="btn-ghost text-sm flex-1 py-3">
             {adding ? '닫기' : '+ 추가'}
           </button>
         </div>
