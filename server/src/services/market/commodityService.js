@@ -32,10 +32,15 @@ const fetchCommodity = async (internalSymbol) => {
     const meta      = result?.meta;
     if (!meta) return null;
 
-    const prevClose = meta.previousClose ?? meta.chartPreviousClose ?? 0;
+    // chartPreviousClose = 당일 기준 전날 종가 (선물에서 정확한 기준)
+    // previousClose는 선물 계약 롤오버 등으로 잘못된 기준이 될 수 있음
+    const prevClose = meta.chartPreviousClose ?? meta.previousClose ?? 0;
     const current   = meta.regularMarketPrice ?? prevClose;
     const changeVal = +(current - prevClose).toFixed(4);
-    const changePct = prevClose ? +((changeVal / prevClose) * 100).toFixed(4) : 0;
+    // Yahoo가 직접 계산한 값을 우선 사용 (가장 정확)
+    const changePct = meta.regularMarketChangePercent != null
+      ? +meta.regularMarketChangePercent.toFixed(4)
+      : prevClose ? +((changeVal / prevClose) * 100).toFixed(4) : 0;
 
     // 안전자산 선호도 게이지용: 52주 범위에서 현재 위치 (0~100%)
     const high52 = meta.fiftyTwoWeekHigh ?? current;

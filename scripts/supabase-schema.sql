@@ -193,3 +193,15 @@ BEGIN
     );
   END LOOP;
 END $$;
+
+-- ── 보안 (Row Level Security) 설정 ───────────────────────
+-- 백엔드(Node.js+Sequelize)는 DB URL을 통하여 슈퍼유저 권한으로 직접 접근하므로 RLS의 영향을 받지 않습니다.
+-- 만약 클라이언트(브라우저)에서 Supabase JS / 임의의 API Key를 활용해 직접 접근하려 할 경우
+-- 이를 전면 차단하기 위해 모든 테이블에 RLS를 활성화(정책 없음 = 모든 외부접근 불가)합니다.
+DO $$ DECLARE t TEXT;
+BEGIN
+  FOREACH t IN ARRAY ARRAY['users','user_profiles','watchlists','portfolios','transactions','alerts','alert_history','market_cache','stock_weather','ai_reports','curations','shared_cards']
+  LOOP
+    EXECUTE format('ALTER TABLE %I ENABLE ROW LEVEL SECURITY;', t);
+  END LOOP;
+END $$;

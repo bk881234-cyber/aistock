@@ -340,8 +340,9 @@ const getStockDetail = async (req, res) => {
       candles:            candleResult.candles,
     };
 
-    // 캔들 데이터는 길어서 TTL 짧게 (5분)
-    await setCache(CACHE_KEY, data, 300);
+    // 캔들 데이터 TTL: 당일 범위는 1분, 나머지는 5분
+    const candleTtl = range === '1d' ? 60 : 300;
+    await setCache(CACHE_KEY, data, candleTtl);
     return success(res, data);
   } catch (err) {
     console.error('[market] getStockDetail 오류:', err.message);
@@ -349,4 +350,51 @@ const getStockDetail = async (req, res) => {
   }
 };
 
-module.exports = { getIndices, getFx, getCommodities, getOverview, searchStock, getChart, getStockDetail };
+/**
+ * GET /api/market/price/:symbol?market=KOSPI
+ * 현재가·등락만 반환하는 경량 API (포트폴리오 실시간 업데이트용)
+ * Redis TTL 30초
+ */
+const getStockPrice = async (req, res) => {
+  const { symbol } = req.params;
+  const { market } = req.query;
+
+  try {
+    const CACHE_KEY = `market:price:${symbol}`;
+    const cached = await getCache(CACHE_KEY);
+    if (cached) return success(res, cached);
+
+    const { fetchQuote } = require('../utils/yahooFinance');
+    const yahooSym = await resolveYahooSymbol(symbol, market);
+    const quote = await fetchQuote(yahooSym);
+
+    const data = {
+      symbol,
+      currentPrice: quote?.regularMarketPrice ?? null,
+      change:       quote?.regularMarketChange ?? null,
+      changePct:    quote?.regularMarketChangePercent ?? null,
+    };
+
+    await setCache(CACHE_KEY, data, 30);
+    return success(res, data);
+  } catch (err) {
+    console.error(`[market] getStockPrice ${symbol} 오류:`, err.message);
+    return error(res, '현재가를 가져올 수 없습니다.', 502);
+  }
+};
+
+/**
+ * POST /api/market/refresh  (인증 필요)
+ * Yahoo Finance에서 즉시 강제 갱신 후 캐시 무효화
+ */
+const forceRefresh = async (req, res) => {
+  try {
+    await refreshAllMarketData();
+    return success(res, { message: '시장 데이터를 갱신했습니다.' });
+  } catch (err) {
+    console.error('[market] forceRefresh 오류:', err.message);
+    return error(res, '데이터 갱신에 실패했습니다.', 500);
+  }
+};
+
+module.exports = { getIndices, getFx, getCommodities, getOverview, searchStock, getChart, getStockDetail, getStockPrice, forceRefresh };

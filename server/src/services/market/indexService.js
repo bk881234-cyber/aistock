@@ -45,10 +45,12 @@ const fetchIndex = async (internalSymbol) => {
     if (!result) return null;
 
     const meta      = result.meta;
-    const prevClose = meta.previousClose ?? meta.chartPreviousClose ?? 0;
+    const prevClose = meta.chartPreviousClose ?? meta.previousClose ?? 0;
     const current   = meta.regularMarketPrice ?? prevClose;
     const changeVal = +(current - prevClose).toFixed(4);
-    const changePct = prevClose ? +((changeVal / prevClose) * 100).toFixed(4) : 0;
+    const changePct = meta.regularMarketChangePercent != null
+      ? +meta.regularMarketChangePercent.toFixed(4)
+      : prevClose ? +((changeVal / prevClose) * 100).toFixed(4) : 0;
 
     return {
       symbol:       internalSymbol,
@@ -99,14 +101,17 @@ const fetchStockQuote = async (rawSymbol) => {
     const meta = data?.chart?.result?.[0]?.meta;
     if (!meta) return null;
 
-    const prevClose = meta.previousClose ?? meta.chartPreviousClose ?? 0;
+    const prevClose = meta.chartPreviousClose ?? meta.previousClose ?? 0;
     const current   = meta.regularMarketPrice ?? prevClose;
+    const changeVal = +(current - prevClose).toFixed(4);
 
     return {
       symbol:      rawSymbol,
       current_val: current,
-      change_val:  +(current - prevClose).toFixed(4),
-      change_pct:  prevClose ? +((( current - prevClose) / prevClose) * 100).toFixed(4) : 0,
+      change_val:  changeVal,
+      change_pct:  meta.regularMarketChangePercent != null
+        ? +meta.regularMarketChangePercent.toFixed(4)
+        : prevClose ? +((changeVal / prevClose) * 100).toFixed(4) : 0,
       market_state: meta.marketState,
     };
   } catch (err) {

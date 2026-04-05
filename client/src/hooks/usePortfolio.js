@@ -1,42 +1,83 @@
-import { useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { usePortfolioStore } from '@/store/portfolioStore';
-import { useMarketStore } from '@/store/marketStore';
+import { getStockPrice } from '@/api/marketApi';
 import { calcTrailingStop, calcHalfSellRecommend, calcSignalLevel } from '@/utils/tradingLogic';
 import toast from 'react-hot-toast';
+
+const POLL_INTERVAL = 30_000; // 30초
 
 /**
  * 포트폴리오 통합 훅
  * - 각 보유 종목에 현재가·수익률·수익금·신호등·트레일링스탑·목표가알림을 enriched 해서 반환
+ * - 현재가는 /market/price/:symbol API로 30초마다 폴링
  * - 목표 수익률 도달 시 toast 알림 (마운트 당 1회)
  */
 const usePortfolio = () => {
   const { portfolios, loading, fetchPortfolio, buy, sell, updateSettings, calcReturnPct } =
     usePortfolioStore();
-  const marketStore = useMarketStore();
+
+  // symbol → currentPrice 맵
+  const [prices, setPrices] = useState({});
 
   // 알림 중복 방지: 이미 toast를 띄운 portfolio ID 집합
-  const alertedRef = useRef(new Set());
+  const alertedRef  = useRef(new Set());
+  const timerRef    = useRef(null);
+  const fetchingRef = useRef(false);
 
   useEffect(() => {
     fetchPortfolio();
   }, []);
 
+  // ── 현재가 폴링 ────────────────────────────────────────
+  useEffect(() => {
+    if (!portfolios.length) return;
+
+    const fetchPrices = async () => {
+      if (fetchingRef.current) return;
+      fetchingRef.current = true;
+      try {
+        const results = await Promise.allSettled(
+          portfolios.map((p) =>
+            getStockPrice(p.stock_symbol, p.market).then((d) => ({
+              symbol: p.stock_symbol,
+              price:  d?.currentPrice ?? null,
+            }))
+          )
+        );
+
+        const next = {};
+        results.forEach((r) => {
+          if (r.status === 'fulfilled' && r.value.price != null) {
+            next[r.value.symbol] = r.value.price;
+          }
+        });
+
+        if (Object.keys(next).length) {
+          setPrices((prev) => ({ ...prev, ...next }));
+        }
+      } catch { /* 폴링 실패 시 기존 prices 유지 */ }
+      finally { fetchingRef.current = false; }
+    };
+
+    fetchPrices();
+    timerRef.current = setInterval(fetchPrices, POLL_INTERVAL);
+
+    return () => clearInterval(timerRef.current);
+  }, [portfolios.map((p) => p.stock_symbol).join(',')]);
+
   // ── enriched 계산 ──────────────────────────────────────────
   const enrichedPortfolios = portfolios.map((p) => {
-    const cachedStock  = marketStore.getIndex?.(p.stock_symbol);
-    const currentPrice = cachedStock?.current_val ?? parseFloat(p.avg_buy_price);
+    const currentPrice = prices[p.stock_symbol] ?? parseFloat(p.avg_buy_price);
     const returnPct    = calcReturnPct(p, currentPrice) ?? 0;
     const quantity     = parseFloat(p.quantity);
     const avgBuy       = parseFloat(p.avg_buy_price);
 
-    // 트레일링 스탑 계산
     const trailingStop = calcTrailingStop(
       currentPrice,
       avgBuy,
       parseFloat(p.trailing_stop_pct) || 0,
     );
 
-    // 절반 매도 권장
     const halfSell = calcHalfSellRecommend(
       returnPct,
       parseFloat(p.target_sell_price) || 0,
@@ -45,11 +86,10 @@ const usePortfolio = () => {
       quantity,
     );
 
-    // 신호등 레벨
     const signalLevel = calcSignalLevel({
-      return_pct:        returnPct,
-      stop_loss_price:   p.stop_loss_price,
-      current_price:     currentPrice,
+      return_pct:             returnPct,
+      stop_loss_price:        p.stop_loss_price,
+      current_price:          currentPrice,
       target_return_pct_goal: 10,
     });
 

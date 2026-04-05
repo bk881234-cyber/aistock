@@ -33,10 +33,12 @@ const fetchFx = async (internalSymbol) => {
     const meta      = data?.chart?.result?.[0]?.meta;
     if (!meta) return null;
 
-    const prevClose = meta.previousClose ?? meta.chartPreviousClose ?? 0;
+    const prevClose = meta.chartPreviousClose ?? meta.previousClose ?? 0;
     const current   = meta.regularMarketPrice ?? prevClose;
     const changeVal = +(current - prevClose).toFixed(4);
-    const changePct = prevClose ? +((changeVal / prevClose) * 100).toFixed(4) : 0;
+    const changePct = meta.regularMarketChangePercent != null
+      ? +meta.regularMarketChangePercent.toFixed(4)
+      : prevClose ? +((changeVal / prevClose) * 100).toFixed(4) : 0;
 
     // 스파크라인용 closes (최근 20개 캔들)
     const timestamps = data?.chart?.result?.[0]?.timestamp ?? [];

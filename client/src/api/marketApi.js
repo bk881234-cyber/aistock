@@ -47,3 +47,17 @@ export const getIndexChart = (symbol, range = '1d') =>
  */
 export const getStockDetail = (symbol, market, range = '3mo') =>
   api.get(`/market/stock/${symbol}`, { params: { market, range } }).then((r) => r.data.data);
+
+/**
+ * 현재가만 반환 — 포트폴리오 실시간 폴링용 (경량, TTL 30초)
+ * @param {string} symbol - '005930' | 'AAPL' | ...
+ * @param {string} market - 'KOSPI' | 'KOSDAQ' | 'US' | (생략 가능)
+ */
+export const getStockPrice = (symbol, market) =>
+  api.get(`/market/price/${symbol}`, { params: { market } }).then((r) => r.data.data);
+
+/**
+ * Yahoo Finance 강제 갱신 — Redis+DB 캐시 무효화 후 재수집 (인증 필요)
+ */
+export const forceMarketRefresh = () =>
+  api.post('/market/refresh').then((r) => r.data);

@@ -5,6 +5,7 @@ import AIReport from '@/components/ai/AIReport';
 import WeatherWidget from '@/components/ai/WeatherWidget';
 import SignalLight from '@/components/common/SignalLight';
 import StockMemo from '@/components/stock/StockMemo';
+import useWeather from '@/hooks/useWeather';
 import { fmtKRW, fmtPct } from '@/utils/formatters';
 import { getStockDetail } from '@/api/marketApi';
 
@@ -13,6 +14,8 @@ export default function StockDetail() {
   const { state }    = useLocation();
   const market       = state?.market ?? null;
   const stockName    = state?.stockName ?? symbol;
+
+  const { weather } = useWeather(symbol);
 
   const [stockData,  setStock]  = useState(null);
   const [loading,    setLoading] = useState(true);
@@ -57,7 +60,7 @@ export default function StockDetail() {
           </div>
           <div className="flex items-center gap-3 flex-shrink-0">
             <WeatherWidget symbol={symbol} variant="card" />
-            <SignalLight score={55} size="lg" />
+            <SignalLight score={weather?.weather_score ?? 50} size="lg" />
           </div>
         </div>
 

@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import * as marketApi from '@/api/marketApi';
+import toast from 'react-hot-toast';
 
 /**
  * 시장 데이터 전역 스토어
@@ -58,6 +59,20 @@ export const useMarketStore = create((set, get) => ({
     if (pollingTimer) {
       clearInterval(pollingTimer);
       set({ pollingTimer: null });
+    }
+  },
+
+  // ── 강제 새로고침 (Yahoo Finance 즉시 재조회) ───────────
+  forceRefresh: async () => {
+    if (get().loading) return;
+    set({ loading: true });
+    try {
+      await marketApi.forceMarketRefresh();
+      await get().fetchOverview();
+      toast.success('시장 데이터를 새로고침했습니다.');
+    } catch {
+      // 서버 새로고침 실패 시 기존 fetchOverview로 폴백
+      await get().fetchOverview();
     }
   },
 }));

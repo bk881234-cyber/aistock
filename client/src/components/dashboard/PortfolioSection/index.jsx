@@ -36,10 +36,10 @@ export default function PortfolioSection() {
           )}
         </div>
         <div className="flex items-center gap-2 w-full mt-2">
-          <Link to="/portfolio" className="btn-ghost text-sm flex-1 text-center py-3">전체 보기</Link>
           <button onClick={() => setBuyOpen(true)} className="btn-primary text-sm flex-1 py-3">
             + 거래 기록
           </button>
+          <Link to="/portfolio" className="btn-ghost text-sm flex-1 text-center py-3">전체 보기</Link>
         </div>
       </div>
 

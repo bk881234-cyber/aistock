@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { getReport, generateReport } from '@/api/aiApi';
+import { useState, useEffect } from 'react';
+import { getReport, generateReport, getRelatedNews } from '@/api/aiApi';
 import { fmtDateTime } from '@/utils/formatters';
 import toast from 'react-hot-toast';
 import clsx from 'clsx';
@@ -16,6 +16,13 @@ export default function AIReport({ symbol, stockData }) {
   const [loading,    setLoading]   = useState(false);
   const [generated,  setGenerated] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
+
+  // 마운트 시 뉴스 선행 로드 (리포트 없어도 뉴스 표시)
+  useEffect(() => {
+    getRelatedNews(symbol)
+      .then((items) => { if (items?.length) setNews(items); })
+      .catch(() => {});
+  }, [symbol]);
 
   const load = async () => {
     setLoading(true);

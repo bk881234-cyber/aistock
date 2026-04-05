@@ -4,9 +4,10 @@ import FxCard from './FxCard';
 import CommodityGauge from './CommodityGauge';
 import IndexCard from './IndexCard';
 
-const ROW1     = ['KOSPI', 'KOSDAQ', 'NASDAQ', 'SPX'];
+const ROW1 = ['KOSPI', 'KOSDAQ', 'NASDAQ', 'SPX'];
+
 export default function MacroSection() {
-  const { indices, fx, commodities } = useMarketStore();
+  const { indices, fx, commodities, lastUpdated, loading, forceRefresh } = useMarketStore();
 
   const row1     = ROW1.map((s) => indices.find((i) => i.symbol === s) ?? null);
   const usdData  = fx.find((f) => f.symbol === 'USD_KRW') ?? null;
@@ -20,8 +21,30 @@ export default function MacroSection() {
   const usdKrw   = usdData?.current_val ?? 0;
   const vixLevel = vix ? Number(vix.current_val) : null;
 
+  const timeLabel = lastUpdated
+    ? lastUpdated.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+    : null;
+
   return (
     <div className="space-y-4 animate-fade-in">
+
+      {/* ── 헤더: 업데이트 시간 + 새로고침 버튼 ─────────────── */}
+      <div className="flex items-center justify-end gap-2">
+        {timeLabel && (
+          <span className="text-xs text-text-muted">
+            업데이트 {timeLabel}
+          </span>
+        )}
+        <button
+          onClick={forceRefresh}
+          disabled={loading}
+          className="flex items-center gap-1 text-xs text-text-muted hover:text-primary transition-colors disabled:opacity-40"
+          title="시장 데이터 새로고침"
+        >
+          <RefreshIcon spinning={loading} />
+          새로고침
+        </button>
+      </div>
 
       {/* ── Row 1: 주요 4대 지수 차트 카드 ─────────────────── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
@@ -51,6 +74,19 @@ export default function MacroSection() {
       </div>
 
     </div>
+  );
+}
+
+function RefreshIcon({ spinning }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className={`w-3.5 h-3.5 ${spinning ? 'animate-spin' : ''}`}
+      fill="none" stroke="currentColor" strokeWidth={2}
+    >
+      <path strokeLinecap="round" strokeLinejoin="round"
+        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+    </svg>
   );
 }
 
