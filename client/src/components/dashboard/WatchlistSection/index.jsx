@@ -30,7 +30,12 @@ export default function WatchlistSection() {
   return (
     <div className="card">
       <div className="mb-3">
-        <h2 className="section-title mb-2">⭐ 관심 종목</h2>
+        <h2 className="section-title mb-2">
+          <svg className="w-4 h-4 text-amber-500 fill-current" viewBox="0 0 24 24">
+            <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+          </svg>
+          관심 종목
+        </h2>
         <div className="flex gap-2">
           <Link to="/watchlist" className="btn-ghost text-sm flex-1 text-center py-3">전체</Link>
           <button onClick={() => setAdding((v) => !v)} className="btn-ghost text-sm flex-1 py-3">
@@ -59,7 +64,11 @@ export default function WatchlistSection() {
         <WatchlistSkeleton />
       ) : items.length === 0 ? (
         <div className="text-center py-6">
-          <p className="text-2xl mb-2">⭐</p>
+          <div className="flex justify-center mb-2">
+            <svg className="w-8 h-8 text-slate-300 fill-current" viewBox="0 0 24 24">
+              <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+            </svg>
+          </div>
           <p className="text-xs font-medium text-text-secondary">관심 종목이 없습니다</p>
           <p className="text-[11px] text-text-muted mt-1">
             위 <span className="text-primary font-medium">+ 추가</span>로 종목명을 검색하세요

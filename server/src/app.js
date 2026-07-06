@@ -150,7 +150,7 @@ const bootstrap = async () => {
   await connectDB();
   await connectRedis();
 
-  if (!isProd) {
+  if (!isProd && !process.env.DATABASE_URL) {
     await sequelize.sync({ alter: true });
     logger.info('[DB] 테이블 동기화 완료 (개발 모드)');
   }

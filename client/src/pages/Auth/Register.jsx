@@ -40,8 +40,11 @@ export default function Register() {
     <div className="min-h-screen bg-surface2 flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-primary">AIstock</h1>
-          <p className="text-sm text-text-muted mt-1">AI 기반 주식 트래커</p>
+          <div className="flex justify-center mb-4">
+            <img src="/logo.png" alt="Stockify Logo" className="w-20 h-20 object-contain filter drop-shadow-[0_4px_8px_rgba(15,23,42,0.06)]" />
+          </div>
+          <h1 className="text-3xl font-bold text-primary">Stockify</h1>
+          <p className="text-sm text-text-muted mt-1">실시간 주식 트래커</p>
         </div>
 
         <div className="card">

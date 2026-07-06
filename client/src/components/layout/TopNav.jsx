@@ -26,8 +26,8 @@ export default function TopNav() {
         background: 'rgba(255,255,255,0.85)',
         backdropFilter: 'blur(12px)',
         WebkitBackdropFilter: 'blur(12px)',
-        borderBottom: '1px solid rgba(147,197,253,0.35)',
-        boxShadow: '0 1px 0 rgba(147,197,253,0.20), 0 4px 16px rgba(26,86,219,0.04)',
+        borderBottom: '1px solid rgba(148,163,184,0.15)',
+        boxShadow: '0 1px 0 rgba(148,163,184,0.05), 0 4px 16px rgba(15,23,42,0.02)',
       }}
     >
       {/* 실시간 지수 + 환율 티커 */}
@@ -38,7 +38,7 @@ export default function TopNav() {
         <div className="flex items-center gap-3">
           {/* 페이지 제목 — 그라데이션 */}
           <h1 className="text-lg font-bold" style={{
-            background: 'linear-gradient(135deg, #0F172A 0%, #1A56DB 100%)',
+            background: 'linear-gradient(135deg, #0F172A 0%, #475569 100%)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text',
@@ -47,7 +47,7 @@ export default function TopNav() {
           {lastUpdated && (
             <span className="hidden md:flex items-center gap-1.5 text-xs" style={{ color: '#64748B' }}>
               {loading ? (
-                <span className="flex items-center gap-1" style={{ color: '#0EA5E9' }}>
+                <span className="flex items-center gap-1" style={{ color: '#475569' }}>
                   <span className="animate-pulse">●</span> 업데이트 중
                 </span>
               ) : (
@@ -66,23 +66,23 @@ export default function TopNav() {
         </div>
 
         <div className="flex items-center gap-2">
-          {/* 알림 버튼 — 블루 글로우 */}
+          {/* 알림 버튼 — 심플 슬레이트 */}
           <button
             className="relative p-2 rounded-xl transition-all duration-200"
             style={{
-              background: 'rgba(219,234,254,0.40)',
-              border: '1px solid rgba(147,197,253,0.40)',
+              background: 'rgba(241,245,249,0.60)',
+              border: '1px solid rgba(148,163,184,0.20)',
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.boxShadow = '0 0 12px rgba(26,86,219,0.18)';
-              e.currentTarget.style.borderColor = 'rgba(96,165,250,0.60)';
+              e.currentTarget.style.boxShadow = '0 2px 8px rgba(15,23,42,0.06)';
+              e.currentTarget.style.borderColor = 'rgba(148,163,184,0.40)';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.boxShadow = '';
-              e.currentTarget.style.borderColor = 'rgba(147,197,253,0.40)';
+              e.currentTarget.style.borderColor = 'rgba(148,163,184,0.20)';
             }}
           >
-            <svg viewBox="0 0 24 24" className="w-5 h-5" style={{ color: '#1A56DB' }} fill="none" stroke="currentColor" strokeWidth={1.8}>
+            <svg viewBox="0 0 24 24" className="w-5 h-5" style={{ color: '#475569' }} fill="none" stroke="currentColor" strokeWidth={1.8}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
             </svg>
             {unreadCount > 0 && (

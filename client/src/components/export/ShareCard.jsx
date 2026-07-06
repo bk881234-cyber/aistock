@@ -314,20 +314,19 @@ function Watermark() {
       justifyContent: 'space-between',
       borderTop: '1px solid rgba(255,255,255,0.06)',
     }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-        <div style={{
-          width: '20px', height: '20px', borderRadius: '5px',
-          background: 'linear-gradient(135deg, #1A56DB, #7C3AED)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: '8px', fontWeight: '900', color: '#fff',
-        }}>AI</div>
-        <span style={{ fontSize: '13px', fontWeight: '700', color: '#475569' }}>
-          AI<span style={{ color: '#6366f1' }}>stock</span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <img 
+          src="/logo.png" 
+          alt="Logo" 
+          style={{ width: '22px', height: '22px', objectFit: 'contain' }} 
+        />
+        <span style={{ fontSize: '13px', fontWeight: '800', color: '#475569', letterSpacing: '-0.3px' }}>
+          Stockify
         </span>
       </div>
       <div style={{ textAlign: 'right' }}>
         <p style={{ fontSize: '10px', color: '#334155', lineHeight: 1.3 }}>투자 판단의 책임은 본인에게 있습니다</p>
-        <p style={{ fontSize: '10px', color: '#334155' }}>aistock.app</p>
+        <p style={{ fontSize: '10px', color: '#334155' }}>stockify.app</p>
       </div>
     </div>
   );

@@ -4,10 +4,10 @@ export default {
   theme: {
     extend: {
       colors: {
-        // ── 브랜드 (Cool Blue / Cyan 계열) ───────────────────
-        primary:   { DEFAULT: '#1A56DB', light: '#EBF5FF', dark: '#1139A6' },
-        accent:    { DEFAULT: '#7C3AED', light: '#F3EFFE' },
-        cyan:      { DEFAULT: '#0EA5E9', light: '#E0F2FE', dark: '#0284C7' },
+        // ── 브랜드 (Minimalist Charcoal & Jet Black 계열) ───────
+        primary:   { DEFAULT: '#1E293B', light: '#F1F5F9', dark: '#0F172A' },
+        accent:    { DEFAULT: '#475569', light: '#F8FAFC' },
+        cyan:      { DEFAULT: '#64748B', light: '#F8FAFC', dark: '#475569' },
 
         // ── 시그널 (한국 관례: 상승=빨강, 하락=파랑) ─────────
         bull:    { DEFAULT: '#E84040', light: '#FEF2F2' },
@@ -21,20 +21,20 @@ export default {
 
         // ── 날씨 ──────────────────────────────────────────────
         sunny:         '#F59E0B',
-        partly_cloudy: '#60A5FA',
+        partly_cloudy: '#94A3B8',
         cloudy:        '#9CA3AF',
         rainy:         '#6366F1',
         thunderstorm:  '#EF4444',
 
-        // ── 베이스 (Cool Blue 화이트 테마) ────────────────────
+        // ── 베이스 (Charcoal / Slate 화이트 테마) ───────────────
         surface:    '#FFFFFF',
-        surface2:   '#F0F5FF',   // 블루 틴트 배경
-        surface3:   '#E8EFFE',   // 더 진한 블루 틴트
-        border:     'rgba(147, 197, 253, 0.5)',  // 블루 반투명 테두리
-        borderDark: '#BFDBFE',
+        surface2:   '#F8FAFC',   // 웜 슬레이트 그레이 연한 배경
+        surface3:   '#F1F5F9',   // 더 진한 슬레이트 배경
+        border:     'rgba(148, 163, 184, 0.15)',  // 슬레이트 반투명 테두리
+        borderDark: '#CBD5E1',
         text: {
           primary:   '#0F172A',
-          secondary: '#1E3A5F',
+          secondary: '#334155',
           muted:     '#64748B',
           faint:     '#94A3B8',
         },
@@ -48,22 +48,22 @@ export default {
       boxShadow: {
         // 기존 카드 그림자
         card:      '0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)',
-        cardHover: '0 4px 16px rgba(0,0,0,0.10), 0 2px 6px rgba(0,0,0,0.06)',
+        cardHover: '0 4px 16px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04)',
         ticker:    '0 1px 0 rgba(0,0,0,0.06)',
 
-        // ── Cool Blue 글로우 효과 ─────────────────────────────
-        'glow-blue': '0 0 16px rgba(26,86,219,0.22), 0 0 32px rgba(26,86,219,0.10), 0 2px 8px rgba(26,86,219,0.12)',
-        'glow-cyan': '0 0 16px rgba(14,165,233,0.28), 0 0 32px rgba(14,165,233,0.12)',
-        'glow-sm':   '0 0 8px rgba(26,86,219,0.20), 0 2px 4px rgba(26,86,219,0.10)',
-        'glow-xs':   '0 0 6px rgba(14,165,233,0.40)',
-        // 발광 노드 (데이터 포인트)
-        'node-blue': '0 0 6px rgba(14,165,233,0.90), 0 0 14px rgba(14,165,233,0.50)',
-        'node-cyan': '0 0 6px rgba(14,165,233,1.00), 0 0 18px rgba(14,165,233,0.60)',
+        // ── Minimalist 섀도우 효과 (형광 글로우 제거) ────────────
+        'glow-blue': '0 4px 12px rgba(15,23,42,0.06), 0 1px 3px rgba(15,23,42,0.04)',
+        'glow-cyan': '0 2px 8px rgba(15,23,42,0.04)',
+        'glow-sm':   '0 2px 6px rgba(15,23,42,0.03)',
+        'glow-xs':   '0 1px 3px rgba(15,23,42,0.02)',
+        // 발광 대신 미니멀 서클 보더
+        'node-blue': '0 0 0 2px rgba(148,163,184,0.20)',
+        'node-cyan': '0 0 0 2px rgba(148,163,184,0.30)',
         // 캡슐 컨테이너
-        'capsule':   '0 0 0 1px rgba(147,197,253,0.35), 0 4px 20px rgba(26,86,219,0.08)',
-        'capsule-hover': '0 0 0 1px rgba(96,165,250,0.55), 0 8px 28px rgba(26,86,219,0.15)',
+        'capsule':   '0 0 0 1px rgba(226,232,240,0.8), 0 2px 8px rgba(15,23,42,0.04)',
+        'capsule-hover': '0 0 0 1px rgba(203,213,225,1), 0 4px 16px rgba(15,23,42,0.08)',
         // 사이드바 로고
-        'logo-glow': '0 0 20px rgba(14,165,233,0.40), 0 0 40px rgba(26,86,219,0.20)',
+        'logo-glow': 'none',
       },
 
       borderRadius: {
@@ -73,16 +73,16 @@ export default {
       },
 
       backgroundImage: {
-        // 메인 그라데이션
-        'blue-grad':  'linear-gradient(135deg, #1A56DB 0%, #0EA5E9 100%)',
-        'blue-grad2': 'linear-gradient(160deg, #1139A6 0%, #1A56DB 50%, #0EA5E9 100%)',
+        // 메인 그라데이션 (차콜/블랙)
+        'blue-grad':  'linear-gradient(135deg, #1E293B 0%, #0F172A 100%)',
+        'blue-grad2': 'linear-gradient(160deg, #0F172A 0%, #1E293B 50%, #475569 100%)',
         // 카드 배경 그라데이션
-        'card-blue':  'linear-gradient(145deg, rgba(219,234,254,0.45) 0%, rgba(224,242,254,0.25) 100%)',
-        'card-cyan':  'linear-gradient(145deg, rgba(224,242,254,0.60) 0%, rgba(219,234,254,0.30) 100%)',
-        // 사이드바
-        'sidebar-grad': 'linear-gradient(180deg, #0F172A 0%, #1E3A5F 60%, #1A56DB 100%)',
-        // 글로우 오버레이
-        'glow-overlay': 'radial-gradient(ellipse at top, rgba(14,165,233,0.08) 0%, transparent 70%)',
+        'card-blue':  'linear-gradient(145deg, rgba(255,255,255,1) 0%, rgba(248,250,252,0.85) 100%)',
+        'card-cyan':  'linear-gradient(145deg, rgba(248,250,252,1) 0%, rgba(241,245,249,0.80) 100%)',
+        // 사이드바 (차콜 & 제트 블랙 밤하늘)
+        'sidebar-grad': 'linear-gradient(180deg, #09090B 0%, #18181B 60%, #27272A 100%)',
+        // 글로우 오버레이 제거
+        'glow-overlay': 'none',
       },
 
       animation: {
@@ -92,7 +92,7 @@ export default {
         'pulse-bull':    'pulse-bull 1.5s ease-in-out infinite',
         'pulse-bear':    'pulse-bear 1.5s ease-in-out infinite',
         'gauge-fill':    'gauge-fill .8s ease-out forwards',
-        // Cool Blue 전용 애니메이션
+        // Minimalist 전용 애니메이션 (불투명도 펄스)
         'pulse-node':    'pulse-node 2s ease-in-out infinite',
         'glow-breathe':  'glow-breathe 3s ease-in-out infinite',
         'shimmer':       'shimmer 2s linear infinite',
@@ -119,15 +119,15 @@ export default {
           '0%, 100%': { boxShadow: '0 0 0 0 rgba(37,99,235,.35)' },
           '50%':      { boxShadow: '0 0 0 6px rgba(37,99,235,0)' },
         },
-        // 발광 노드 펄스
+        // 발광 대신 투명도 펄스
         'pulse-node': {
-          '0%, 100%': { boxShadow: '0 0 6px rgba(14,165,233,0.9), 0 0 14px rgba(14,165,233,0.5)', transform: 'scale(1)' },
-          '50%':      { boxShadow: '0 0 10px rgba(14,165,233,1.0), 0 0 24px rgba(14,165,233,0.7)', transform: 'scale(1.2)' },
+          '0%, 100%': { opacity: '0.7', transform: 'scale(1)' },
+          '50%':      { opacity: '1.0', transform: 'scale(1.15)' },
         },
-        // 글로우 숨쉬기
+        // 글로우 숨쉬기 대신 그림자 숨쉬기
         'glow-breathe': {
-          '0%, 100%': { boxShadow: '0 0 16px rgba(26,86,219,0.20), 0 0 32px rgba(26,86,219,0.08)' },
-          '50%':      { boxShadow: '0 0 24px rgba(26,86,219,0.35), 0 0 48px rgba(26,86,219,0.15)' },
+          '0%, 100%': { boxShadow: '0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02)' },
+          '50%':      { boxShadow: '0 4px 12px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.03)' },
         },
         // 시머 효과
         'shimmer': {

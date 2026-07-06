@@ -47,4 +47,4 @@ const invalidateMarketCache = async () => {
   ]);
 };
 
-module.exports = { KEYS, TTL, withCache, invalidateMarketCache };
+module.exports = { KEYS, TTL, withCache, invalidateMarketCache, getCache, setCache, delCache };
