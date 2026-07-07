@@ -95,7 +95,7 @@ export default function TickerBar() {
   if (loading && sortedIdx.length === 0) {
     return (
       <div style={{
-        height: '36px', background: 'rgba(219,234,254,0.30)',
+        height: '48px', background: 'rgba(219,234,254,0.30)',
         borderBottom: '1px solid rgba(147,197,253,0.25)',
         display: 'flex', alignItems: 'center', padding: '0 24px',
       }}>
@@ -114,7 +114,7 @@ export default function TickerBar() {
   return (
     <div
       style={{
-        height: '36px',
+        height: '48px',
         background: 'linear-gradient(90deg, rgba(219,234,254,0.50) 0%, rgba(224,242,254,0.35) 50%, rgba(219,234,254,0.50) 100%)',
         borderBottom: '1px solid rgba(147,197,253,0.30)',
         overflow: 'hidden', position: 'relative',

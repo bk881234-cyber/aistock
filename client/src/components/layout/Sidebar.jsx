@@ -27,24 +27,18 @@ export default function Sidebar() {
       }}
     >
       {/* ── 로고 ── */}
-      <div className="px-5 py-4 flex-shrink-0" style={{ borderBottom: '1px solid rgba(148,163,184,0.10)' }}>
-        <Link to="/" className="flex items-center gap-2.5 no-underline">
+      <div className="px-5 py-4 flex-shrink-0 flex justify-center" style={{ borderBottom: '1px solid rgba(148,163,184,0.10)' }}>
+        <Link to="/" className="flex items-center justify-center no-underline">
           <img 
-            src="/logo.png" 
+            src="/logo-light.png" 
             alt="Stockify Logo" 
             style={{
-              width: '40px', 
-              height: '40px', 
+              width: '80px', 
+              height: '80px', 
               objectFit: 'contain',
               flexShrink: 0,
             }} 
           />
-          <div>
-            <p style={{ fontSize: '16px', fontWeight: '900', color: '#FFFFFF', lineHeight: 1.1, letterSpacing: '-0.3px' }}>
-              Stockify
-            </p>
-            <p style={{ fontSize: '10px', color: '#94A3B8', marginTop: '2px' }}>주식 트래커</p>
-          </div>
         </Link>
       </div>
 

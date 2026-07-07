@@ -153,17 +153,23 @@ export default function TVChart({ symbol, candleData = [], name = '' }) {
         </div>
 
         {/* 인터벌 탭 */}
-        <div className="flex gap-1">
+        <div className="flex rounded-lg p-0.5 gap-0.5" style={{
+          background: 'rgba(241,245,249,0.80)',
+          border: '1px solid rgba(148,163,184,0.20)',
+        }}>
           {INTERVALS.map(({ label, value }) => (
             <button
               key={value}
               onClick={() => setInterval_(value)}
-              className={clsx(
-                'px-2.5 py-1 rounded text-xs font-medium transition-colors',
-                interval === value
-                  ? 'bg-primary text-white'
-                  : 'text-text-muted hover:bg-surface2'
-              )}
+              style={{
+                padding: '4px 8px', fontSize: '11px', fontWeight: '600',
+                borderRadius: '6px', transition: 'all 0.15s',
+                background: interval === value
+                  ? 'linear-gradient(135deg, #1E293B 0%, #0F172A 100%)'
+                  : 'transparent',
+                color: interval === value ? '#fff' : '#64748B',
+                boxShadow: interval === value ? '0 2px 6px rgba(15,23,42,0.15)' : 'none',
+              }}
             >
               {label}
             </button>

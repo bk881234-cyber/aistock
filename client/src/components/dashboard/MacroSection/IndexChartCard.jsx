@@ -126,8 +126,8 @@ export default function IndexChartCard({ data }) {
 
       {/* 기간 탭 — 차트 바로 아래, 카드 풀너비 */}
       <div className="flex rounded-lg p-0.5 gap-0.5" style={{
-        background: 'rgba(219,234,254,0.50)',
-        border: '1px solid rgba(147,197,253,0.30)',
+        background: 'rgba(241,245,249,0.80)',
+        border: '1px solid rgba(148,163,184,0.20)',
       }}>
         {PERIODS.map((p) => (
           <button
@@ -138,10 +138,10 @@ export default function IndexChartCard({ data }) {
               padding: '4px 0', fontSize: '11px', fontWeight: '600',
               borderRadius: '6px', transition: 'all 0.15s',
               background: period === p.key
-                ? 'linear-gradient(135deg, #1A56DB, #0EA5E9)'
+                ? 'linear-gradient(135deg, #1E293B 0%, #0F172A 100%)'
                 : 'transparent',
               color: period === p.key ? '#fff' : '#64748B',
-              boxShadow: period === p.key ? '0 2px 6px rgba(26,86,219,0.25)' : 'none',
+              boxShadow: period === p.key ? '0 2px 6px rgba(15,23,42,0.15)' : 'none',
             }}
           >
             {p.label}
